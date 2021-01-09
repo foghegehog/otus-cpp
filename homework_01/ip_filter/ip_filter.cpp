@@ -98,11 +98,9 @@ int main()
         }
 
         // TODO reverse lexicographically sort
-        // Tuple comparison is performed in lexicographical order.
+        // Vector comparison is performed in lexicographical order.
         // As multiset iterator returns sorted items, 
         // use reverse iterator to obtain reverse lexicographical order.
-
-        //for(const auto &ip: ip_pool)
         for(auto reverse_iterator = ip_pool.rbegin(); reverse_iterator != ip_pool.rend(); reverse_iterator++)
         {
             output_ip(*reverse_iterator);
