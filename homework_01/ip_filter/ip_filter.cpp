@@ -1,15 +1,12 @@
 #include <algorithm>
-#include <array>
 #include <cassert>
 #include <cstdlib>
 #include <iostream>
 #include <set>
-#include <tuple>
 #include <string>
 #include <vector>
 
 using namespace std;
-typedef tuple<uint8_t, uint8_t, uint8_t, uint8_t> ip_tuple;
 
 // ("",  '.') -> [""]
 // ("11", '.') -> ["11"]
@@ -31,26 +28,35 @@ auto split(const string &str, char d)
     return r;
 }
 
-auto convert_to_byte_tuple(array<int, 4> ip)
-{
-    return make_tuple((uint8_t)ip[0], (uint8_t)ip[1], (uint8_t)ip[2], (uint8_t)ip[3]);
-}
-
 auto parse_ip(const string &str)
 {
     auto ip_strs = split(str, '.');
+    vector<uint8_t> bytes;
 
-    return convert_to_byte_tuple(array<int, 4>{
-        stoi(ip_strs[0]), stoi(ip_strs[1]), stoi(ip_strs[2]), stoi(ip_strs[3])});
+    for (auto const &part: ip_strs)
+    {
+        bytes.push_back(stoi(part));
+    }
+
+    return bytes;
 }
 
-void output_ip(ip_tuple ip)
+void output_ip(vector<uint8_t> ip)
 {
-    cout << (int)get<0>(ip) << "." << (int)get<1>(ip) << ".";
-    cout << (int)get<2>(ip) << "." << (int)get<3>(ip) << endl;
+    auto separator = "";
+    for_each(ip.cbegin(), ip.cend(), [&separator](uint8_t part)
+    {
+        cout << separator << (int)part;
+        separator = ".";
+    });
+
+    cout << endl;
 }
 
-void find_ip_range(multiset<ip_tuple> ip_index, ip_tuple not_less_ip, ip_tuple not_greater_ip)
+void find_ip_range(
+    multiset<vector<uint8_t>> ip_index,
+    vector<uint8_t> not_less_ip,
+    vector<uint8_t> not_greater_ip)
 {
     auto upper = ip_index.upper_bound(not_greater_ip);
     if (upper != ip_index.end())
@@ -80,10 +86,10 @@ int main()
     {
         // vector<vector<string>> ip_pool;
 
-        // As the task requires not only sorting but also searching some 'indexing' structure will be useful.
+        // As the task requires not only sorting but also searching, some 'indexing' structure will be useful.
         // Multisets are chosen because they are implemented with binary search trees 
         // having O(log(n)) search complexity and ordered iterator over sorted elements.
-        multiset<ip_tuple> ip_pool;
+        multiset<vector<uint8_t>> ip_pool;
 
         for(string line; getline(cin, line); )
         {
@@ -112,11 +118,11 @@ int main()
 
         // TODO filter by first byte and output
         // ip = filter(1)
-        find_ip_range(
+       find_ip_range(
             ip_pool,
-            convert_to_byte_tuple(array<int, 4> {1, 0, 0, 0}),
-            convert_to_byte_tuple(array<int, 4> {1, 255, 255, 255}));
-        
+            vector<uint8_t>{(uint8_t)1, (uint8_t)0, (uint8_t)0, (uint8_t)0},
+            vector<uint8_t>{(uint8_t)1, (uint8_t)255, (uint8_t)255, (uint8_t)255});
+
         // 1.231.69.33
         // 1.87.203.225
         // 1.70.44.170
@@ -127,8 +133,8 @@ int main()
         // ip = filter(46, 70)
         find_ip_range(
             ip_pool,
-            convert_to_byte_tuple(array<int, 4> {46, 70, 0, 0}),
-            convert_to_byte_tuple(array<int, 4> {46, 70, 255, 255}));
+            vector<uint8_t>{(uint8_t)46, (uint8_t)70, (uint8_t)0, (uint8_t)0},
+            vector<uint8_t>{(uint8_t)46, (uint8_t)70, (uint8_t)255, (uint8_t)255});            
 
         // 46.70.225.39
         // 46.70.147.26
@@ -136,15 +142,15 @@ int main()
         // 46.70.29.76
 
         // TODO filter by any byte and output
-        // Cannot invent more effective algorithm than just iterating throug.
-        // After all, full-record search is usially slow.
+
+        // Cannot invent more effective algorithm than just iterating through.
+        // After all, full-record search is usually slow.
         // ip = filter_any(46)
         auto searched_byte = (uint8_t)46;
         for(auto reverse_iterator = ip_pool.rbegin(); reverse_iterator != ip_pool.rend(); reverse_iterator++)
         {
             auto ip = *reverse_iterator;
-            if (get<0>(ip) == searched_byte || get<1>(ip) == searched_byte 
-                || get<2>(ip) == searched_byte || get<3>(ip) == searched_byte )
+            if(std::find(ip.begin(), ip.end(), searched_byte) != ip.end()) 
             {
                 output_ip(*reverse_iterator);
             }
