@@ -6,22 +6,31 @@ else()
     project(ip_filter VERSION 0.0.1)
 endif()
 
-add_executable(ip_filter ip_filter.cpp)
+find_package(GTest REQUIRED)
+include_directories(${GTEST_INCLUDE_DIR})
 
-set_target_properties(ip_filter PROPERTIES
+add_executable(ip_filter ip_filter.cpp)
+add_executable(google_test_ip google_test_ip.cpp)
+
+set_target_properties(ip_filter google_test_ip PROPERTIES
     CXX_STANDARD 14
     CXX_STANDARD_REQUIRED ON
 )
-target_include_directories(ip_filter
-    PRIVATE "${CMAKE_BINARY_DIR}"
-)
+
+target_link_libraries(google_test_ip gtest pthread)
 
 if (MSVC)
     target_compile_options(ip_filter PRIVATE
         /W4
     )
+    target_compile_options(google_test_ip PRIVATE
+        /W4
+    )
 else ()
     target_compile_options(ip_filter PRIVATE
+        -Wall -Wextra -pedantic -Werror
+    )
+    target_compile_options(google_test_ip PRIVATE
         -Wall -Wextra -pedantic -Werror
     )
 endif()
@@ -39,3 +48,8 @@ set(CPACK_PACKAGE_VERSION_PATCH "${PROJECT_VERSION_PATCH}")
 set(CPACK_PACKAGE_CONTACT example@example.com)
 
 include(CPack)
+
+
+enable_testing()
+
+add_test(google_test_ip google_test_ip)
