@@ -4,12 +4,13 @@ before_script:
 - echo "deb http://archive.ubuntu.com/ubuntu xenial main universe" | sudo tee -a /etc/apt/sources.list
 - sudo apt-get update -qq
 - git clone https://github.com/google/googletest.git -b release-1.10.0
-- cd googletest
+- pushd googletest
 - mkdir build
 - cd build
 - cmake ..
 - make
 - sudo make install
+- popd
 script:
 - cd ./homework_01/hello_build
 - cmake .
