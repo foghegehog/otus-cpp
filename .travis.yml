@@ -3,8 +3,21 @@ before_script:
 - sudo apt-get install libboost-test-dev -y
 - echo "deb http://archive.ubuntu.com/ubuntu xenial main universe" | sudo tee -a /etc/apt/sources.list
 - sudo apt-get update -qq
+- git clone https://github.com/google/googletest.git -b release-1.10.0
+- pushd googletest
+- mkdir build
+- cd build
+- cmake ..
+- make
+- sudo make install
+- popd
 script:
 - cd ./homework_01/hello_build
+- cmake .
+- cmake --build .
+- cmake --build . --target test
+- cmake --build . --target package
+- cd ../ip_filter
 - cmake .
 - cmake --build .
 - cmake --build . --target test
@@ -16,3 +29,9 @@ deploy:
   - curl -T helloworld-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb -uprickly-u:$BINTRAY_API_KEY "https://api.bintray.com/content/prickly-u/otus-cpp/otus-cpp-homework/$TRAVIS_BUILD_NUMBER/helloworld-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb;deb_distribution=trusty;deb_component=main;deb_architecture=amd64;publish=1"
   on:
     branch: hello_build
+- provider: script
+  skip_cleanup: true
+  script:
+  - curl -T ip_filter-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb -uprickly-u:$BINTRAY_API_KEY "https://api.bintray.com/content/prickly-u/otus-cpp/otus-cpp-homework/$TRAVIS_BUILD_NUMBER/ip_filter-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb;deb_distribution=trusty;deb_component=main;deb_architecture=amd64;publish=1"
+  on:
+    branch: ip
