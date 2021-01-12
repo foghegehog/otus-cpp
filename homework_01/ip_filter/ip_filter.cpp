@@ -39,7 +39,7 @@ auto parse_ip(const string &str)
     return bytes;
 }
 
-void output_ip(vector<uint8_t> ip)
+void output_ip(const vector<uint8_t> &ip)
 {
     auto separator = "";
     for_each(ip.cbegin(), ip.cend(), [&separator](uint8_t part)
@@ -52,9 +52,9 @@ void output_ip(vector<uint8_t> ip)
 }
 
 void find_ip_range(
-    multiset<vector<uint8_t>> ip_index,
-    vector<uint8_t> not_less_ip,
-    vector<uint8_t> not_greater_ip)
+    const multiset<vector<uint8_t>> &ip_index,
+    const vector<uint8_t> &not_less_ip,
+    const vector<uint8_t> &not_greater_ip)
 {
     auto upper = ip_index.upper_bound(not_greater_ip);
     if (upper != ip_index.end())
