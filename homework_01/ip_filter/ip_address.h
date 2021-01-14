@@ -23,6 +23,7 @@ class IpAddress
         bool operator>(const IpAddress &other) const;
         bool operator<(const IpAddress &other) const;
         bool operator!=(const IpAddress &other) const;
+        void SetByte(int index, T value);
         bool ContainsByte(T byte) const;
         void output_ip(ostream &os) const;
 
@@ -103,6 +104,12 @@ array<T, L> IpAddress<T, L, S>::parse_ip(const string &str)
     }
 
     return bytes;
+}
+
+template <typename T, ushort L, char S>
+void IpAddress<T, L, S>::SetByte(int index, T value)
+{
+    m_bytes[index] = value;
 }
 
 template <typename T, ushort L, char S>

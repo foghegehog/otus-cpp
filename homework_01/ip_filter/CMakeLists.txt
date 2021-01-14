@@ -10,7 +10,7 @@ find_package(GTest REQUIRED)
 include_directories(${GTEST_INCLUDE_DIR})
 
 add_executable(ip_filter ip_filter.cpp)
-add_library(lib string_lib.cpp)
+add_library(lib string_lib.cpp ip_storage.cpp)
 add_executable(google_test_ip google_test_ip.cpp)
 
 set_target_properties(ip_filter lib google_test_ip PROPERTIES
