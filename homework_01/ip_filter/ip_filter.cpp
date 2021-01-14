@@ -1,3 +1,5 @@
+#include "string_lib.h"
+
 #include <algorithm>
 #include <iostream>
 #include <set>
@@ -6,7 +8,7 @@
 
 using namespace std;
 
-// ("",  '.') -> [""]
+/*// ("",  '.') -> [""]
 // ("11", '.') -> ["11"]
 // ("..", '.') -> ["", "", ""]
 // ("11.", '.') -> ["11", ""]
@@ -24,7 +26,7 @@ auto split(const string &str, char d)
 
     r.push_back(str.substr(start));
     return r;
-}
+}*/
 
 auto parse_ip(const string &str)
 {
