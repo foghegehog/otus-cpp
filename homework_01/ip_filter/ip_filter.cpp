@@ -9,10 +9,18 @@
 
 using namespace std;
 
+typedef IpAddress<uint8_t, 4, '.'> IPv4;
+
+ostream& operator<<(std::ostream& os, const IPv4 &ip)
+{
+    ip.output_ip(os);
+    return os;
+}
+
 void find_ip_range(
-    const multiset<IpAddress> &ip_index,
-    const IpAddress &not_less_ip,
-    const IpAddress &not_greater_ip)
+    const multiset<IPv4> &ip_index,
+    const IPv4 &not_less_ip,
+    const IPv4 &not_greater_ip)
 {
     auto in_range_iterator = ip_index.upper_bound(not_greater_ip);
     if (in_range_iterator != ip_index.end())
@@ -46,12 +54,12 @@ int main()
         // Multisets are chosen because they are implemented with binary search trees 
         // having O(log(n)) search complexity and ordered iterator over sorted elements.
         //multiset<vector<uint8_t>> ip_pool;
-        multiset<IpAddress> ip_pool;
+        multiset<IPv4> ip_pool;
 
         for(string line; getline(cin, line); )
         {
             auto ip = split(line, '\t').at(0);
-            ip_pool.insert(IpAddress(ip));
+            ip_pool.insert(IPv4(ip));
         }
 
         // TODO reverse lexicographically sort
@@ -75,8 +83,8 @@ int main()
         // ip = filter(1)
        find_ip_range(
             ip_pool,
-            IpAddress({1, 0, 0, 0}),
-            IpAddress({1, 255, 255, 255}));
+            IPv4({1, 0, 0, 0}),
+            IPv4({1, 255, 255, 255}));
 
         // 1.231.69.33
         // 1.87.203.225
@@ -88,8 +96,8 @@ int main()
         // ip = filter(46, 70)
         find_ip_range(
             ip_pool,
-            IpAddress({46, 70, 0, 0}),
-            IpAddress({46, 70, 255, 255}));            
+            IPv4({46, 70, 0, 0}),
+            IPv4({46, 70, 255, 255}));            
 
         // 46.70.225.39
         // 46.70.147.26
