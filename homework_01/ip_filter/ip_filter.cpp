@@ -1,4 +1,5 @@
 #include "string_lib.h"
+#include "ip_address.h"
 
 #include <algorithm>
 #include <iostream>
@@ -8,53 +9,28 @@
 
 using namespace std;
 
-auto parse_ip(const string &str)
-{
-    auto ip_strs = split(str, '.');
-    vector<uint8_t> bytes;
-
-    for (auto const &part: ip_strs)
-    {
-        bytes.push_back(stoi(part));
-    }
-
-    return bytes;
-}
-
-void output_ip(const vector<uint8_t> &ip)
-{
-    auto separator = "";
-    for_each(ip.cbegin(), ip.cend(), [&separator](uint8_t part)
-    {
-        cout << separator << (int)part;
-        separator = ".";
-    });
-
-    cout << endl;
-}
-
 void find_ip_range(
-    const multiset<vector<uint8_t>> &ip_index,
-    const vector<uint8_t> &not_less_ip,
-    const vector<uint8_t> &not_greater_ip)
+    const multiset<IpAddress> &ip_index,
+    const IpAddress &not_less_ip,
+    const IpAddress &not_greater_ip)
 {
-    auto upper = ip_index.upper_bound(not_greater_ip);
-    if (upper != ip_index.end())
+    auto in_range_iterator = ip_index.upper_bound(not_greater_ip);
+    if (in_range_iterator != ip_index.end())
     {
-        while(--upper != ip_index.end() && *upper >= not_less_ip)
+        while(--in_range_iterator != ip_index.end() && *in_range_iterator >= not_less_ip)
         {
-            output_ip(*upper);
+            cout << *in_range_iterator;
         }
     }
     // That means that either the last element is less than upper boundary, 
     // or there are no elemets greater than lower boundary
     else
     {
-        auto upper_reverse = ip_index.rbegin();
-        while(upper_reverse != ip_index.rend() && *upper_reverse >= not_less_ip)
+        auto in_range_iterator = ip_index.rbegin();
+        while(in_range_iterator != ip_index.rend() && *in_range_iterator >= not_less_ip)
         {
-            output_ip(*upper_reverse);
-            upper_reverse++;
+            cout << *in_range_iterator;
+            in_range_iterator++;
         }
     }
 
@@ -69,12 +45,13 @@ int main()
         // As the task requires not only sorting but also searching, some 'indexing' structure will be useful.
         // Multisets are chosen because they are implemented with binary search trees 
         // having O(log(n)) search complexity and ordered iterator over sorted elements.
-        multiset<vector<uint8_t>> ip_pool;
+        //multiset<vector<uint8_t>> ip_pool;
+        multiset<IpAddress> ip_pool;
 
         for(string line; getline(cin, line); )
         {
             auto ip = split(line, '\t').at(0);
-            ip_pool.insert(parse_ip(ip));
+            ip_pool.insert(IpAddress(ip));
         }
 
         // TODO reverse lexicographically sort
@@ -83,7 +60,7 @@ int main()
         // use reverse iterator to obtain reverse lexicographical order.
         for(auto reverse_iterator = ip_pool.rbegin(); reverse_iterator != ip_pool.rend(); reverse_iterator++)
         {
-            output_ip(*reverse_iterator);
+            cout << *reverse_iterator;
         }
 
         // 222.173.235.246
@@ -98,8 +75,8 @@ int main()
         // ip = filter(1)
        find_ip_range(
             ip_pool,
-            vector<uint8_t>{(uint8_t)1, (uint8_t)0, (uint8_t)0, (uint8_t)0},
-            vector<uint8_t>{(uint8_t)1, (uint8_t)255, (uint8_t)255, (uint8_t)255});
+            IpAddress({1, 0, 0, 0}),
+            IpAddress({1, 255, 255, 255}));
 
         // 1.231.69.33
         // 1.87.203.225
@@ -111,8 +88,8 @@ int main()
         // ip = filter(46, 70)
         find_ip_range(
             ip_pool,
-            vector<uint8_t>{(uint8_t)46, (uint8_t)70, (uint8_t)0, (uint8_t)0},
-            vector<uint8_t>{(uint8_t)46, (uint8_t)70, (uint8_t)255, (uint8_t)255});            
+            IpAddress({46, 70, 0, 0}),
+            IpAddress({46, 70, 255, 255}));            
 
         // 46.70.225.39
         // 46.70.147.26
@@ -127,10 +104,9 @@ int main()
         auto searched_byte = (uint8_t)46;
         for(auto reverse_iterator = ip_pool.rbegin(); reverse_iterator != ip_pool.rend(); reverse_iterator++)
         {
-            auto ip = *reverse_iterator;
-            if(std::find(ip.begin(), ip.end(), searched_byte) != ip.end()) 
+            if(reverse_iterator->ContainsByte(searched_byte)) 
             {
-                output_ip(*reverse_iterator);
+                cout << *reverse_iterator; 
             }
         }
         // 186.204.34.46
