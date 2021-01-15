@@ -16,17 +16,13 @@ ostream& operator<<(std::ostream& os, const IPv4 &ip)
     return os;
 }
 
-void output_ip_storage_view(const View &view)
+void output_ips(StorageIterator &storage_iterator)
 {
-    auto iterator = view.start;
-    do
+    while (storage_iterator.elements_available())
     {
-        if (view.is_empty())
-            break;
-
-        cout << *iterator;
-    } 
-    while (iterator-- != view.stop);
+        cout << storage_iterator.get_current();
+        storage_iterator.move_next();
+    }
 }
 
 int main()
@@ -42,8 +38,8 @@ int main()
         }
 
         // TODO reverse lexicographically sort
-        auto reverse_view = ip_storage.get_all();
-        output_ip_storage_view(reverse_view);       
+        auto reverse_iterator = ip_storage.get_all();
+        output_ips(reverse_iterator);       
 
         // 222.173.235.246
         // 222.130.177.64
@@ -55,8 +51,8 @@ int main()
 
         // TODO filter by first byte and output
         // ip = filter(1)
-       auto filter_1_view = ip_storage.find_prefixed(vector<uint8_t>({1}));
-       output_ip_storage_view(filter_1_view);
+       auto filter_1_iterator = ip_storage.find_prefixed(vector<uint8_t>({1}));
+       output_ips(filter_1_iterator);
 
         // 1.231.69.33
         // 1.87.203.225
@@ -66,8 +62,8 @@ int main()
 
         // TODO filter by first and second bytes and output
         // ip = filter(46, 70)
-        auto filter_46_70_view = ip_storage.find_prefixed(vector<uint8_t>({46, 70}));
-        output_ip_storage_view(filter_46_70_view);            
+        auto filter_46_70_iterator = ip_storage.find_prefixed(vector<uint8_t>({46, 70}));
+        output_ips(filter_46_70_iterator);            
 
         // 46.70.225.39
         // 46.70.147.26

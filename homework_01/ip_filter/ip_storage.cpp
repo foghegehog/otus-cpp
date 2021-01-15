@@ -5,25 +5,12 @@
 
 using namespace std;
 
-View::View(const multiset<IPv4>::const_iterator &start,
-          const multiset<IPv4>::const_iterator &stop,
-          const multiset<IPv4>::const_iterator &storage_end)
-          :start(start), stop(stop), storage_end(storage_end)
-{
-}
-
-bool View::is_empty() const
-{
-    return start == storage_end;
-}
-
 void ReverseStorage::insert(const IPv4 &ip)
 {
     m_storage.insert(ip);
 }
 
-
-View ReverseStorage::get_all()
+StorageIterator ReverseStorage::get_all()
 {
     if (!m_storage.empty())
     {
@@ -31,15 +18,15 @@ View ReverseStorage::get_all()
         // navigate iterator back to get items in reverse lexicographical order.
         auto first = m_storage.cend();
         first--;
-        return View(first, m_storage.cbegin(), m_storage.cend());
+        return StorageIterator(first, m_storage.cbegin());
     }
     else
     {
-        return View(m_storage.cend(), m_storage.cend(), m_storage.cend());
+        return StorageIterator::create_empty();
     }
 }
 
-View ReverseStorage::find_prefixed(vector<uint8_t> prefix)
+StorageIterator ReverseStorage::find_prefixed(vector<uint8_t> prefix)
 {
     auto not_less_ip = IPv4({0, 0, 0, 0});
     auto not_greater_ip = IPv4({255, 255, 255, 255});
@@ -54,11 +41,11 @@ View ReverseStorage::find_prefixed(vector<uint8_t> prefix)
     if (*first >= not_less_ip)
     {
         auto last = m_storage.lower_bound(not_less_ip);
-        return View(first, last, m_storage.cend());
+        return StorageIterator(first, last);
     }
     else
     {
-        return View(m_storage.cend(), m_storage.cend(), m_storage.cend());
+        return StorageIterator::create_empty();
     }
     
 }
@@ -83,4 +70,42 @@ vector<IPv4> ReverseStorage::find_containing_byte(uint8_t searched_byte)
         }
     } 
     while (back_order_iterator != m_storage.begin());
+}
+
+StorageIterator::StorageIterator(const multiset<IPv4>::const_iterator &begin,
+          const multiset<IPv4>::const_iterator &end)
+          :m_current(begin), m_last(end)
+{
+}
+
+StorageIterator::StorageIterator()
+{
+    m_no_more_elements = true;
+}
+
+StorageIterator StorageIterator::create_empty()
+{
+    return StorageIterator();
+}
+
+bool StorageIterator::elements_available() const
+{
+    return !m_no_more_elements;
+}
+
+IPv4 StorageIterator::get_current() const
+{
+    return *m_current;
+}
+
+void StorageIterator::move_next()
+{
+    if (m_current == m_last)
+    {
+        m_no_more_elements = true;
+    } 
+    else
+    {
+        m_current--;
+    }
 }
