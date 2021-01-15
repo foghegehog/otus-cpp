@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <array>
 #include <iostream>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -37,11 +38,25 @@ template <typename T, ushort L, char S>
 IpAddress<T, L, S>::IpAddress(const string &str)
 {
     auto ip_strs = split(str, S);
-    int i = 0;
 
+    if (ip_strs.size() != L)
+    {
+        auto what = "Incorrect number of parts in ip string '" + str + "'. Expected: " + to_string(L); 
+        throw invalid_argument(what);
+    }
+
+    int i = 0;
     for (auto const &part: ip_strs)
     {
-        m_bytes[i++] = stoi(part);
+        try
+        {
+            m_bytes[i++] = stoi(part);
+        }
+        catch(const exception &e)
+        {
+            auto what = "Invalid input string with IP: '" + str + "'. Details: " + e.what();
+            throw invalid_argument(what);
+        }
     }
 }
 
