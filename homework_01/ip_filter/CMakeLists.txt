@@ -10,14 +10,16 @@ find_package(GTest REQUIRED)
 include_directories(${GTEST_INCLUDE_DIR})
 
 add_executable(ip_filter ip_filter.cpp)
+add_library(lib string_lib.cpp ip_storage.cpp)
 add_executable(google_test_ip google_test_ip.cpp)
 
-set_target_properties(ip_filter google_test_ip PROPERTIES
+set_target_properties(ip_filter lib google_test_ip PROPERTIES
     CXX_STANDARD 14
     CXX_STANDARD_REQUIRED ON
 )
 
-target_link_libraries(google_test_ip gtest pthread)
+target_link_libraries(ip_filter PRIVATE lib)
+target_link_libraries(google_test_ip lib gtest pthread)
 
 if (MSVC)
     target_compile_options(ip_filter PRIVATE

@@ -1,3 +1,7 @@
+#include "string_lib.h"
+#include "ip_address.h"
+#include "ip_storage.h"
+
 #include <algorithm>
 #include <iostream>
 #include <set>
@@ -6,103 +10,36 @@
 
 using namespace std;
 
-// ("",  '.') -> [""]
-// ("11", '.') -> ["11"]
-// ("..", '.') -> ["", "", ""]
-// ("11.", '.') -> ["11", ""]
-// (".11", '.') -> ["", "11"]
-// ("11.22", '.') -> ["11", "22"]
-auto split(const string &str, char d)
+ostream& operator<<(std::ostream& os, const IPv4 &ip)
 {
-    vector<string> r;
-    string::size_type start = 0;
-    for(auto stop = str.find_first_of(d); stop != string::npos; stop = str.find_first_of(d, start))
-    {
-        r.push_back(str.substr(start, stop - start));
-        start = stop + 1;
-    }
-
-    r.push_back(str.substr(start));
-    return r;
+    ip.output_ip(os);
+    return os;
 }
 
-auto parse_ip(const string &str)
+void output_ips(StorageIterator &storage_iterator)
 {
-    auto ip_strs = split(str, '.');
-    vector<uint8_t> bytes;
-
-    for (auto const &part: ip_strs)
+    while (storage_iterator.elements_available())
     {
-        bytes.push_back(stoi(part));
+        cout << storage_iterator.get_current();
+        storage_iterator.move_next();
     }
-
-    return bytes;
-}
-
-void output_ip(vector<uint8_t> ip)
-{
-    auto separator = "";
-    for_each(ip.cbegin(), ip.cend(), [&separator](uint8_t part)
-    {
-        cout << separator << (int)part;
-        separator = ".";
-    });
-
-    cout << endl;
-}
-
-void find_ip_range(
-    multiset<vector<uint8_t>> ip_index,
-    vector<uint8_t> not_less_ip,
-    vector<uint8_t> not_greater_ip)
-{
-    auto upper = ip_index.upper_bound(not_greater_ip);
-    if (upper != ip_index.end())
-    {
-        while(--upper != ip_index.end() && *upper >= not_less_ip)
-        {
-            output_ip(*upper);
-        }
-    }
-    // That means that either the last element is less than upper boundary, 
-    // or there are no elemets greater than lower boundary
-    else
-    {
-        auto upper_reverse = ip_index.rbegin();
-        while(upper_reverse != ip_index.rend() && *upper_reverse >= not_less_ip)
-        {
-            output_ip(*upper_reverse);
-            upper_reverse++;
-        }
-    }
-
 }
 
 int main()
 {
     try
     {
-        // vector<vector<string>> ip_pool;
-
-        // As the task requires not only sorting but also searching, some 'indexing' structure will be useful.
-        // Multisets are chosen because they are implemented with binary search trees 
-        // having O(log(n)) search complexity and ordered iterator over sorted elements.
-        multiset<vector<uint8_t>> ip_pool;
+        ReverseStorage ip_storage;
 
         for(string line; getline(cin, line); )
         {
-            auto ip = split(line, '\t').at(0);
-            ip_pool.insert(parse_ip(ip));
+            auto ip_str = split(line, '\t').at(0);
+            ip_storage.insert(IPv4(ip_str));
         }
 
         // TODO reverse lexicographically sort
-        // Vector comparison is performed in lexicographical order.
-        // As multiset iterator returns sorted items, 
-        // use reverse iterator to obtain reverse lexicographical order.
-        for(auto reverse_iterator = ip_pool.rbegin(); reverse_iterator != ip_pool.rend(); reverse_iterator++)
-        {
-            output_ip(*reverse_iterator);
-        }
+        auto reverse_iterator = ip_storage.get_all();
+        output_ips(reverse_iterator);       
 
         // 222.173.235.246
         // 222.130.177.64
@@ -114,10 +51,8 @@ int main()
 
         // TODO filter by first byte and output
         // ip = filter(1)
-       find_ip_range(
-            ip_pool,
-            vector<uint8_t>{(uint8_t)1, (uint8_t)0, (uint8_t)0, (uint8_t)0},
-            vector<uint8_t>{(uint8_t)1, (uint8_t)255, (uint8_t)255, (uint8_t)255});
+       auto filter_1_iterator = ip_storage.find_prefixed(vector<uint8_t>({1}));
+       output_ips(filter_1_iterator);
 
         // 1.231.69.33
         // 1.87.203.225
@@ -127,10 +62,8 @@ int main()
 
         // TODO filter by first and second bytes and output
         // ip = filter(46, 70)
-        find_ip_range(
-            ip_pool,
-            vector<uint8_t>{(uint8_t)46, (uint8_t)70, (uint8_t)0, (uint8_t)0},
-            vector<uint8_t>{(uint8_t)46, (uint8_t)70, (uint8_t)255, (uint8_t)255});            
+        auto filter_46_70_iterator = ip_storage.find_prefixed(vector<uint8_t>({46, 70}));
+        output_ips(filter_46_70_iterator);            
 
         // 46.70.225.39
         // 46.70.147.26
@@ -138,19 +71,13 @@ int main()
         // 46.70.29.76
 
         // TODO filter by any byte and output
-
-        // Cannot invent more effective algorithm than just iterating through.
-        // After all, full-record search is usually slow.
-        // ip = filter_any(46)
-        auto searched_byte = (uint8_t)46;
-        for(auto reverse_iterator = ip_pool.rbegin(); reverse_iterator != ip_pool.rend(); reverse_iterator++)
+         // ip = filter_any(46)
+        vector<IPv4> filter_any_46 = ip_storage.find_containing_byte((uint8_t)46);
+        for(const auto &ip: filter_any_46)
         {
-            auto ip = *reverse_iterator;
-            if(std::find(ip.begin(), ip.end(), searched_byte) != ip.end()) 
-            {
-                output_ip(*reverse_iterator);
-            }
+            cout << ip;
         }
+
         // 186.204.34.46
         // 186.46.222.194
         // 185.46.87.231
