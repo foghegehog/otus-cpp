@@ -23,21 +23,10 @@ class custom_tuple<Head, Tail...> : public custom_tuple<Tail...>
 {
     public:
         custom_tuple(){};
-        /*custom_tuple(Head head, const Tail...tail)
-            :member(head), custom_tuple<Tail...>(tail...)
-        {
-        };*/
-
          custom_tuple(const Head &head, const Tail&...tail)
             :member(head), custom_tuple<Tail...>(tail...)
         {
         };
-
-        /*custom_tuple(const custom_tuple<Head, Tail...> &other)
-            :custom_tuple<Tail...>(other)
-        {
-            member = other.member;
-        };*/
 
         template<typename OHead, typename...OTail>
         custom_tuple<Head, Tail...>& operator=(const custom_tuple<OHead, OTail...> &other)
@@ -90,7 +79,6 @@ auto getPerson()
     const size_t age = 23;
     const string department = "Sale";
     return custom_tuple<string, string, size_t, string>(name, secondName, age, department);
-    //return custom_tuple<size_t, size_t>(age, age);
 }
 
 int main(int argc, char * argv[]) 
