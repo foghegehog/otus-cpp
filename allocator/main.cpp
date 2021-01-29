@@ -1,9 +1,9 @@
+#include "custom_queue.h"
 #include "reserving_allocator.h"
 
 #include <cassert>
 #include <iostream>
 #include <map>
-
 
 int main(int, char *[]) 
 {
@@ -30,6 +30,29 @@ int main(int, char *[])
     {
         assert(standard_map[i] == reserved_map[i]);
         std::cout << i << " " << reserved_map[i] << std::endl;
+    }
+
+    auto custom_container = custom_queue<int, 10, std::allocator<int>>();
+    for (int i = 0; i <= 9; ++i)
+    {
+        custom_container.push_back(i);
+    }
+
+    auto custom_reserving_container = custom_queue<int, 10, reserving_allocator<int, 10>>();
+    for (int i = 0; i <= 9; ++i)
+    {
+        custom_reserving_container.push_back(i);
+    }
+
+    for (int i = 0; i <= 9; ++i)
+    {
+        auto custom_front = custom_container.pop_front();
+        auto custom_reserving_front = custom_reserving_container.pop_front();
+
+        assert(custom_front == i);
+        assert(custom_reserving_front == i);
+
+        std::cout << custom_reserving_front << std::endl;
     }
 
     return 0;
