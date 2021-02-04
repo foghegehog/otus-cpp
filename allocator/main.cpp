@@ -20,6 +20,12 @@ int main(int, char *[])
         std::less<int>,
         reserving_allocator<std::pair<int, int>, 10>>{};
 
+    /*auto reserved_map = std::map<
+        int,
+        int,
+        std::less<int>,
+        reserving_allocator<std::pair<int, int>, 3>>{};*/
+
     reserved_map[0] = 1;
     for (int i = 1; i <= 9; ++i)
     {
@@ -39,6 +45,7 @@ int main(int, char *[])
     }
 
     auto custom_reserving_container = custom_queue<int, 10, reserving_allocator<int, 10>>();
+    //auto custom_reserving_container = custom_queue<int, 10, reserving_allocator<int, 7>>();
     for (int i = 0; i <= 9; ++i)
     {
         custom_reserving_container.push_back(i);

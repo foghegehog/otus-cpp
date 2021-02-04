@@ -1,6 +1,9 @@
 #pragma once
 
+#include "memory_block.h"
+
 #include <cstdlib>
+#include <forward_list>
 #include <new>
 
 template<typename T, size_t M>
@@ -20,6 +23,8 @@ struct reserving_allocator
     };
 
     const size_t MAX_ELEMENTS = M;
+
+    std::forward_list<memory_block<T, M>> m_blocks;
     void* m_memory = nullptr;
     size_t m_allocated_count = 0;
 
@@ -39,6 +44,16 @@ struct reserving_allocator
     {
     }
 
+    void allocate_memory_block()
+    {
+        m_memory = std::malloc(MAX_ELEMENTS * sizeof(T));
+        if (!m_memory)
+            throw std::bad_alloc(); 
+                
+        auto block = memory_block<T, M>{reinterpret_cast<T *>(m_memory)};
+        m_blocks.emplace_front(block);
+    }
+
     T *allocate(std::size_t n) 
     {
         if (n > MAX_ELEMENTS)
@@ -46,23 +61,32 @@ struct reserving_allocator
             throw std::bad_alloc(); 
         }
 
-        if (m_memory == nullptr)
+        if (m_blocks.empty())
         {
-            m_memory = std::malloc(MAX_ELEMENTS * sizeof(T));
-            if (!m_memory)
-                throw std::bad_alloc(); 
+            allocate_memory_block();
         }
 
-        if (m_allocated_count + n <= MAX_ELEMENTS)
+        for(auto& block : m_blocks)
         {
-            auto allocation = reinterpret_cast<T *>(m_memory) + m_allocated_count; 
-            m_allocated_count += n;
-            return allocation;
+            auto free_area = block.try_get_free_memory(n);
+            if (free_area != nullptr)
+            {
+                return free_area;
+            }
+        }
+
+        allocate_memory_block();
+        auto free_area = m_blocks.front().try_get_free_memory(n);
+        if (free_area != nullptr)
+        {
+            return free_area;
         }
         else
         {
             throw std::bad_alloc();
         }
+        
+
     }
 
     void deallocate(T *p, std::size_t n) 
