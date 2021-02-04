@@ -25,17 +25,13 @@ struct reserving_allocator
     const size_t MAX_ELEMENTS = M;
 
     std::forward_list<memory_block<T, M>> m_blocks;
-    void* m_memory = nullptr;
-    size_t m_allocated_count = 0;
 
     reserving_allocator() = default;
     ~reserving_allocator()
     {
-        if (m_memory != nullptr)
+        for(auto& block : m_blocks)
         {
-            free(m_memory);
-            m_memory = nullptr;
-            m_allocated_count = 0;
+            free(block.get_memory());
         }
     }
 
@@ -46,11 +42,11 @@ struct reserving_allocator
 
     void allocate_memory_block()
     {
-        m_memory = std::malloc(MAX_ELEMENTS * sizeof(T));
-        if (!m_memory)
+        auto memory = std::malloc(MAX_ELEMENTS * sizeof(T));
+        if (!memory)
             throw std::bad_alloc(); 
                 
-        auto block = memory_block<T, M>{reinterpret_cast<T *>(m_memory)};
+        auto block = memory_block<T, M>{reinterpret_cast<T *>(memory)};
         m_blocks.emplace_front(block);
     }
 
@@ -85,8 +81,6 @@ struct reserving_allocator
         {
             throw std::bad_alloc();
         }
-        
-
     }
 
     void deallocate(T *p, std::size_t n) 

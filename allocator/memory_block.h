@@ -68,6 +68,11 @@ class memory_block
 
         }
 
+        T* get_memory()
+        {
+            return m_memory;
+        }
+
     private:
         T* m_memory;
         const size_t MAX_ELEMENTS = M;
