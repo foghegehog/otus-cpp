@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <forward_list>
 #include <new>
+#include <stdexcept> 
 
 template<typename T, size_t M>
 struct reserving_allocator 
@@ -85,6 +86,16 @@ struct reserving_allocator
 
     void deallocate(T *p, std::size_t n) 
     {
+        for(auto& block : m_blocks)
+        {
+            if (block.contains_pointer(p))
+            {
+                block.mark_as_free(p, n);
+                return;
+            }
+        }
+
+        throw std::out_of_range("Invalid pointer");
     }
 
     template<typename U, typename ...Args>

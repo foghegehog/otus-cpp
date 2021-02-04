@@ -2,6 +2,7 @@
 
 #include <cstdlib>
 #include <forward_list>
+#include <stdexcept> 
 
 template<typename T>
 class free_area
@@ -28,6 +29,37 @@ class free_area
         bool is_empty() const
         {
             return m_count == 0;
+        }
+
+        bool is_after(const T* address) const
+        {
+            return address < m_start;
+        }
+
+        bool adjoins_left(const T* address) const
+        {
+            return address == m_start;
+        }
+
+        void merge_left(T* area, size_t n)
+        {
+            m_start = area;
+            m_count += n;
+        }
+
+        bool is_before(const T* address)
+        {
+            return m_start + m_count < address;
+        }
+
+        bool adjoins_right(const T* address) const
+        {
+            return m_start + m_count == address;
+        }
+
+        void merge_right(T* area, size_t n)
+        {
+            m_count += n;
         }
 
     private:
@@ -65,7 +97,47 @@ class memory_block
             }
 
             return nullptr;
+        }
 
+        bool contains_pointer(const T* area) const
+        {
+            return (area >= m_memory) && (area < m_memory + MAX_ELEMENTS);
+        }
+
+        void mark_as_free(T* area, size_t n)
+        {
+            if ((area < m_memory) || (area >= m_memory + MAX_ELEMENTS))
+                throw std::out_of_range("Attempt to free pointer in the wrong block");
+
+            auto area_end = area + n;
+            auto prev_free = m_free_areas.before_begin();
+            for (auto current_free = m_free_areas.begin(); current_free != m_free_areas.end(); ++current_free)
+            {
+                if (current_free->is_after(area_end))
+                {
+                    auto new_free_area = free_area<T>{area, n};
+                    m_free_areas.emplace_after(prev_free, new_free_area);
+                    return;
+                }
+
+                if (current_free->adjoins_left(area_end))
+                {
+                    current_free->merge_left(area_end, n);
+                    return;
+                }
+                
+                if (current_free->adjoins_right(area))
+                {
+                    current_free->merge_right(area, n);
+                    return;
+                }
+
+                prev_free = current_free;
+            }
+
+            // iterated through the whole list, new area is after the last element
+            auto new_free_area = free_area<T>{area, n};
+            m_free_areas.emplace_after(prev_free, new_free_area);
         }
 
         T* get_memory()

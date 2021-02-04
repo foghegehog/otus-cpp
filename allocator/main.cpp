@@ -36,6 +36,8 @@ int main(int, char *[])
     {
         assert(standard_map[i] == reserved_map[i]);
         std::cout << i << " " << reserved_map[i] << std::endl;
+        //reserved_map.erase(i);
+        //reserved_map[i] = i;
     }
 
     auto custom_container = custom_queue<int, 10, std::allocator<int>>();
