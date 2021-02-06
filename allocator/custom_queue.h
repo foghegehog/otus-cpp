@@ -83,11 +83,18 @@ class custom_queue
             }
 
             m_back = element_memory;
+
+            m_size++;
         }
 
-        bool has_elements() const
+        bool empty() const
         {
             return m_front != &m_dummy_end;
+        }
+
+        size_t size() const
+        {
+            return m_size;
         }
 
         T pop_front()
@@ -102,6 +109,8 @@ class custom_queue
             m_front = m_front->m_next;
 
             free_element(front_ptr);
+
+            m_size--;
 
             return data;
         }
@@ -130,6 +139,7 @@ class custom_queue
        allocator m_data_allocator;
        queue_element<T> m_dummy_end{nullptr, nullptr};
        queue_element<T>* m_front = &m_dummy_end;
-       queue_element<T>* m_back = &m_dummy_end; 
+       queue_element<T>* m_back = &m_dummy_end;
+       size_t m_size = 0; 
 
 };
