@@ -2,8 +2,11 @@
 
 #include "reserving_allocator.h"
 
+#include <cstddef>
 #include <cstdlib>
-#include <stdexcept> 
+#include <iterator>
+#include <stdexcept>
+ 
 
 template<typename T>
 struct queue_element
@@ -20,6 +23,48 @@ template<typename T, size_t S, typename allocator>
 class custom_queue
 {
     public:
+        struct Iterator 
+        {
+            using iterator_category = std::forward_iterator_tag;
+            using difference_type   = std::ptrdiff_t;
+            using value_type        = T;
+            using pointer           = T*;
+            using reference         = T&;
+
+            Iterator(queue_element<T>* ptr) : m_ptr(ptr) {}
+
+            reference operator*() const { return *(m_ptr->m_data); }
+            pointer operator->() { return m_ptr->m_data; }
+            Iterator& operator++() 
+            {
+                m_ptr = m_ptr->m_next; 
+                return *this; 
+            }  
+
+            Iterator operator++(int)
+            {
+                Iterator tmp = *this;
+                ++(*this);
+                return tmp; 
+            }
+
+            friend bool operator== (const Iterator& a, const Iterator& b) 
+            {
+                return a.m_ptr == b.m_ptr; 
+            };
+
+            friend bool operator!= (const Iterator& a, const Iterator& b)
+            {
+                return a.m_ptr != b.m_ptr; 
+            };  
+
+        private:
+            queue_element<T>* m_ptr;
+        };
+
+        Iterator begin() { return Iterator(m_front); }
+        Iterator end()   { return Iterator(&m_dummy_end); }
+
         void push_back(const T& data)
         {
             auto data_memory = m_data_allocator.allocate(1);
@@ -61,18 +106,17 @@ class custom_queue
             return data;
         }
 
-    ~custom_queue()
-    {
-        while (m_front != &m_dummy_end)
+        ~custom_queue()
         {
-            auto front_ptr = m_front;
-            m_front = m_front->m_next;
-            free_element(front_ptr);
+            while (m_front != &m_dummy_end)
+            {
+                auto front_ptr = m_front;
+                m_front = m_front->m_next;
+                free_element(front_ptr);
+            }
         }
-    }
 
     private:
-
         void free_element(queue_element<T>* element_ptr)
         {
             m_data_allocator.destroy(element_ptr->m_data);
@@ -87,4 +131,5 @@ class custom_queue
        queue_element<T> m_dummy_end{nullptr, nullptr};
        queue_element<T>* m_front = &m_dummy_end;
        queue_element<T>* m_back = &m_dummy_end; 
+
 };

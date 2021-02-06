@@ -46,6 +46,12 @@ int main(int, char *[])
         custom_container.push_back(i);
     }
 
+    int i = 0;
+    for (auto it = custom_container.begin(); it != custom_container.end(); ++it)
+    {
+        assert(*it == i++);
+    }
+
     auto custom_reserving_container = custom_queue<int, 10, reserving_allocator<int, 10>>();
     //auto custom_reserving_container = custom_queue<int, 10, reserving_allocator<int, 7>>();
     for (int i = 0; i <= 9; ++i)
@@ -53,15 +59,9 @@ int main(int, char *[])
         custom_reserving_container.push_back(i);
     }
 
-    for (int i = 0; i <= 9; ++i)
+    for (auto it = custom_reserving_container.begin(); it != custom_reserving_container.end(); ++it)
     {
-        auto custom_front = custom_container.pop_front();
-        auto custom_reserving_front = custom_reserving_container.pop_front();
-
-        assert(custom_front == i);
-        assert(custom_reserving_front == i);
-
-        std::cout << custom_reserving_front << std::endl;
+        std::cout << *it << std::endl;
     }
 
     return 0;
