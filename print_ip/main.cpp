@@ -17,14 +17,15 @@ print_ip(I number)
     cout << (number & mask) << endl;
 }
 
-template <typename CharT>
-void print_ip(basic_string<CharT> str)
+template <typename S>
+typename enable_if<is_same<string, S>::value>::type
+print_ip(S str)
 {
     cout << str << endl;
 }
 
 template <typename C>
-decltype(begin(declval<C>()), end(declval<C>()), void())
+decltype(begin(declval<C>()), end(declval<C>()), typename enable_if<!is_same<string, C>::value>::type())
 print_ip(C container)
 {
     string separator = "";
