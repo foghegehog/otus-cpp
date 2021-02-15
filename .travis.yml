@@ -1,4 +1,8 @@
 language: cpp
+addons:
+  apt:
+    packages:
+      - doxygen
 before_script:
 - sudo apt-get install libboost-test-dev -y
 - echo "deb http://archive.ubuntu.com/ubuntu xenial main universe" | sudo tee -a /etc/apt/sources.list
@@ -26,6 +30,11 @@ script:
 - cmake .
 - cmake --build .
 - cmake --build . --target package
+- cd ../../print_ip
+- cmake .
+- cmake --build .
+- cmake --build . --target package
+- doxygen Doxyfile
 deploy:
 - provider: script
   skip_cleanup: true
@@ -45,3 +54,16 @@ deploy:
   - curl -T reserving_allocator-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb -uprickly-u:$BINTRAY_API_KEY "https://api.bintray.com/content/prickly-u/otus-cpp/otus-cpp-homework/$TRAVIS_BUILD_NUMBER/reserving_allocator-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb;deb_distribution=trusty;deb_component=main;deb_architecture=amd64;publish=1"
   on:
     branch: allocator
+- provider: script
+  skip_cleanup: true
+  script:
+  - curl -T print_ip-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb -uprickly-u:$BINTRAY_API_KEY "https://api.bintray.com/content/prickly-u/otus-cpp/otus-cpp-homework/$TRAVIS_BUILD_NUMBER/print_ip-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb;deb_distribution=trusty;deb_component=main;deb_architecture=amd64;publish=1"
+  on:
+    branch: print_ip
+- provider: pages
+  skip_cleanup: true
+  local_dir: print_ip/html
+  github_token: $GITHUB_TOKEN  
+  keep_history: true
+  on:
+    branch: print_ip
