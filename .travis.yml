@@ -30,7 +30,7 @@ script:
 - cmake .
 - cmake --build .
 - cmake --build . --target package
-- cd ../../print_ip
+- cd ../print_ip
 - cmake .
 - cmake --build .
 - cmake --build . --target package
