@@ -1,12 +1,13 @@
 #include <iostream>
 #include <list>
 #include <tuple>
+#include <type_traits>
 #include <vector>
 
 using namespace std;
 
 template <typename I>
-decltype((declval<I>() >> 1), (declval<I>() & (unsigned short)1), void())
+typename enable_if<is_integral<I>::value, void>::type
 print_ip(const I &number)
 {
     unsigned short mask = 0b11111111;
