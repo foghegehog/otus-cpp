@@ -26,6 +26,9 @@ script:
 - cmake .
 - cmake --build .
 - cmake --build . --target package
+- cd ../../editor
+- cmake .
+- cmake --build .
 deploy:
 - provider: script
   skip_cleanup: true
