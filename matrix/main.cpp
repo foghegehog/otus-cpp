@@ -16,5 +16,7 @@ int main (int, char **)
     assert(matrix[100][100] == 314);
     assert(matrix.size() == 1);
 
+    cout << matrix[100][100] << endl;
+
     return 0;
 }

@@ -24,11 +24,11 @@ template<typename T, size_t N>
 class cell_proxy : public indexer 
 {
     public:
-        cell_proxy(cell_owner<T>* cell_owner, int index)
+        cell_proxy(cell_owner<T>* cell_owner, int first_index)
             :m_cell_owner(cell_owner)
         {
             Rank = N;
-            m_indexes[m_dimention++] = index;
+            m_indexes[m_dimention++] = first_index;
         }
 
         cell_proxy& operator[](int index)
@@ -69,45 +69,109 @@ struct sparse_size_change
     int change;
 }; 
 
-template<typename T, size_t N, T defval>
-class tensor
+template<typename Stored, typename T, T defval>
+class sparse_searcher
 {
     public:
-        T get_value(indexer* indxr)
+        static T get_value(indexer* indxr, size_t N, map<int, Stored> stored)
         {
             int index_pos = indxr->Rank - N; 
             int index = indxr->get_index(index_pos);
-            auto iter = m_projection.find(index); 
-            if (iter == m_projection.end())
+            auto iter = stored.find(index); 
+            if (iter == stored.end())
             {
                 return defval;
             }
             else
             {
-                auto projection = iter->second;
-                return projection.get_value(indxr);
+                return get_value(indxr, iter->second);
             }
         }
 
-        sparse_size_change set_value(T value, indexer* indxr)
+        static sparse_size_change set_value(T value, indexer* indxr, size_t N, map<int, Stored>& stored)
         {
             bool is_default = (value == defval);
             
             int index_pos = indxr->Rank - N;
             int index = indxr->get_index(index_pos);
-            auto iter = m_projection.find(index);
-            bool not_existent = (iter == m_projection.end());  
+            auto iter = stored.find(index);
+            bool not_existent = (iter == stored.end());  
             
             if (not_existent && is_default)
             {
                 return sparse_size_change{0};
             }
-            else if (not_existent)
-            {
-                m_projection[index] = tensor<T, N-1, defval>();
-            }
 
-            return m_projection[index].set_value(value, indxr);
+            return handle_values_stored(indxr, not_existent, is_default, stored, index, value);
+        }
+
+    private:
+        static T get_value(indexer* indxr, T leaf) 
+        {
+            return leaf;
+        }
+
+        template<typename Inner>
+        static T get_value(indexer* indxr, Inner& node) 
+        {
+            return node.get_value(indxr);
+        }
+
+        template<typename Inner>
+        static sparse_size_change handle_values_stored(
+            indexer* indxr,
+            bool not_existent, bool is_default,
+            map<int, Inner>& stored,
+            int index, T value)
+        {
+            if (not_existent)
+            {
+                stored[index] = Inner();
+                return stored[index].set_value(value, indxr);
+            }
+            else
+            {
+                return stored[index].set_value(value, indxr);
+            } 
+        }
+
+        static sparse_size_change handle_values_stored(
+            indexer* indxr,
+            bool not_existent, bool is_default,
+            map<int, T>& stored,
+            int index,  T value)
+        {
+            if (not_existent)
+            {
+                stored[index] = value;
+                return sparse_size_change{+1};
+            }
+            else if (is_default)
+            {
+                stored.erase(index);
+                return sparse_size_change{-1};
+            }
+            else
+            {
+                stored[index] = value;
+                return sparse_size_change{0};
+            } 
+        }
+
+};
+
+template<typename T, size_t N, T defval>
+class tensor
+{
+    public:
+        T get_value(indexer* indxr) 
+        {
+            return sparse_searcher<tensor<T, N-1, defval>, T, defval>::get_value(indxr, N, m_projection);
+        }
+
+        sparse_size_change set_value(T value, indexer* indxr)
+        {
+            return sparse_searcher<tensor<T, N-1, defval>, T, defval>::set_value(value, indxr, N, m_projection);
         }
 
     private:
@@ -121,41 +185,12 @@ class tensor<T, 1, defval>
     public:
         T get_value(indexer* indxr)
         {
-            int index_pos = indxr->Rank - 1;
-            int index = indxr->get_index(index_pos);
-            auto iter = m_scalars.find(index); 
-            if (iter == m_scalars.end())
-            {
-                return defval;
-            }
-            else
-            {
-                return iter->second;
-            }
+            return sparse_searcher<T, T, defval>::get_value(indxr, 1, m_scalars);
         }
 
         sparse_size_change set_value(T value, indexer* indxr)
         {
-            bool is_default = (value == defval);
-
-            int index_pos = indxr->Rank - 1;
-            int index = indxr->get_index(index_pos);
-            auto iter = m_scalars.find(index); 
-            bool not_existent = (iter == m_scalars.end());
-            
-            if (not_existent && is_default)
-            {
-                return sparse_size_change{0};
-            }
-            else if (is_default)
-            {
-                m_scalars.erase(iter);
-                return sparse_size_change{-1};
-            }
-            
-            m_scalars[index] = value;
-
-            return not_existent ? sparse_size_change{+1} : sparse_size_change{0};
+            return sparse_searcher<T, T, defval>::set_value(value, indxr, 1, m_scalars);
         }
 
     private:
