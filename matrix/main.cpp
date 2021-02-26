@@ -8,22 +8,46 @@ using namespace std;
 
 int main (int, char **)
 {
-    Matrix<int, 2, -1> matrix;
-    assert(matrix.size() == 0); 
-    auto a = matrix[0][0];
-    assert(a == -1);
-    assert(matrix.size() == 0);
-    matrix[100][100] = 314;
-    assert(matrix[100][100] == 314);
-    assert(matrix.size() == 1);
+    Matrix<int, 2, 0> matrix;
+    for (size_t i = 0; i <= 9; i++)
+    {
+        matrix[i][i] = i;
+    }
+    
+    for (size_t i = 0; i <= 9; i++)
+    {
+        matrix[i][9-i] = 9 - i;
+    }
 
-    cout << matrix[100][100] << endl;
-    int x, y, z;
-    double c;
-    array<int, 3> arr = {1, 2, 3};
-    auto t = create_tuple(arr, 7.0);
-    tie(x,y,z,c) = t; //cell<int, int, int, double>().get_cell(make_tuple(1,2,3, 4.0));
-    cout << x<< ' ' << y << ' '<< z << ' ' << c <<endl;
+    size_t row_start = 1;
+    size_t row_end = 8;
+    size_t col_start = 1;
+    size_t col_end = 8;
+
+    for (size_t r = row_start; r <= row_end; r++)
+    {
+        cout << matrix[r][col_start];
+        for (size_t c = col_start + 1; c <= col_end; c++)
+        {
+            cout<< ' ' << matrix[r][c];
+        }
+        cout << endl;
+    }
+
+    cout << matrix.size() << endl;
+
+    for(auto c: matrix)
+    {
+        int x;
+        int y;
+        int v;
+        std::tie(x, y, v) = c;
+        std::cout << x <<' ' << y << ' ' << v << std::endl;
+    }
+
+    //((matrix[100][100] = 314) = 0) = 217;
+    //cout << matrix.size() << endl;
+    //cout << matrix[100][100] << endl;
 
     return 0;
 }

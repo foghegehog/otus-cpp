@@ -2,6 +2,7 @@
 
 #include <array>
 #include <map>
+#include "tuple_repeat.h"
 
 using namespace std;
 
@@ -174,6 +175,71 @@ class tensor
             return sparse_searcher<tensor<T, N-1, defval>, T, defval>::set_value(value, indxr, N, m_projection);
         }
 
+        class cells_traversal
+        {
+            public:
+                cells_traversal(const tensor<T, N, defval>& tensor)
+                {
+                    m_current = tensor.m_projection.begin();
+                    m_end = tensor.m_projection.end();
+
+                    if (m_current != m_end)
+                    {
+                        m_nested = (typename tensor<T, N-1, defval>::cells_traversal)(m_current->second);
+                    }
+                }
+
+                cells_traversal(){}
+
+                bool has_values() const
+                {
+                    return m_current != m_end;
+                }
+
+                void move_next()
+                {
+                    m_nested.move_next();
+                    if (!m_nested.has_values())
+                    {
+                       ++m_current;
+                       if (m_current != m_end)
+                       {
+                           m_nested = (typename tensor<T, N-1, defval>::cells_traversal)(m_current->second);
+                       }
+                    }
+                    m_traversed++;
+                }
+
+                T get_value() const
+                {
+                    return m_nested.get_value();
+                }
+
+                template<size_t L>
+                void fill_indicies(array<int, L>& indicies) const
+                {
+                    indicies[L-N] = m_current->first;
+                    m_nested.fill_indicies(indicies);
+                }
+
+                size_t cells_traversed() const
+                {
+                    return m_traversed;
+                }
+            private:
+                typename map<int, tensor<T, N-1, defval>>::const_iterator m_current;
+                typename map<int, tensor<T, N-1, defval>>::const_iterator m_end;
+                typename tensor<T, N-1, defval>::cells_traversal m_nested; 
+                size_t m_traversed = 0;
+        };
+
+        void traverse(array<int, N>& indicies)
+        {
+            auto traversal = cells_traversal(*this);
+            traversal.move_next();
+            traversal.fill_indicies(indicies);
+        }
+
     private:
         map<int, tensor<T, N-1, defval>> m_projection;
 
@@ -193,6 +259,49 @@ class tensor<T, 1, defval>
             return sparse_searcher<T, T, defval>::set_value(value, indxr, 1, m_scalars);
         }
 
+        class cells_traversal
+        {
+            public:
+                cells_traversal(const tensor<T, 1, defval>& tensor)
+                {
+                    m_current = tensor.m_scalars.begin();
+                    m_end = tensor.m_scalars.end();
+                }
+
+                cells_traversal(){}
+
+                bool has_values() const
+                {
+                    return m_current != m_end;
+                }
+
+                void move_next()
+                {
+                    ++m_current;
+                    m_traversed++;
+                }
+
+                T get_value() const
+                {
+                    return m_current->second;
+                }
+
+                template<size_t L>
+                void fill_indicies(array<int, L>& indicies) const
+                {
+                    indicies[L-1] = m_current->first;
+                }
+
+                size_t cells_traversed() const
+                {
+                    return m_traversed;
+                }
+            private:
+                typename map<int, T>::const_iterator m_current;
+                typename map<int, T>::const_iterator m_end;
+                size_t m_traversed = 0;
+        };
+
     private:
         map<int, T> m_scalars;
 };
@@ -201,6 +310,8 @@ template<typename T, size_t N, T defval>
 class Matrix : cell_owner<T>
 {
     public:
+        using cell_type = typename tuple_repeat<T, N, int>::tuple_type;
+
         cell_proxy<T, N> operator[](int index)
         {
             return cell_proxy<T, N>(this, index);
@@ -222,7 +333,73 @@ class Matrix : cell_owner<T>
             return m_size;
         }
 
+        struct Iterator 
+        {
+            using iterator_category = std::forward_iterator_tag;
+            using difference_type   = std::ptrdiff_t;
+            using value_type        = cell_type;
+            using pointer           = cell_type*;
+            using reference         = cell_type&;
+
+            Iterator(const tensor<T, N, defval>& tensor)
+            {
+                m_traversal = (typename tensor<T, N, defval>::cells_traversal)(tensor);
+            }
+
+            value_type operator*() const 
+            { 
+                auto value = m_traversal.get_value(); 
+                array<int, N> indicies;
+                m_traversal.fill_indicies(indicies);
+                return create_tuple_repeat(indicies, value);
+            }
+            value_type operator->() 
+            {
+                auto value = m_traversal.get_value(); 
+                array<int, N> indicies;
+                m_traversal.fill_indicies(indicies);
+                return create_tuple_repeat(indicies, value); 
+            }
+            Iterator& operator++() 
+            {
+                m_traversal.move_next(); 
+                return *this; 
+            }  
+
+            Iterator operator++(int)
+            {
+                Iterator tmp = *this;
+                ++(*this);
+                return tmp; 
+            }
+
+            friend bool operator== (const Iterator& a, const Iterator& b) 
+            {
+                return a.m_traversal.has_values() == b.m_traversal.has_values(); 
+            };
+
+            friend bool operator!= (const Iterator& a, const Iterator& b)
+            {
+                return a.m_traversal.has_values() != b.m_traversal.has_values(); 
+            };  
+
+
+
+        private:
+            typename tensor<T, N, defval>::cells_traversal m_traversal;
+        };
+
+        Iterator begin() { return Iterator(m_tensor); }
+        Iterator end()   { return Iterator(m_empty_tensor); }
+        /*void traverse(array<int, N>& indicies)
+        {
+            m_tensor.traverse(indicies);
+        }*/
+
     private:
         tensor<T, N, defval> m_tensor;
         size_t m_size = 0;
+
+        tensor<T, N, defval> m_empty_tensor;
+
 };
