@@ -46,6 +46,11 @@ class sparse_level
             return set_value_to_stored(indexator, not_existent, is_default, index, value);
         }
 
+        bool empty()
+        {
+            return m_stored.empty();
+        }
+
         typename map<int, Stored>::iterator begin()
         {
             return m_stored.begin();
@@ -83,12 +88,14 @@ class tensor: public sparse_level<Rank, tensor<T, Rank-1, defval>, T, defval>
                 this->m_stored[index] = tensor<T, Rank-1, defval>();
             }
             
-            return this->m_stored[index].set_sparse_value(value, indexator);
+            auto& stored = this->m_stored[index];
+            auto size_change = stored.set_sparse_value(value, indexator);
+            if (stored.empty())
+            {
+                this->m_stored.erase(index);
+            }
+            return size_change;
         }
-
-    private:
-        map<int, tensor<T, Rank-1, defval>> m_projection;
-
 };
 
 template<typename T, T defval>
@@ -121,7 +128,4 @@ class tensor<T, 1, defval>: public sparse_level<1, T, T, defval>
                 return sparse_size_change{0};
             }
         }
-
-    private:
-        map<int, T> m_scalars;
 };
