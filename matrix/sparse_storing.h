@@ -130,12 +130,9 @@ class tensor: public sparse_level<Rank, tensor<T, Rank-1, defval>, T, defval>
             if (not_existent)
             {
                 this->m_stored[index] = tensor<T, Rank-1, defval>();
-                return this->m_stored[index].set_sparse_value(value, indexator);
             }
-            else
-            {
-                return this->m_stored[index].set_sparse_value(value, indexator);
-            } 
+            
+            return this->m_stored[index].set_sparse_value(value, indexator);
         }
 
     private:
