@@ -73,15 +73,14 @@ deploy:
     branch: bulk
 - provider: pages
   skip_cleanup: true
-  local_dir: print_ip/html
+  local_dir: documentation/print_ip/html
   github_token: $GITHUB_TOKEN  
   keep_history: true
   on:
     branch: print_ip
 - provider: pages
   skip_cleanup: true
-  local_dir: bulk/html
-  repo: otus-cpp-bulk
+  local_dir: documentation/bulk/html
   github_token: $GITHUB_TOKEN  
   keep_history: true
   on:
