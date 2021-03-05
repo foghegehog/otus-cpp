@@ -59,9 +59,9 @@ void ControlUnit::CreateTransition(State from, Event onEvent, function<void(void
     m_state_machine[key] = transition;
 }
 
-ControlUnit::State ControlUnit::GetState() const
+bool ControlUnit::ShouldProcessBulk() const
 {
-    return m_state;
+    return (m_state == BulkReady) || (m_state == ProcessUnfinished);
 }
 
 void ControlUnit::HandleEvent(Event evnt)

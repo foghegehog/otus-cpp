@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include "bulk_writer.h"
 #include "output_handler.h"
 
 using namespace std;
@@ -25,18 +26,20 @@ void OutputHandler::HandleControlFlow(const ControlCommand& command)
 
 void OutputHandler::OutputBulkIfReady() const
 {
-    if ((m_control_unit->GetState() == ControlUnit::BulkReady)
-        || (m_control_unit->GetState() == ControlUnit::ProcessUnfinished))
+    if ((m_control_unit->ShouldProcessBulk()))
     {
         auto bulk = m_accumulator->GetBulk();
-        string separator = "";
+        //string separator = "";
        
-        cout << GREEN << "bulk: ";
+        cout << GREEN;
+        BulkWriter bulk_writer(cout);
+        bulk_writer.WriteBulk(bulk);
+        /* << "bulk: ";
         for(const auto& command: bulk)
         {
             cout << separator << command.Text;
             separator = ", ";
-        }
+        }*/
         cout << RESET << endl;
     }
 }

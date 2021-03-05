@@ -14,8 +14,7 @@ void ProcessingHandler::HandleControlFlow(const ControlCommand& command)
 
 void ProcessingHandler::ProcessBulkIfReady()
 {
-    if ((m_contro_unit->GetState() == ControlUnit::BulkReady)
-        || (m_contro_unit->GetState() == ControlUnit::ProcessUnfinished))
+    if (m_contro_unit->ShouldProcessBulk())
     {
         auto bulk = m_accumulator->GetBulk();
         process(bulk);

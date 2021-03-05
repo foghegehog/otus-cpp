@@ -15,7 +15,9 @@ add_executable(bulk
     control_unit_handler.cpp
     processing_handler.cpp
     output_handler.cpp
-    handlers_chain.cpp)
+    logging_handler.cpp
+    handlers_chain.cpp
+    bulk_writer.cpp)
 
 set_target_properties(bulk PROPERTIES
     CXX_STANDARD 17

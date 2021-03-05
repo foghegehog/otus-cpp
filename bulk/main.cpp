@@ -1,6 +1,7 @@
 #include "accumulate_handler.h"
 #include "control_unit_handler.h"
 #include "handlers_chain.h"
+#include "logging_handler.h"
 #include "output_handler.h"
 #include "processing_handler.h"
 
@@ -22,6 +23,7 @@ int main (int argc, char ** argv)
     auto control_unit = make_shared<ControlUnit>(N);
 
     auto chain = HandlersChain(make_shared<ProcessingHandler>(control_unit, accumulator));
+    chain.AddFront(make_shared<LoggingHandler>(control_unit, accumulator));
     chain.AddFront(make_shared<OutputHandler>(control_unit, accumulator));
     chain.AddFront(make_shared<ControlUnitHandler>(control_unit));
     chain.AddFront(make_shared<AccumulateHandler>(accumulator));

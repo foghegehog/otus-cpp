@@ -32,7 +32,7 @@ class ControlUnit
 
         ControlUnit(size_t static_bulk_size);
         void HandleEvent(Event evnt);
-        State GetState() const;
+        bool ShouldProcessBulk() const;
         
     private:
         State m_state = State::Empty;
