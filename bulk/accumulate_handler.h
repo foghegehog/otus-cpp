@@ -3,6 +3,9 @@
 #include "accumulator.h"
 #include "handler.h"
 
+/*!
+ * Saves executable commands in Accumulator object. 
+ */
 class AccumulateHandler: public Handler
 {
     public:

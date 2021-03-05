@@ -6,6 +6,9 @@
 
 #define process(bulk) (void)(bulk)
 
+/*!
+ * Processes ready bulk. 
+ */
 class ProcessingHandler: public Handler
 {
     public:

@@ -4,6 +4,9 @@
 
 using namespace std;
 
+/*!
+ * Base command class. 
+ */
 class Command
 {
     public:
@@ -13,6 +16,9 @@ class Command
         {}
 };
 
+/*!
+ * Command to be processed. 
+ */
 class ExecutableCommand: public Command
 {
     public:
@@ -21,6 +27,9 @@ class ExecutableCommand: public Command
         {}
 };
 
+/*!
+ * Command that manages bulk handling ("{", "}" or "EOF"). 
+ */
 class ControlCommand: public Command
 {
     public:

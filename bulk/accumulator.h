@@ -6,6 +6,9 @@
 
 using namespace std;
 
+/*!
+ * Accumulutes executable commands for current bulk. 
+ */
 class Accumulator
 {
     public:

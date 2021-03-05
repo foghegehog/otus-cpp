@@ -8,6 +8,9 @@
 
 using namespace std;
 
+/*!
+ * Keeps track of current bulk state. 
+ */
 class ControlUnit
 {
     public:

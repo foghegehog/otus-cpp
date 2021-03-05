@@ -9,6 +9,9 @@
 
 using namespace std;
 
+/*!
+ * Base class for Handlers implementing GoF pattern Chain of Responsibility.
+ */
 class Handler
 {
     public:

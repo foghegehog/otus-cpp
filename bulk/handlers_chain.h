@@ -7,6 +7,9 @@
 
 using namespace std;
 
+/*!
+ * Containes chain of command handlers.
+ */
 class HandlersChain
 {
     public:

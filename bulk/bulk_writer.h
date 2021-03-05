@@ -7,6 +7,9 @@
 
 using namespace std;
 
+/*!
+ * Outputs bulk to specified out stream.
+ */
 class BulkWriter
 {
     public:

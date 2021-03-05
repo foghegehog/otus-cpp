@@ -4,9 +4,13 @@
 #include "control_unit.h"
 #include "accumulator.h"
 
+// Using green color to differentiate console output from input
 #define GREEN   "\033[32m"
 #define RESET   "\033[0m"
 
+/*!
+ * Outputs ready bulk to console. 
+ */
 class OutputHandler: public Handler
 {
     public:

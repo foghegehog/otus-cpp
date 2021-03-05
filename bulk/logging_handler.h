@@ -10,6 +10,9 @@
 
 using namespace std;
 
+/*!
+ * Logs ready bulk to a file. 
+ */
 class LoggingHandler: public Handler
 {
     public:
