@@ -9,7 +9,7 @@ endif()
 find_package(Boost COMPONENTS program_options unit_test_framework filesystem REQUIRED)
 
 add_executable(bayan main.cpp)
-add_library(lib lib.cpp)
+add_library(lib settings.cpp)
 add_executable(test_bayan test.cpp)
 
 set_target_properties(bayan lib test_bayan PROPERTIES
@@ -22,6 +22,10 @@ target_include_directories(bayan
 set_target_properties(test_bayan PROPERTIES
     COMPILE_DEFINITIONS BOOST_TEST_DYN_LINK
     INCLUDE_DIRECTORIES ${Boost_INCLUDE_DIR}
+)
+
+target_link_libraries(lib PRIVATE
+    ${Boost_LIBRARIES}
 )
 
 target_link_libraries(bayan PRIVATE
