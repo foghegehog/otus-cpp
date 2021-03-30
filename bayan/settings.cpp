@@ -32,13 +32,19 @@ Settings Settings::parse_from_arguments(int argc, const char *argv[])
             }),
             "Scan depth, 1 - all directories, 0 - current folder only. Default value is 0.")
         ("min_size,m",
-            po::value<unsigned int>()->default_value(1), 
-            "Minimum size of the file to be processed, in bytes.")
+            po::value<int>()->default_value(1)->notifier([](const int& value)
+            {
+                check_value_non_negative(value, "min_size");
+            }), 
+            "Minimum size of the file to be processed, in bytes. Default value is 1.")
         ("file_masks,f",
             po::value<vector<string>>()->multitoken()->composing(), 
             "Masks for files participating in comparison, case-insensitive.")
         ("block_size,b",
-            po::value<unsigned int>()->default_value(256), 
+            po::value<int>()->default_value(256)->notifier([](const int& value)
+            {
+                check_value_non_negative(value, "block_size");
+            }), 
             "The size of the block to read the files with, in bytes. Default value is 256.")
         ("algorithm,a",
             po::value<string>()->default_value("crc32")->notifier([](const string& value)
@@ -52,7 +58,6 @@ Settings Settings::parse_from_arguments(int argc, const char *argv[])
     po::store(po::parse_command_line(argc, argv, desc), vm);
     notify(vm);
 
-
     stringstream help;
     help << desc << endl;
     settings.mHelpText = help.str();
@@ -64,12 +69,12 @@ Settings Settings::parse_from_arguments(int argc, const char *argv[])
         settings.mExcludeDirs = vm["exclude_dirs"].as<vector<string>>();
     }
     settings.mScanDepth = static_cast<ScanDepth>(vm["depth"].as<unsigned short>());
-    settings.mMinSize = vm["min_size"].as<unsigned int>();
+    settings.mMinSize = static_cast<unsigned int>(vm["min_size"].as<int>());
     if (vm.count("file_masks"))
     {
-        settings.mFileMasks = vm["file_mask"].as<vector<string>>();
+        settings.mFileMasks = vm["file_masks"].as<vector<string>>();
     }
-    settings.mBlockSize = vm["block_size"].as<unsigned int>();
+    settings.mBlockSize = static_cast<unsigned int>(vm["block_size"].as<int>());
     settings.mHashAlgorithm = vm["algorithm"].as<string>();
 
     return settings;
@@ -87,5 +92,14 @@ void Settings::check_value_supported(const T& value, const std::initializer_list
     }
 
     throw po::validation_error(po::validation_error::invalid_option_value, option_name);
+}
+
+template <typename T>
+void Settings::check_value_non_negative(const T& value, std::string option_name)
+{
+    if (value < 0)
+    {
+        throw po::validation_error(po::validation_error::invalid_option_value, option_name);
+    }
 }
 

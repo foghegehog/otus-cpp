@@ -31,6 +31,9 @@ private:
 
     template <typename T>
     static void check_value_supported(const T& value, const std::initializer_list<T>& supported_values, std::string option_name);
+
+    template <typename T>
+    static void check_value_non_negative(const T& value, std::string option_name);
 };
 
 #endif

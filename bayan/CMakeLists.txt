@@ -10,7 +10,7 @@ find_package(Boost COMPONENTS program_options unit_test_framework filesystem REQ
 
 add_executable(bayan main.cpp)
 add_library(lib settings.cpp)
-add_executable(test_bayan test.cpp)
+add_executable(test_bayan test_options.cpp)
 
 set_target_properties(bayan lib test_bayan PROPERTIES
     CXX_STANDARD 17
