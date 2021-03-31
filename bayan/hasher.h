@@ -6,7 +6,8 @@
 
 class Hasher
 {
-    virtual void hash_block(const uint8_t * block, uint8_t * digest) = 0;
+public:
+    virtual std::vector<uint8_t> hash_block(std::vector<uint8_t> block) = 0;
 };
 
 #endif
