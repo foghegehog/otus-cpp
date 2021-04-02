@@ -1,3 +1,4 @@
+#include "boost_directory_traversal.h"
 #include "settings.h"
 
 #include <boost/any.hpp>
@@ -18,5 +19,11 @@ int main(int argc, const char *argv[])
         return 0;
     } 
 
+    BoostDirectoryTraversal<boost::filesystem::recursive_directory_iterator> directory(settings.mIncudeDirs[0]);
+    while (!directory.is_traversed())
+    {
+        cout << directory.get_next_file().mPath << endl;
+    }
+    
     return 0;
 }
