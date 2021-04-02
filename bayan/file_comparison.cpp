@@ -8,7 +8,7 @@ std::vector<uint8_t>& FileComparison::Iterator::operator*()
     {
         return *mBlocksIterator;
     }
-    else if (mFileReader && mFileReader->is_eof())
+    else if (mFileReader && !mFileReader->is_eof())
     {
         auto read_cont = mFileReader->read_block(mBuffer);
         auto pad_count = mFileReader->max_block_size() - read_cont;

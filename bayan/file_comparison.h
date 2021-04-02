@@ -14,7 +14,7 @@ class FileComparison
 {
 public:
     FileComparison(
-        std::string path,
+        const std::string& path,
         std::shared_ptr<FileReader> fileReader,
         std::shared_ptr<Hasher> hasher)
             :mPath(path), mFileReader(std::move(fileReader)), mHasher(std::move(hasher))
@@ -38,7 +38,18 @@ public:
                 mFileReader(fileReader),
                 mHasher(hasher)
         {
-            mBuffer.reserve(mFileReader->max_block_size());
+            if (fileReader)
+            {
+                mBuffer.reserve(fileReader->max_block_size());
+            }
+        } 
+
+        Iterator(std::list<std::vector<uint8_t>>& hashedBlocks)
+            :mHashedBlocks(hashedBlocks),
+            mBlocksIterator(hashedBlocks.end()),
+            mFileReader(std::shared_ptr<FileReader>(nullptr)),
+            mHasher(std::shared_ptr<Hasher>(nullptr))
+        {
         } 
 
         reference operator*();
@@ -58,7 +69,7 @@ public:
     };
 
     Iterator begin() { return Iterator(mHashedBlocks, mFileReader, mHasher); }
-    Iterator end()   { return Iterator(mHashedBlocks, std::shared_ptr<FileReader>(nullptr), mHasher); }
+    Iterator end()   { return Iterator(mHashedBlocks); }
 
     std::string mPath;
     size_t mFileSize;
@@ -70,8 +81,6 @@ public:
 private:
     std::shared_ptr<FileReader> mFileReader;
     std::shared_ptr<Hasher> mHasher;
-
-    
 };
 
 #endif

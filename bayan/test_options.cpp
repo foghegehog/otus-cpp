@@ -1,6 +1,5 @@
-#define BOOST_TEST_MODULE test_options
 #include <boost/program_options.hpp>
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #include <iostream>
 
 #include "settings.h"
@@ -14,6 +13,8 @@ ostream& operator<<(ostream& os, const ScanDepth& d)
 }
 
 const size_t char_ptr_size = sizeof(char*);
+
+BOOST_AUTO_TEST_SUITE(FancyShmancyLogic)
 
 BOOST_AUTO_TEST_CASE(test_help_options)
 {
@@ -134,3 +135,5 @@ BOOST_AUTO_TEST_CASE(test_incorrect_hash_algorithm)
 
     BOOST_CHECK_THROW(Settings::parse_from_arguments(argc, argv), boost::program_options::validation_error);  
 }
+
+BOOST_AUTO_TEST_SUITE_END()
