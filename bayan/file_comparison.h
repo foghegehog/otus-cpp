@@ -73,14 +73,14 @@ public:
 
     std::string mPath;
     size_t mFileSize;
-    // list is preffered over vector as its iterators are not invalidated upon insertion
-    std::list<std::vector<uint8_t>> mHashedBlocks;
     
     std::list<std::string> mDuplicatePaths;
 
 private:
     std::shared_ptr<FileReader> mFileReader;
     std::shared_ptr<Hasher> mHasher;
+    // list is preffered over vector as its iterators are not invalidated upon insertion
+    std::list<std::vector<uint8_t>> mHashedBlocks;
 };
 
 #endif
