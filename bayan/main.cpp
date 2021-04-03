@@ -24,11 +24,11 @@ int main(int argc, const char *argv[])
     shared_ptr<DirectoryTraversal> directory;
     if (settings.mScanDepth == ScanDepth::SCAN_CURRENT) 
     {
-        directory = make_shared<BoostDirectoryTraversal<directory_iterator>>(settings.mIncudeDirs[0]);
+        directory = make_shared<BoostDirectoryTraversal<directory_iterator>>(settings.mIncudeDirs, settings.mExcludeDirs);
     }
     else
     {
-        directory = make_shared<BoostDirectoryTraversal<recursive_directory_iterator>>(settings.mIncudeDirs[0]);
+        directory = make_shared<BoostDirectoryTraversal<recursive_directory_iterator>>(settings.mIncudeDirs, settings.mExcludeDirs);
     }     
      
     while (!directory->is_traversed())
