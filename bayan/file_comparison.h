@@ -15,9 +15,10 @@ class FileComparison
 public:
     FileComparison(
         const std::string& path,
+        size_t fileSize,
         std::shared_ptr<FileReader> fileReader,
         std::shared_ptr<Hasher> hasher)
-            :mPath(path), mFileReader(std::move(fileReader)), mHasher(std::move(hasher))
+            :mPath(path), mFileSize(fileSize), mFileReader(std::move(fileReader)), mHasher(std::move(hasher))
     {
     }
 
@@ -70,17 +71,21 @@ public:
 
     Iterator begin() { return Iterator(mHashedBlocks, mFileReader, mHasher); }
     Iterator end()   { return Iterator(mHashedBlocks); }
-
-    std::string mPath;
-    size_t mFileSize;
-    
-    std::list<std::string> mDuplicatePaths;
+   
+    std::string get_path();
+    std::size_t get_file_size();
+    void add_duplicate(const std::string& path);
+    std::list<std::string> get_duplicates();
 
 private:
+    std::string mPath;
+    size_t mFileSize;
     std::shared_ptr<FileReader> mFileReader;
     std::shared_ptr<Hasher> mHasher;
     // list is preffered over vector as its iterators are not invalidated upon insertion
     std::list<std::vector<uint8_t>> mHashedBlocks;
+
+    std::list<std::string> mDuplicatePaths;
 };
 
 #endif

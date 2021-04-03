@@ -1,15 +1,11 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
+#include "scan_depth.h"
+
 #include <array>
 #include <string>
 #include <vector>
-
-enum class ScanDepth
-{
-    SCAN_CURRENT = 0,
-    SCAN_ALL = 1
-};
 
 class Settings
 {

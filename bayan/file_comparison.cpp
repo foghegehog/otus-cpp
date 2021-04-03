@@ -46,6 +46,26 @@ FileComparison::Iterator FileComparison::Iterator::operator++(int)
     return tmp; 
 }
 
+string FileComparison::get_path()
+{
+    return mPath;
+}
+
+size_t FileComparison::get_file_size()
+{
+    return mFileSize;
+}
+
+list<std::string> FileComparison::get_duplicates()
+{
+    return mDuplicatePaths;
+}
+
+void FileComparison::add_duplicate(const std::string& path)
+{
+    mDuplicatePaths.push_back(path);
+}
+
 bool operator==(
     const FileComparison::Iterator& a,
     const FileComparison::Iterator& b)

@@ -2,11 +2,13 @@
 #define BOOST_DIRECTORY_TRAVERSAL_H
 
 #include "directory_traversal.h"
+#include "scan_depth.h"
 
 #include <iostream>
 #include <boost/filesystem.hpp>
 #include <memory>
 #include <string>
+#include <type_traits>
 
 template <typename IteratorType> 
 class BoostDirectoryTraversal : public DirectoryTraversal
@@ -37,7 +39,7 @@ public:
         }
         while ((mDirectoryIterator != mIteratorEnd) && boost::filesystem::is_directory(mDirectoryIterator->path().string())); 
 
-        return FileComparison(path, std::shared_ptr<FileReader>(), std::shared_ptr<Hasher>());
+        return FileComparison(path, boost::filesystem::file_size(path), std::shared_ptr<FileReader>(), std::shared_ptr<Hasher>());
     }  
 
 private:

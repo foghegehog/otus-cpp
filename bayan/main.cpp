@@ -4,10 +4,12 @@
 #include <boost/any.hpp>
 #include <boost/program_options.hpp>
 #include <iostream>
+#include <memory>
 #include <string>
 #include <vector>
 
 using namespace std;
+using namespace boost::filesystem;
 
 int main(int argc, const char *argv[]) 
 {
@@ -19,10 +21,19 @@ int main(int argc, const char *argv[])
         return 0;
     } 
 
-    BoostDirectoryTraversal<boost::filesystem::recursive_directory_iterator> directory(settings.mIncudeDirs[0]);
-    while (!directory.is_traversed())
+    shared_ptr<DirectoryTraversal> directory;
+    if (settings.mScanDepth == ScanDepth::SCAN_CURRENT) 
     {
-        cout << directory.get_next_file().mPath << endl;
+        directory = make_shared<BoostDirectoryTraversal<directory_iterator>>(settings.mIncudeDirs[0]);
+    }
+    else
+    {
+        directory = make_shared<BoostDirectoryTraversal<recursive_directory_iterator>>(settings.mIncudeDirs[0]);
+    }     
+     
+    while (!directory->is_traversed())
+    {
+        cout << directory->get_next_file().get_path() << endl;
     }
     
     return 0;

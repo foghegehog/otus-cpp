@@ -59,9 +59,9 @@ public:
     {
     }
 
-    void AddFile(const string& path, shared_ptr<FileReaderMock> fileReader)
+    void AddFile(const string& path, size_t size, shared_ptr<FileReaderMock> fileReader)
     {
-        FileComparison fileAComparison(path, fileReader, mHasher);
+        FileComparison fileAComparison(path, size, fileReader, mHasher);
         mFiles.push_back(fileAComparison);
     }
 
@@ -98,7 +98,7 @@ BOOST_AUTO_TEST_CASE(test_two_equal_files)
         vector<uint8_t>{2, 4, 6}, 
     };
     auto fileAReader = make_shared<FileReaderMock>(fileABlocks);
-    traversal->AddFile("A", fileAReader);
+    traversal->AddFile("A", 2*3, fileAReader);
 
 
     auto fileBBlocks = vector<vector<uint8_t>>
@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE(test_two_equal_files)
         vector<uint8_t>{2, 4, 6}, 
     };
     auto fileBReader = make_shared<FileReaderMock>(fileBBlocks);
-    traversal->AddFile("B", fileBReader);
+    traversal->AddFile("B", 2*3, fileBReader);
 
     traversal->initialize();
 
@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE(test_two_equal_files)
     searcher.search_bayans();
 
     BOOST_TEST(searcher.mComparisonFiles.size()==1);
-    BOOST_TEST(searcher.mComparisonFiles[0].mDuplicatePaths.size() == 1);
+    BOOST_TEST(searcher.mComparisonFiles[0].get_duplicates().size() == 1);
     BOOST_TEST(fileAReader->reads_count() == 2);
     BOOST_TEST(fileBReader->reads_count() == 2);
 }
@@ -129,7 +129,7 @@ BOOST_AUTO_TEST_CASE(test_two_different_files)
         vector<uint8_t>{2, 4, 6}, 
     };
     auto fileAReader = make_shared<FileReaderMock>(fileABlocks);
-    traversal->AddFile("A", fileAReader);
+    traversal->AddFile("A", 2*3, fileAReader);
 
 
     auto fileBBlocks = vector<vector<uint8_t>>
@@ -139,7 +139,7 @@ BOOST_AUTO_TEST_CASE(test_two_different_files)
     };
 
     auto fileBReader = make_shared<FileReaderMock>(fileBBlocks);
-    traversal->AddFile("B", fileBReader);
+    traversal->AddFile("B", 2*3, fileBReader);
 
     traversal->initialize();
 
@@ -147,8 +147,8 @@ BOOST_AUTO_TEST_CASE(test_two_different_files)
     searcher.search_bayans();
 
     BOOST_TEST(searcher.mComparisonFiles.size()==2);
-    BOOST_TEST(searcher.mComparisonFiles[0].mDuplicatePaths.size() == 0);
-    BOOST_TEST(searcher.mComparisonFiles[1].mDuplicatePaths.size() == 0);
+    BOOST_TEST(searcher.mComparisonFiles[0].get_duplicates().size() == 0);
+    BOOST_TEST(searcher.mComparisonFiles[1].get_duplicates().size() == 0);
     BOOST_TEST(fileAReader->reads_count() == 1);
     BOOST_TEST(fileBReader->reads_count() == 1);
 }
@@ -163,7 +163,7 @@ BOOST_AUTO_TEST_CASE(test_longer_file)
         vector<uint8_t>{2, 4, 6} 
     };
     auto fileAReader = make_shared<FileReaderMock>(fileABlocks);
-    traversal->AddFile("A", fileAReader);
+    traversal->AddFile("A", 3*3, fileAReader);
 
 
     auto fileBBlocks = vector<vector<uint8_t>>
@@ -172,7 +172,7 @@ BOOST_AUTO_TEST_CASE(test_longer_file)
         vector<uint8_t>{2, 4, 6}, 
     };
     auto fileBReader = make_shared<FileReaderMock>(fileBBlocks);
-    traversal->AddFile("B", fileBReader);
+    traversal->AddFile("B", 3*2, fileBReader);
 
     traversal->initialize();
 
@@ -180,8 +180,8 @@ BOOST_AUTO_TEST_CASE(test_longer_file)
     searcher.search_bayans();
 
     BOOST_TEST(searcher.mComparisonFiles.size()==2);
-    BOOST_TEST(searcher.mComparisonFiles[0].mDuplicatePaths.size() == 0);
-    BOOST_TEST(searcher.mComparisonFiles[1].mDuplicatePaths.size() == 0);
+    BOOST_TEST(searcher.mComparisonFiles[0].get_duplicates().size() == 0);
+    BOOST_TEST(searcher.mComparisonFiles[1].get_duplicates().size() == 0);
     BOOST_TEST(fileAReader->reads_count() == 2);
     BOOST_TEST(fileBReader->reads_count() == 2);
 }
@@ -194,7 +194,7 @@ BOOST_AUTO_TEST_CASE(test_shorter_file)
         vector<uint8_t>{1, 3, 5},
     };
     auto fileAReader = make_shared<FileReaderMock>(fileABlocks);
-    traversal->AddFile("A", fileAReader);
+    traversal->AddFile("A", 3, fileAReader);
 
 
     auto fileBBlocks = vector<vector<uint8_t>>
@@ -203,7 +203,7 @@ BOOST_AUTO_TEST_CASE(test_shorter_file)
         vector<uint8_t>{2, 4, 6}, 
     };
     auto fileBReader = make_shared<FileReaderMock>(fileBBlocks);
-    traversal->AddFile("B", fileBReader);
+    traversal->AddFile("B", 2*3, fileBReader);
 
     traversal->initialize();
 
@@ -211,8 +211,8 @@ BOOST_AUTO_TEST_CASE(test_shorter_file)
     searcher.search_bayans();
 
     BOOST_TEST(searcher.mComparisonFiles.size()==2);
-    BOOST_TEST(searcher.mComparisonFiles[0].mDuplicatePaths.size() == 0);
-    BOOST_TEST(searcher.mComparisonFiles[1].mDuplicatePaths.size() == 0);
+    BOOST_TEST(searcher.mComparisonFiles[0].get_duplicates().size() == 0);
+    BOOST_TEST(searcher.mComparisonFiles[1].get_duplicates().size() == 0);
     BOOST_TEST(fileAReader->reads_count() == 1);
     BOOST_TEST(fileBReader->reads_count() == 1);
 }
@@ -227,7 +227,7 @@ BOOST_AUTO_TEST_CASE(test_single_file)
         vector<uint8_t>{2, 4, 6}, 
     };
     auto fileAReader = make_shared<FileReaderMock>(fileABlocks);
-    traversal->AddFile("A", fileAReader);
+    traversal->AddFile("A", 3*3, fileAReader);
 
     traversal->initialize();
 

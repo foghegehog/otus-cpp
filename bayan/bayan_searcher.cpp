@@ -23,7 +23,7 @@ void BayanSearcher::search_bayans()
             if ((blocks_iterator == file.end()) && (compared_iter == compared_file.end()) && blocks_match)
             {
                 is_duplicate = true;
-                compared_file.mDuplicatePaths.push_back(file.mPath);
+                compared_file.add_duplicate(file.get_path());
             }
         }
 
