@@ -182,8 +182,9 @@ BOOST_AUTO_TEST_CASE(test_longer_file)
     BOOST_TEST(searcher.mComparisonFiles.size()==2);
     BOOST_TEST(searcher.mComparisonFiles[0].get_duplicates().size() == 0);
     BOOST_TEST(searcher.mComparisonFiles[1].get_duplicates().size() == 0);
-    BOOST_TEST(fileAReader->reads_count() == 2);
-    BOOST_TEST(fileBReader->reads_count() == 2);
+    // no reads as files' sizes are different
+    BOOST_TEST(fileAReader->reads_count() == 0);
+    BOOST_TEST(fileBReader->reads_count() == 0);
 }
 
 BOOST_AUTO_TEST_CASE(test_shorter_file)
@@ -213,8 +214,9 @@ BOOST_AUTO_TEST_CASE(test_shorter_file)
     BOOST_TEST(searcher.mComparisonFiles.size()==2);
     BOOST_TEST(searcher.mComparisonFiles[0].get_duplicates().size() == 0);
     BOOST_TEST(searcher.mComparisonFiles[1].get_duplicates().size() == 0);
-    BOOST_TEST(fileAReader->reads_count() == 1);
-    BOOST_TEST(fileBReader->reads_count() == 1);
+    // no reads as files' sizes are different
+    BOOST_TEST(fileAReader->reads_count() == 0);
+    BOOST_TEST(fileBReader->reads_count() == 0);
 }
 
 BOOST_AUTO_TEST_CASE(test_single_file)
@@ -237,5 +239,6 @@ BOOST_AUTO_TEST_CASE(test_single_file)
     BOOST_TEST(searcher.mComparisonFiles.size()==1);
     BOOST_TEST(fileAReader->reads_count() == 0);
 }
+
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -8,6 +8,11 @@ void BayanSearcher::search_bayans()
         auto is_duplicate = false;
         for(auto& compared_file: mComparisonFiles)
         {
+            if (compared_file.get_file_size() != file.get_file_size())
+            {
+                continue;
+            }
+
             bool blocks_match = true;
             auto blocks_iterator = file.begin();
             auto compared_iter = compared_file.begin();
