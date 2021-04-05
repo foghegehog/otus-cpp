@@ -72,10 +72,10 @@ public:
     Iterator begin() { return Iterator(mHashedBlocks, mFileReader, mHasher); }
     Iterator end()   { return Iterator(mHashedBlocks); }
    
-    std::string get_path();
-    std::size_t get_file_size();
+    std::string get_path() const;
+    std::size_t get_file_size() const;
     void add_duplicate(const std::string& path);
-    std::list<std::string> get_duplicates();
+    std::list<std::string> get_duplicates() const;
 
 private:
     std::string mPath;

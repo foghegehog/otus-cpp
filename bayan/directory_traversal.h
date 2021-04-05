@@ -8,7 +8,7 @@
 class DirectoryTraversal
 {
 public:
-    virtual bool is_traversed() = 0;
+    virtual bool is_traversed() const = 0;
     virtual FileComparison get_next_file() = 0;  
 };
 

@@ -1,3 +1,4 @@
+#include "bayan_searcher.h"
 #include "boost_directory_traversal.h"
 #include "settings.h"
 
@@ -21,19 +22,30 @@ int main(int argc, const char *argv[])
         return 0;
     } 
 
-    shared_ptr<DirectoryTraversal> directory;
+    unique_ptr<DirectoryTraversal> directory;
     if (settings.mScanDepth == ScanDepth::SCAN_CURRENT) 
     {
-        directory = make_shared<BoostDirectoryTraversal<directory_iterator>>(settings.mIncudeDirs, settings.mExcludeDirs);
+        directory = make_unique<BoostDirectoryTraversal<directory_iterator>>(
+            settings.mIncudeDirs, settings.mExcludeDirs, settings.mBlockSize);
     }
     else
     {
-        directory = make_shared<BoostDirectoryTraversal<recursive_directory_iterator>>(settings.mIncudeDirs, settings.mExcludeDirs);
+        directory = make_unique<BoostDirectoryTraversal<recursive_directory_iterator>>(
+            settings.mIncudeDirs, settings.mExcludeDirs, settings.mBlockSize);
     }     
      
-    while (!directory->is_traversed())
+    BayanSearcher searcher(move(directory));
+    searcher.search_bayans();
+
+    for(const auto& file: searcher.mComparisonFiles)
     {
-        cout << directory->get_next_file().get_path() << endl;
+        std::cout << file.get_path() << std::endl;
+        for (const auto& duplicate: file.get_duplicates())
+        {
+            std::cout << duplicate << std::endl;
+        }
+        std::cout << std::endl;
+        
     }
     
     return 0;

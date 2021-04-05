@@ -15,12 +15,12 @@ public:
         mCurrentBlock = mBlocks.begin();
     }
 
-    size_t max_block_size()
+    size_t max_block_size() const
     {
         return mBlocks[0].size();
     }
 
-    bool is_eof()
+    bool is_eof() const
     {
         return mCurrentBlock == mBlocks.end();
     }
@@ -70,7 +70,7 @@ public:
         mCurrentFile = mFiles.begin();
     }
 
-    bool is_traversed() override
+    bool is_traversed() const override
     {
         return mCurrentFile == mFiles.end();
     }

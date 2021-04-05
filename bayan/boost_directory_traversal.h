@@ -1,6 +1,7 @@
 #ifndef BOOST_DIRECTORY_TRAVERSAL_H
 #define BOOST_DIRECTORY_TRAVERSAL_H
 
+#include "fstream_file_reader.h"
 #include "directory_traversal.h"
 #include "scan_depth.h"
 
@@ -75,8 +76,10 @@ class BoostDirectoryTraversal : public DirectoryTraversal
 {
 public:
     BoostDirectoryTraversal(
-        const std::vector<std::string>& includeDirs, const std::vector<std::string>& excludeDirs)
-        :mDirectories(includeDirs)
+        const std::vector<std::string>& includeDirs,
+        const std::vector<std::string>& excludeDirs,
+        size_t fileBlocksSize)
+        :mDirectories(includeDirs), mFileBlockSize(fileBlocksSize)
     {
         mDirectoryExcluder = std::make_unique<DirectoryExcluder<IteratorType>>(excludeDirs);
         mDirectoriesIterator = mDirectories.cbegin();
@@ -92,7 +95,7 @@ public:
         }
     }
     
-    bool is_traversed() override
+    bool is_traversed() const override
     {
         return (mFilesIterator == mFilesIteratorEnd) && (mDirectoriesIterator == mDirectories.cend()); 
     }
@@ -103,7 +106,11 @@ public:
 
         move_to_next_file();
 
-        return FileComparison(path, boost::filesystem::file_size(path), std::shared_ptr<FileReader>(), std::shared_ptr<Hasher>());
+        return FileComparison(
+            path, 
+            boost::filesystem::file_size(path),
+            move(std::make_shared<FstreamFileReader>(path, mFileBlockSize)),
+            move(std::make_shared<Hasher>()));
     }  
 
 private:
@@ -112,6 +119,7 @@ private:
     std::vector<std::string>::const_iterator mDirectoriesIterator; 
     IteratorType mFilesIterator; 
     IteratorType mFilesIteratorEnd;
+    size_t mFileBlockSize;
 
     void move_to_next_file()
     {

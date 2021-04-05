@@ -7,7 +7,10 @@
 class Hasher
 {
 public:
-    virtual std::vector<uint8_t> hash_block(std::vector<uint8_t> block) = 0;
+    virtual std::vector<uint8_t> hash_block(std::vector<uint8_t> block)
+    {
+        return block;
+    };
 };
 
 #endif
