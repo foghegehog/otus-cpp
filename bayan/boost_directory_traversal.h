@@ -3,6 +3,7 @@
 
 #include "fstream_file_reader.h"
 #include "directory_traversal.h"
+#include "md5_hasher.h"
 #include "scan_depth.h"
 
 #include <iostream>
@@ -110,7 +111,7 @@ public:
             path, 
             boost::filesystem::file_size(path),
             move(std::make_shared<FstreamFileReader>(path, mFileBlockSize)),
-            move(std::make_shared<Hasher>()));
+            move(std::make_shared<Md5Hasher>()));
     }  
 
 private:
