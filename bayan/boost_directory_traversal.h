@@ -3,7 +3,6 @@
 
 #include "fstream_file_reader.h"
 #include "directory_traversal.h"
-#include "md5_hasher.h"
 #include "scan_depth.h"
 
 #include <iostream>
@@ -79,8 +78,9 @@ public:
     BoostDirectoryTraversal(
         const std::vector<std::string>& includeDirs,
         const std::vector<std::string>& excludeDirs,
+        std::shared_ptr<Hasher> hasher,
         size_t fileBlocksSize)
-        :mDirectories(includeDirs), mFileBlockSize(fileBlocksSize)
+        :mDirectories(includeDirs), mFileBlockSize(fileBlocksSize), mHasher(hasher)
     {
         mDirectoryExcluder = std::make_unique<DirectoryExcluder<IteratorType>>(excludeDirs);
         mDirectoriesIterator = mDirectories.cbegin();
@@ -111,7 +111,7 @@ public:
             path, 
             boost::filesystem::file_size(path),
             move(std::make_shared<FstreamFileReader>(path, mFileBlockSize)),
-            move(std::make_shared<Md5Hasher>()));
+            mHasher);
     }  
 
 private:
@@ -121,6 +121,7 @@ private:
     IteratorType mFilesIterator; 
     IteratorType mFilesIteratorEnd;
     size_t mFileBlockSize;
+    std::shared_ptr<Hasher> mHasher;
 
     void move_to_next_file()
     {

@@ -22,6 +22,9 @@ public:
     unsigned int mBlockSize;
     std::string mHashAlgorithm;
 
+    static std::string CRC32_STR;
+    static std::string MD5_STR;
+    
 private:
     Settings(){};
 

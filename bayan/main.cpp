@@ -1,5 +1,7 @@
 #include "bayan_searcher.h"
 #include "boost_directory_traversal.h"
+#include "crc32_hasher.h"
+#include "md5_hasher.h"
 #include "settings.h"
 
 #include <boost/any.hpp>
@@ -22,16 +24,26 @@ int main(int argc, const char *argv[])
         return 0;
     } 
 
+    shared_ptr<Hasher> hasher;
+    if (settings.mHashAlgorithm == Settings::CRC32_STR)
+    {
+        hasher = make_shared<Crc32Hasher>();
+    }
+    else
+    {
+        hasher = make_shared<Md5Hasher>();
+    }
+
     unique_ptr<DirectoryTraversal> directory;
     if (settings.mScanDepth == ScanDepth::SCAN_CURRENT) 
     {
         directory = make_unique<BoostDirectoryTraversal<directory_iterator>>(
-            settings.mIncudeDirs, settings.mExcludeDirs, settings.mBlockSize);
+            settings.mIncudeDirs, settings.mExcludeDirs, move(hasher), settings.mBlockSize);
     }
     else
     {
         directory = make_unique<BoostDirectoryTraversal<recursive_directory_iterator>>(
-            settings.mIncudeDirs, settings.mExcludeDirs, settings.mBlockSize);
+            settings.mIncudeDirs, settings.mExcludeDirs, move(hasher), settings.mBlockSize);
     }     
      
     BayanSearcher searcher(move(directory));

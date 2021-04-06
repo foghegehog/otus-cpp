@@ -9,7 +9,7 @@ endif()
 find_package(Boost COMPONENTS program_options unit_test_framework filesystem REQUIRED)
 
 add_executable(bayan main.cpp)
-add_library(lib md5_hasher.cpp settings.cpp file_comparison.cpp bayan_searcher.cpp)
+add_library(lib crc32_hasher.cpp md5_hasher.cpp settings.cpp file_comparison.cpp bayan_searcher.cpp)
 add_executable(test_bayan test_main.cpp test_options.cpp test_search.cpp)
 
 set_target_properties(bayan lib test_bayan PROPERTIES

@@ -7,6 +7,9 @@
 using namespace std;
 namespace po = boost::program_options;
 
+std::string Settings::CRC32_STR = std::string("crc32");
+std::string Settings::MD5_STR = std::string("md5");
+
 Settings Settings::parse_from_arguments(int argc, const char *argv[])
 {
     Settings settings;
@@ -49,7 +52,7 @@ Settings Settings::parse_from_arguments(int argc, const char *argv[])
         ("algorithm,a",
             po::value<string>()->default_value("crc32")->notifier([](const string& value)
             {
-                check_value_supported(value, {"crc32"s, "md5"s}, "algorithm");
+                check_value_supported(value, {CRC32_STR, MD5_STR}, "algorithm");
             }),
             "Hash algorithm to hash file blocks. Default value is crc32.")
     ;
