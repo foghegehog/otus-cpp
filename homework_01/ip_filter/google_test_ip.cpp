@@ -107,7 +107,7 @@ TEST(CheckFiltration, ReverseLexicographical)
 
 auto get_ips_with_46()
 {
-    return std::vector<std::string>>  
+    std::vector<std::string>> ips =  
     {
         "186.204.34.46",
         "186.46.222.194",
@@ -144,6 +144,8 @@ auto get_ips_with_46()
         "39.46.86.85",
         "5.189.203.46"
     };
+
+    return ips;
 }
 
 // 46.70.225.39
