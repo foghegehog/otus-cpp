@@ -4,7 +4,7 @@ addons:
     packages:
       - doxygen
 before_script:
-- sudo apt-get install libboost-all-dev -y
+- sudo apt-get install libboost-all-dev=1.71.0.0 -y
 - echo "deb http://archive.ubuntu.com/ubuntu xenial main universe" | sudo tee -a /etc/apt/sources.list
 - sudo apt-get update -qq
 - git clone https://github.com/google/googletest.git -b release-1.10.0
