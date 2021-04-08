@@ -49,15 +49,23 @@ int main(int argc, const char *argv[])
     BayanSearcher searcher(move(directoryTraversal));
     searcher.search_bayans();
 
+    bool first = true;
     for(const auto& file: searcher.mComparisonFiles)
     {
+        if (!first)
+        {
+            std::cout << endl;
+        }
+        else
+        { 
+            first = false;
+        }
+
         std::cout << file.get_path() << std::endl;
         for (const auto& duplicate: file.get_duplicates())
         {
             std::cout << duplicate << std::endl;
         }
-        std::cout << std::endl;
-        
     }
     
     return 0;
