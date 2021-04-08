@@ -4,6 +4,7 @@
 #include "fstream_file_reader.h"
 #include "directory_traversal.h"
 #include "scan_depth.h"
+#include "settings.h"
 
 #include <boost/filesystem.hpp>
 #include <boost/regex.hpp>
@@ -26,8 +27,9 @@ class TraversalExcluderBase
 public:
     TraversalExcluderBase<IteratorType>(
         const std::vector<std::string>& excludeDirectories,
-        const std::vector<std::string>& includeFileMask)
-        :mExcludeDirectories(excludeDirectories)
+        const std::vector<std::string>& includeFileMask,
+        size_t minFileSize)
+        :mExcludeDirectories(excludeDirectories), mMinFileSize(minFileSize)
     {
         mIncludeFileMask.reserve(includeFileMask.size());  
         for (const auto& globMask: includeFileMask)
@@ -56,6 +58,11 @@ public:
     bool should_include_file(const IteratorType& iterator)
     {
         auto path = iterator->path().string();
+        if (boost::filesystem::file_size(path) < mMinFileSize)
+        {
+            return false;
+        }
+
         if (boost::filesystem::is_regular_file(path))
         {
             for(const auto& mask: mIncludeFileMask)
@@ -69,12 +76,14 @@ public:
             }
         }
 
-        return false;
+        return mIncludeFileMask.empty();
     }
 
 private:
     std::vector<std::string> mExcludeDirectories;
     std::vector<boost::regex> mIncludeFileMask;
+    size_t mMinFileSize = 0;
+
     // not using map as the order matters
     const std::vector<std::pair<std::string, std::string>> mGlobToRegex = {{"\\.", "\\\\."}, {"\\*", ".*"}, {"\\?", "."}};
 
@@ -88,8 +97,11 @@ template <typename IteratorType>
 class TraversalExcluder : public TraversalExcluderBase<IteratorType>
 {
 public:
-    TraversalExcluder(const std::vector<std::string>& excludeDirectories, const std::vector<std::string>& includeFileMask)
-        :TraversalExcluderBase<IteratorType>(excludeDirectories, includeFileMask)
+    TraversalExcluder(
+            const std::vector<std::string>& excludeDirectories,
+            const std::vector<std::string>& includeFileMask,
+            size_t minFileSize)
+        :TraversalExcluderBase<IteratorType>(excludeDirectories, includeFileMask, minFileSize)
     {
     }
 };
@@ -99,8 +111,11 @@ class TraversalExcluder<boost::filesystem::recursive_directory_iterator>
     : public TraversalExcluderBase<boost::filesystem::recursive_directory_iterator>
 {
 public:
-    TraversalExcluder(const std::vector<std::string>& excludeDirectories, const std::vector<std::string>& includeFileMask)
-        :TraversalExcluderBase(excludeDirectories, includeFileMask)
+    TraversalExcluder(
+        const std::vector<std::string>& excludeDirectories,
+        const std::vector<std::string>& includeFileMask,
+        size_t minFileSize)
+        :TraversalExcluderBase(excludeDirectories, includeFileMask, minFileSize)
     {
     }
 
@@ -116,14 +131,11 @@ class BoostDirectoryTraversal : public DirectoryTraversal
 {
 public:
     BoostDirectoryTraversal(
-        const std::vector<std::string>& includeDirs,
-        const std::vector<std::string>& excludeDirs,
-        const std::vector<std::string>& includeFiles,
-        std::shared_ptr<Hasher> hasher,
-        size_t fileBlocksSize)
-        :mDirectories(includeDirs), mFileBlockSize(fileBlocksSize), mHasher(hasher)
+        const Settings& settings, 
+        std::shared_ptr<Hasher> hasher)
+        :mDirectories(settings.mIncudeDirs), mFileBlockSize(settings.mBlockSize), mHasher(hasher)
     {
-        mPathFilter = std::make_unique<TraversalExcluder<IteratorType>>(excludeDirs, includeFiles);
+        mPathFilter = std::make_unique<TraversalExcluder<IteratorType>>(settings.mExcludeDirs, settings.mFileMasks, settings.mMinSize);
         mDirectoriesIterator = mDirectories.cbegin();
         
         mFilesIterator = mDirectoriesIterator != mDirectories.cend() 

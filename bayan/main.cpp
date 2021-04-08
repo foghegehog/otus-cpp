@@ -34,19 +34,19 @@ int main(int argc, const char *argv[])
         hasher = make_shared<Md5Hasher>();
     }
 
-    unique_ptr<DirectoryTraversal> directory;
+    unique_ptr<DirectoryTraversal> directoryTraversal;
     if (settings.mScanDepth == ScanDepth::SCAN_CURRENT) 
     {
-        directory = make_unique<BoostDirectoryTraversal<directory_iterator>>(
-            settings.mIncudeDirs, settings.mExcludeDirs, settings.mFileMasks, move(hasher), settings.mBlockSize);
+        directoryTraversal = make_unique<BoostDirectoryTraversal<directory_iterator>>(
+            settings, move(hasher));
     }
     else
     {
-        directory = make_unique<BoostDirectoryTraversal<recursive_directory_iterator>>(
-            settings.mIncudeDirs, settings.mExcludeDirs, settings.mFileMasks, move(hasher), settings.mBlockSize);
+        directoryTraversal = make_unique<BoostDirectoryTraversal<recursive_directory_iterator>>(
+            settings, move(hasher));
     }     
      
-    BayanSearcher searcher(move(directory));
+    BayanSearcher searcher(move(directoryTraversal));
     searcher.search_bayans();
 
     for(const auto& file: searcher.mComparisonFiles)
