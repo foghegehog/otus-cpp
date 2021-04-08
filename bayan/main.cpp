@@ -38,12 +38,12 @@ int main(int argc, const char *argv[])
     if (settings.mScanDepth == ScanDepth::SCAN_CURRENT) 
     {
         directory = make_unique<BoostDirectoryTraversal<directory_iterator>>(
-            settings.mIncudeDirs, settings.mExcludeDirs, move(hasher), settings.mBlockSize);
+            settings.mIncudeDirs, settings.mExcludeDirs, settings.mFileMasks, move(hasher), settings.mBlockSize);
     }
     else
     {
         directory = make_unique<BoostDirectoryTraversal<recursive_directory_iterator>>(
-            settings.mIncudeDirs, settings.mExcludeDirs, move(hasher), settings.mBlockSize);
+            settings.mIncudeDirs, settings.mExcludeDirs, settings.mFileMasks, move(hasher), settings.mBlockSize);
     }     
      
     BayanSearcher searcher(move(directory));

@@ -6,7 +6,7 @@ else()
     project(bayan VERSION 0.0.1)
 endif()
 
-find_package(Boost COMPONENTS program_options unit_test_framework filesystem REQUIRED)
+find_package(Boost COMPONENTS program_options unit_test_framework filesystem regex REQUIRED)
 
 add_executable(bayan main.cpp)
 add_library(lib crc32_hasher.cpp md5_hasher.cpp settings.cpp file_comparison.cpp bayan_searcher.cpp)

@@ -5,9 +5,11 @@
 #include "directory_traversal.h"
 #include "scan_depth.h"
 
-#include <iostream>
 #include <boost/filesystem.hpp>
+#include <boost/regex.hpp>
+#include <map>
 #include <memory>
+#include <iostream>
 #include <string>
 #include <type_traits>
 #include <vector>
@@ -19,25 +21,63 @@ bool points_to_directory(const IteratorType& iterator)
 }
 
 template <typename IteratorType>
-class DirectoryExcluderBase
+class TraversalExcluderBase
 {
 public:
-    DirectoryExcluderBase<IteratorType>(const std::vector<std::string>& excludeDirectories)
+    TraversalExcluderBase<IteratorType>(
+        const std::vector<std::string>& excludeDirectories,
+        const std::vector<std::string>& includeFileMask)
         :mExcludeDirectories(excludeDirectories)
     {
+        mIncludeFileMask.reserve(includeFileMask.size());  
+        for (const auto& globMask: includeFileMask)
+        {
+            auto replacedMask = globMask;
+            for(const auto& pair: mGlobToRegex)
+            {
+                std::stringstream stream;
+                std::ostream_iterator<char> out_iterator(stream);
+                boost::regex_replace(out_iterator, replacedMask.begin(), replacedMask.end(), boost::regex(pair.first), pair.second);
+                replacedMask = stream.str();
+            }
+
+            mIncludeFileMask.push_back(boost::regex("^" + replacedMask + "$"));
+        }
     }
 
     void filter_exclude_dirs(IteratorType& iterator)
     {
-        if (points_to_directory(iterator) && 
-                std::find(mExcludeDirectories.begin(), mExcludeDirectories.end(), iterator->path().string()) != mExcludeDirectories.end())
+        if (std::find(mExcludeDirectories.begin(), mExcludeDirectories.end(), iterator->path().string()) != mExcludeDirectories.end())
         {
             exclude_directory(iterator);
         }
     }
 
+    bool should_include_file(const IteratorType& iterator)
+    {
+        auto path = iterator->path().string();
+        if (boost::filesystem::is_regular_file(path))
+        {
+            for(const auto& mask: mIncludeFileMask)
+            {
+                boost::smatch what;
+                auto path = iterator->path();
+                if (boost::regex_match(path.filename().string(), what, mask))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
 private:
     std::vector<std::string> mExcludeDirectories;
+    std::vector<boost::regex> mIncludeFileMask;
+    // not using map as the order matters
+    const std::vector<std::pair<std::string, std::string>> mGlobToRegex = {{"\\.", "\\\\."}, {"\\*", ".*"}, {"\\?", "."}};
+
     virtual void exclude_directory(IteratorType& iterator)
     {
         (void)iterator;
@@ -45,22 +85,22 @@ private:
 };
 
 template <typename IteratorType>
-class DirectoryExcluder : public DirectoryExcluderBase<IteratorType>
+class TraversalExcluder : public TraversalExcluderBase<IteratorType>
 {
 public:
-    DirectoryExcluder(const std::vector<std::string>& excludeDirectories)
-        :DirectoryExcluderBase<IteratorType>(excludeDirectories)
+    TraversalExcluder(const std::vector<std::string>& excludeDirectories, const std::vector<std::string>& includeFileMask)
+        :TraversalExcluderBase<IteratorType>(excludeDirectories, includeFileMask)
     {
     }
 };
 
 template<>
-class DirectoryExcluder<boost::filesystem::recursive_directory_iterator> 
-    : public DirectoryExcluderBase<boost::filesystem::recursive_directory_iterator>
+class TraversalExcluder<boost::filesystem::recursive_directory_iterator> 
+    : public TraversalExcluderBase<boost::filesystem::recursive_directory_iterator>
 {
 public:
-    DirectoryExcluder(const std::vector<std::string>& excludeDirectories)
-        :DirectoryExcluderBase(excludeDirectories)
+    TraversalExcluder(const std::vector<std::string>& excludeDirectories, const std::vector<std::string>& includeFileMask)
+        :TraversalExcluderBase(excludeDirectories, includeFileMask)
     {
     }
 
@@ -78,11 +118,12 @@ public:
     BoostDirectoryTraversal(
         const std::vector<std::string>& includeDirs,
         const std::vector<std::string>& excludeDirs,
+        const std::vector<std::string>& includeFiles,
         std::shared_ptr<Hasher> hasher,
         size_t fileBlocksSize)
         :mDirectories(includeDirs), mFileBlockSize(fileBlocksSize), mHasher(hasher)
     {
-        mDirectoryExcluder = std::make_unique<DirectoryExcluder<IteratorType>>(excludeDirs);
+        mPathFilter = std::make_unique<TraversalExcluder<IteratorType>>(excludeDirs, includeFiles);
         mDirectoriesIterator = mDirectories.cbegin();
         
         mFilesIterator = mDirectoriesIterator != mDirectories.cend() 
@@ -90,7 +131,7 @@ public:
             : IteratorType();
         mFilesIteratorEnd = IteratorType();
 
-        if (points_to_directory(mFilesIterator))
+        if (points_to_directory(mFilesIterator) || !mPathFilter->should_include_file(mFilesIterator))
         {
             move_to_next_file();
         }
@@ -116,7 +157,7 @@ public:
 
 private:
     std::vector<std::string> mDirectories;
-    std::unique_ptr<DirectoryExcluder<IteratorType>> mDirectoryExcluder; 
+    std::unique_ptr<TraversalExcluder<IteratorType>> mPathFilter; 
     std::vector<std::string>::const_iterator mDirectoriesIterator; 
     IteratorType mFilesIterator; 
     IteratorType mFilesIteratorEnd;
@@ -129,7 +170,7 @@ private:
         {
             if (points_to_directory(mFilesIterator))
             {
-                mDirectoryExcluder->filter_exclude_dirs(mFilesIterator);
+                mPathFilter->filter_exclude_dirs(mFilesIterator);
             }
 
             ++mFilesIterator;
@@ -143,7 +184,7 @@ private:
                 }
             }
         }
-        while (!is_traversed() && points_to_directory(mFilesIterator)); 
+        while (!is_traversed() && (points_to_directory(mFilesIterator) || !mPathFilter->should_include_file(mFilesIterator))); 
     }
 };
 
