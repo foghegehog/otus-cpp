@@ -5,8 +5,6 @@
 #include <string>
 #include <vector>
 
-using namespace std;
-
 class ShapeVisitor;
 
 class Shape{
@@ -15,7 +13,7 @@ class Shape{
         // Denotes which shape is "closer" to user and overlaps others. 
         int Z;
 
-        virtual void Accept(shared_ptr<ShapeVisitor> visitor) = 0;
+        virtual void Accept(std::shared_ptr<ShapeVisitor> visitor) = 0;
 };
 
 class Point: public Shape{
@@ -23,7 +21,7 @@ class Point: public Shape{
         int X;
         int Y;
 
-        virtual void Accept(shared_ptr<ShapeVisitor> visitor) override;
+        void Accept(std::shared_ptr<ShapeVisitor> visitor) override;
 };
 
 class Line: public Shape{
@@ -31,7 +29,7 @@ class Line: public Shape{
         Point From;
         Point To;
 
-        virtual void Accept(shared_ptr<ShapeVisitor> visitor) override;
+        void Accept(std::shared_ptr<ShapeVisitor> visitor) override;
 };
 
 class Circle: public Shape{
@@ -39,14 +37,14 @@ class Circle: public Shape{
         Point Center;
         double Radius;
 
-        virtual void Accept(shared_ptr<ShapeVisitor> visitor) override;
+        void Accept(std::shared_ptr<ShapeVisitor> visitor) override;
 };
 
 class Polygon: public Shape{
     public:
-        vector<Line> Lines;
+        std::vector<Line> Lines;
 
-        virtual void Accept(shared_ptr<ShapeVisitor> visitor) override;
+        void Accept(std::shared_ptr<ShapeVisitor> visitor) override;
 };
 
 // The GoF Visitor pattern
@@ -60,12 +58,12 @@ class ShapeVisitor{
 
 class Document{
     public:
-        string Path;
+        std::string Path;
         bool HasUnsavedChanges;
-        shared_ptr<Shape> ActiveShape;
-        void AddShape(const shared_ptr<Shape>& shape){};
-        void RemoveShape(const shared_ptr<Shape>& shape) {};
-        void VisitAllShapes(const shared_ptr<ShapeVisitor>& visitor)
+        std::shared_ptr<Shape> ActiveShape;
+        void AddShape(std::shared_ptr<Shape> shape){};
+        void RemoveShape(std::shared_ptr<Shape> shape) {};
+        void VisitAllShapes(std::shared_ptr<ShapeVisitor> visitor)
         {
             for(const auto& shape: m_shapes)
             {
@@ -73,5 +71,5 @@ class Document{
             }
         }
     private:
-        list<shared_ptr<Shape>> m_shapes;
+        std::list<std::shared_ptr<Shape>> m_shapes;
 };

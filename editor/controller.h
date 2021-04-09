@@ -6,21 +6,21 @@
 
 class DrawingVisitor : public ShapeVisitor{
     public:
-        DrawingVisitor(const shared_ptr<Canvas>& canvas)
+        DrawingVisitor(std::shared_ptr<Canvas> canvas)
+            :m_canvas(canvas)
         {
-            m_canvas = shared_ptr<Canvas>(canvas);
         }
 
-        virtual void VisitPoint(const Point& point) override {std::cout<<"Point drawn!"<<std::endl;};
-        virtual void VisitLine(const Line& line) override {std::cout<<"Line drawn!"<<std::endl;};
-        virtual void VisitCircle(const Circle& line) override {std::cout<<"Circle drawn!"<<std::endl;};
-        virtual void VisitPolygon(const Polygon& polygon) override {std::cout<<"Polygon drawn!"<<std::endl;};
+        void VisitPoint(const Point& point) override {std::cout<<"Point drawn!"<<std::endl;};
+        void VisitLine(const Line& line) override {std::cout<<"Line drawn!"<<std::endl;};
+        void VisitCircle(const Circle& line) override {std::cout<<"Circle drawn!"<<std::endl;};
+        void VisitPolygon(const Polygon& polygon) override {std::cout<<"Polygon drawn!"<<std::endl;};
 
     private:
-        shared_ptr<Canvas> m_canvas;
+        std::shared_ptr<Canvas> m_canvas;
 };
 
-enum OverlapDirection{
+enum class OverlapDirection{
     Overlapped,
     Overlapping
 };
@@ -28,20 +28,20 @@ enum OverlapDirection{
 // Gathers shapes that are either overlapped by the considered shape or overlaps it themself
 class OverlappingVisitor : public ShapeVisitor{
     public:
-        OverlappingVisitor(shared_ptr<Shape> shape, OverlapDirection overlapDirection)
+        OverlappingVisitor(std::shared_ptr<Shape> shape, OverlapDirection overlapDirection)
         :m_considered_shape(shape), m_direction(overlapDirection)
         {}
 
-        virtual void VisitPoint(const Point& point) override {};
-        virtual void VisitLine(const Line& line) override {};
-        virtual void VisitCircle(const Circle& line) override {};
-        virtual void VisitPolygon(const Polygon& polygon) override {};
+        void VisitPoint(const Point& point) override {};
+        void VisitLine(const Line& line) override {};
+        void VisitCircle(const Circle& line) override {};
+        void VisitPolygon(const Polygon& polygon) override {};
 
         // Should be called after visiting all tested shapes 
-        vector<shared_ptr<Shape>> GetShapesOverlaps() {};
+        std::vector<std::shared_ptr<Shape>> GetShapesOverlaps() {return std::vector<std::shared_ptr<Shape>>();};
 
     private:
-        shared_ptr<Shape> m_considered_shape;
+        std::shared_ptr<Shape> m_considered_shape;
         OverlapDirection m_direction;
 };
 
@@ -52,13 +52,13 @@ class PointContaingVisitor : public ShapeVisitor{
         :m_x(x), m_y(y)
         {}
 
-        virtual void VisitPoint(const Point& point) override {};
-        virtual void VisitLine(const Line& line) override {};
-        virtual void VisitCircle(const Circle& line) override {};
-        virtual void VisitPolygon(const Polygon& polygon) override {};
+        void VisitPoint(const Point& point) override {};
+        void VisitLine(const Line& line) override {};
+        void VisitCircle(const Circle& line) override {};
+        void VisitPolygon(const Polygon& polygon) override {};
 
         // Should be called after visiting all tested shapes 
-        vector<shared_ptr<Shape>> GetShapesContainingPoint() {return vector<shared_ptr<Shape>>();};
+        std::vector<std::shared_ptr<Shape>> GetShapesContainingPoint() {return std::vector<std::shared_ptr<Shape>>();};
 
     private:
         int m_x;
@@ -69,13 +69,13 @@ class Editor{
     public:
         Editor()
         {
-            m_drawing_visitor = make_shared<DrawingVisitor>(Form.ShapesCanvas);
+            m_drawing_visitor = std::make_shared<DrawingVisitor>(Form.ShapesCanvas);
         }
 
         EditorForm Form;
-        unique_ptr<Document> ActiveDocument;
+        std::unique_ptr<Document> ActiveDocument;
         // Is selected by clicking on the shape area on the canvas
-        shared_ptr<Shape> SelectedShape;
+        std::shared_ptr<Shape> SelectedShape;
 
         void CreateNewDocument()
         {
@@ -108,7 +108,7 @@ class Editor{
             // ...
         }
 
-        void AddShape(const shared_ptr<Shape>& shape)
+        void AddShape(const std::shared_ptr<Shape>& shape)
         {
             // ...
             ActiveDocument->AddShape(shape);
@@ -121,7 +121,7 @@ class Editor{
         // Activates shape selected with mouse click on the corresponding canvas region
         void SelectShapeClicked(int x, int y)
         {
-            auto pointVisitor = make_shared<PointContaingVisitor>(x, y);
+            auto pointVisitor = std::make_shared<PointContaingVisitor>(x, y);
             ActiveDocument->VisitAllShapes(pointVisitor);
             auto candidates = pointVisitor->GetShapesContainingPoint();
             // Select the shape to be selected and highlighted based on Z-index or other criteria
@@ -136,7 +136,7 @@ class Editor{
             {
                 ActiveDocument->RemoveShape(SelectedShape);
                 // ...
-                auto overlapsSearcher = make_shared<OverlappingVisitor>(SelectedShape, OverlapDirection::Overlapped);
+                auto overlapsSearcher = std::make_shared<OverlappingVisitor>(SelectedShape, OverlapDirection::Overlapped);
  
                 ActiveDocument->VisitAllShapes(overlapsSearcher);
                 for(const auto& overlappedShape: overlapsSearcher->GetShapesOverlaps())
@@ -170,5 +170,5 @@ class Editor{
             return closed;
         }
 
-        shared_ptr<DrawingVisitor> m_drawing_visitor;  
+        std::shared_ptr<DrawingVisitor> m_drawing_visitor;  
 };

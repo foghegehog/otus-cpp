@@ -22,7 +22,7 @@ void OnShapeCreation(Editor& editor, const MenuItemSelectedArgs& eventArgs)
     GetShapeDetailsDialog shapesDetailsDialog;
     // ...
 
-    shared_ptr<Shape> circle(new Circle());
+    std::shared_ptr<Shape> circle(new Circle());
     editor.AddShape(circle);
 }
 

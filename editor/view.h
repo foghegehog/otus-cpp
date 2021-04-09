@@ -5,16 +5,14 @@
 #include <memory>
 #include <vector>
 
-using namespace std;
-
 // Observer pattern (Pub-Subscribe)
 template<typename EventArgs>
 class Event{
     public:
-        void Subscribe(function<void(EventArgs)>){};
+        void Subscribe(std::function<void(EventArgs)>){};
         void NotifyAll();
     private:
-        forward_list<function<void(const EventArgs&)>> m_handlers;
+        std::forward_list<std::function<void(const EventArgs&)>> m_handlers;
 };
 
 class EventArgs {};
@@ -24,21 +22,21 @@ class UserControl{};
 
 class MenuItem: public UserControl{
     public:
-        MenuItem(const string& name, const string& caption)
+        MenuItem(const std::string& name, const std::string& caption)
         : Name(name), Caption(caption)
         {}
 
-        string Name;
-        string Caption;
+        std::string Name;
+        std::string Caption;
         Event<MenuItemSelectedArgs> ItemSelectedEvent; 
 };
 
 class Menu: public UserControl{
     public:
-        void AddMenuItem(const string& name, const string& caption){};
-        void SubscribeOnMenuItemSelected(const string & name, function<void(const MenuItemSelectedArgs&)>){}
+        void AddMenuItem(const std::string& name, const std::string& caption){};
+        void SubscribeOnMenuItemSelected(const std::string & name, std::function<void(const MenuItemSelectedArgs&)>){}
     private:
-        vector<MenuItem> m_menu_items;
+        std::vector<MenuItem> m_menu_items;
 };
 
 class ContextMenu: public Menu{
@@ -46,7 +44,7 @@ class ContextMenu: public Menu{
         void Show(){};
 };
 
-enum MouseButton{
+enum class MouseButton{
     Left,
     Right
 };
@@ -66,10 +64,10 @@ class Canvas: public UserControl{
 
 class Dialog : public UserControl{
     public:
-        string Message;
+        std::string Message;
 };
 
-enum UserChoice{
+enum class UserChoice{
     Yes,
     No,
     Cancel
@@ -82,7 +80,7 @@ class ConfirmationDialog: public Dialog{
 
 class GetPathDialog: public Dialog{
     public:
-        string GetPath();
+        std::string GetPath();
 };
 
 struct ShapeDetails {};
@@ -105,7 +103,7 @@ class EditorForm : public UserControl{
 
         Menu MenuBar;
         ContextMenu PopupMenu;
-        shared_ptr<Canvas> ShapesCanvas;
+        std::shared_ptr<Canvas> ShapesCanvas;
 
         void Show(){};
 }; 
