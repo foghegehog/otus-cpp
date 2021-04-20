@@ -38,9 +38,8 @@ else ()
 endif()
 
 
-
-install(TARGETS async RUNTIME DESTINATION bin)
 install(TARGETS demo RUNTIME DESTINATION bin)
+install(TARGETS async LIBRARY DESTINATION bin)
 
 set(CPACK_GENERATOR DEB)
 
