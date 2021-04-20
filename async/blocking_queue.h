@@ -47,17 +47,21 @@ public:
 	}
 
     template<typename S>
-    void fill(S state, std::function<T(S&)> generator, std::function<bool(const S&)> is_finish){
+    size_t fill(S state, std::function<T(S&)> generator, std::function<bool(const S&)> is_finish){
         using namespace std;
 
+		int count = 0;
         {
 		    unique_lock<mutex> lock(m_mutex);
 		    while(!is_finish(state))
             {
                 m_queue.push(generator(state));
+				count++;
             }            
         }
 		m_cv.notify_one();
+
+		return count;
     }
 
 	bool try_get(T& out) {

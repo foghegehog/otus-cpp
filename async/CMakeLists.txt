@@ -7,7 +7,7 @@ else()
 endif()
 
 add_executable(demo main.cpp)
-add_library(async SHARED async.cpp)
+add_library(async SHARED async.cpp commands_parsing.cpp context.cpp)
 
 set_target_properties(demo async PROPERTIES
     CXX_STANDARD 17
