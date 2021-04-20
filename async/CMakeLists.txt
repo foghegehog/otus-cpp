@@ -6,6 +6,9 @@ else()
     project(async VERSION 0.0.1)
 endif()
 
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+
 add_executable(demo main.cpp)
 add_library(async SHARED async.cpp commands_parsing.cpp context.cpp)
 
@@ -18,7 +21,7 @@ target_include_directories(async
 )
 
 target_link_libraries(demo PRIVATE
-    async
+    async Threads::Threads
 )
 
 if (MSVC)
@@ -30,11 +33,11 @@ if (MSVC)
     )
 else ()
     target_compile_options(async PRIVATE
-        -Wall -Wextra -pedantic -Werror
+        -Wall -Wextra -pedantic -Werror 
     )
     target_compile_options(demo PRIVATE
-        -Wall -Wextra -pedantic -Werror
-    )
+        -Wall -Wextra -pedantic -Werror 
+    ) 
 endif()
 
 

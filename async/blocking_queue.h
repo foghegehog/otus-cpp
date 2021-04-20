@@ -21,7 +21,7 @@ public:
         unique_lock<mutex> lock(m_mutex);
         m_cv.wait(lock, [this]{ return m_queue.size() > 0; });
 		T t = move(m_queue.front());
-        m_queue.pop_front();
+        m_queue.pop();
         lock.unlock();
 		return move(t);
 	}

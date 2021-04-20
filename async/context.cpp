@@ -21,4 +21,9 @@ size_t Context::read_buffer(const char * buffer, size_t chars_count)
     return m_receive_queue.fill<const char *>(start, generator, is_finish);
 }
 
+std::string Context::dequeue_command()
+{
+    return m_receive_queue.get();
+}
+
 }

@@ -17,6 +17,9 @@ public:
     }
 
     size_t read_buffer(const char * buffer, size_t chars_count);
+    std::string dequeue_command();
+
+    std::mutex m_command_mutex;
 
 private:
     blocking_queue<std::string> m_receive_queue;
