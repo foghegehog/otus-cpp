@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "processing_handler.h"
 
 namespace handlers{
@@ -5,23 +7,28 @@ namespace handlers{
 void ProcessingHandler::ExecuteCommand(const ExecutableCommand& command, async::Context * context)
 {
     UNUSED(command);
-    ProcessBulkIfReady();
+    ProcessBulkIfReady(context);
 }
 
 void ProcessingHandler::HandleControlFlow(const ControlCommand& command, async::Context * context)
 {
     UNUSED(command);
-    ProcessBulkIfReady();
+    ProcessBulkIfReady(context);
 }
 
-void ProcessingHandler::ProcessBulkIfReady()
+void ProcessingHandler::ProcessBulkIfReady(async::Context * context)
 {
-    if (m_contro_unit->ShouldProcessBulk())
+    if (context->m_control_unit.ShouldProcessBulk())
     {
-        auto bulk = m_accumulator->GetBulk();
+        auto bulk = context->m_accumulator.GetBulk();
         process(bulk);
-        m_accumulator->ClearBulk();
-        m_contro_unit->HandleEvent(ControlUnit::BulkProcessed);
+        std::cout << "Bulk: ";
+        for (const auto& cmd: bulk)
+        {
+            std::cout << cmd.Text << std::endl;
+        } 
+        context->m_accumulator.ClearBulk();
+        context->m_control_unit.HandleEvent(ControlUnit::BulkProcessed);
     }
 }
 

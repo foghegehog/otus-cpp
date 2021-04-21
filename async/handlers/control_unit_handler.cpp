@@ -5,22 +5,22 @@ namespace handlers{
 void ControlUnitHandler::ExecuteCommand(const ExecutableCommand& command, async::Context * context)
 {
     UNUSED(command);
-    m_contro_unit->HandleEvent(ControlUnit::CommandAdded);
+    context->m_control_unit.HandleEvent(ControlUnit::CommandAdded);
 }
 
 void ControlUnitHandler::HandleControlFlow(const ControlCommand& command, async::Context * context)
 {
     if (command.Text == "{")
     {
-        m_contro_unit->HandleEvent(ControlUnit::BlockOpened);
+        context->m_control_unit.HandleEvent(ControlUnit::BlockOpened);
     }
     else if (command.Text == "}")
     {
-        m_contro_unit->HandleEvent(ControlUnit::BlockClosed);
+        context->m_control_unit.HandleEvent(ControlUnit::BlockClosed);
     }
     else if (command.Text == "EOF")
     {
-        m_contro_unit->HandleEvent(ControlUnit::BlockOpened);
+        context->m_control_unit.HandleEvent(ControlUnit::BlockOpened);
     }
     else
     { 

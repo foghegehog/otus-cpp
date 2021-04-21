@@ -23,7 +23,7 @@ class ProcessingHandler: public Handler
     private:
         std::shared_ptr<ControlUnit> m_contro_unit;
         std::shared_ptr<Accumulator> m_accumulator;
-        void ProcessBulkIfReady();
+        void ProcessBulkIfReady(async::Context * context);
 };
 
 }

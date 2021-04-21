@@ -3,6 +3,7 @@
 
 #include "blocking_queue.h"
 #include "handlers/accumulator.h"
+#include "handlers/control_unit.h"
 
 #include <string>
 #include <vector>
@@ -13,7 +14,7 @@ namespace async{
 class Context{
 public:
     Context(size_t bulk_size)
-        :m_commands(bulk_size)
+        :m_control_unit(bulk_size)
     {
     }
 
@@ -23,11 +24,10 @@ public:
     std::mutex m_command_mutex;
 
     handlers::Accumulator m_accumulator;
+    handlers::ControlUnit m_control_unit;
 
 private:
     blocking_queue<std::string> m_receive_queue;
-
-    std::vector<std::string> m_commands;
 };
 
 }
