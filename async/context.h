@@ -2,6 +2,7 @@
 #define CONTEXT_H
 
 #include "blocking_queue.h"
+#include "handlers/accumulator.h"
 
 #include <string>
 #include <vector>
@@ -20,6 +21,8 @@ public:
     std::string dequeue_command();
 
     std::mutex m_command_mutex;
+
+    handlers::Accumulator m_accumulator;
 
 private:
     blocking_queue<std::string> m_receive_queue;

@@ -23,7 +23,7 @@ public:
 		T t = move(m_queue.front());
         m_queue.pop();
         lock.unlock();
-		return move(t);
+		return t;
 	}
 
 	void put(T&& t) {
