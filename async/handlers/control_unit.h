@@ -21,13 +21,16 @@ class ControlUnit
             BulkReady,
             ProcessUnfinished,
             GatheringDynamic,
-            Discard
+            Discard,
+            ClearProcessed,
+            ClearProcessedUnfinished
         };
 
         enum Event
         {
             CommandAdded,
             BulkProcessed,
+            ClearedProcessed,
             BlockOpened,
             BlockClosed,
             EndOfFile
@@ -36,6 +39,7 @@ class ControlUnit
         ControlUnit(size_t static_bulk_size);
         void HandleEvent(Event evnt);
         bool ShouldProcessBulk() const;
+        bool ShouldClearProcessedBulk() const;
         
     private:
         State m_state = State::Empty;

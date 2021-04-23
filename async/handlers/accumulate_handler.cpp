@@ -1,15 +1,14 @@
 #include "accumulate_handler.h"
 
 namespace handlers{
-void AccumulateHandler::ExecuteCommand(const ExecutableCommand& command, async::Context * context)
+void AccumulateHandler::ExecuteCommand(const ExecutableCommand& command)
 {
-    context->m_accumulator.StoreCommand(command);
+    m_accumulator->StoreCommand(command);
 }
 
-void AccumulateHandler::HandleControlFlow(const ControlCommand& command, async::Context * context)
+void AccumulateHandler::HandleControlFlow(const ControlCommand& command)
 {
     UNUSED(command);
-    UNUSED(context);
 }
 
 }

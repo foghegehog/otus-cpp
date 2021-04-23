@@ -4,31 +4,25 @@
 
 namespace handlers{
 
-void ProcessingHandler::ExecuteCommand(const ExecutableCommand& command, async::Context * context)
+void ProcessingHandler::ExecuteCommand(const ExecutableCommand& command)
 {
     UNUSED(command);
-    ProcessBulkIfReady(context);
+    ProcessBulkIfReady();
 }
 
-void ProcessingHandler::HandleControlFlow(const ControlCommand& command, async::Context * context)
+void ProcessingHandler::HandleControlFlow(const ControlCommand& command)
 {
     UNUSED(command);
-    ProcessBulkIfReady(context);
+    ProcessBulkIfReady();
 }
 
-void ProcessingHandler::ProcessBulkIfReady(async::Context * context)
+void ProcessingHandler::ProcessBulkIfReady()
 {
-    if (context->m_control_unit.ShouldProcessBulk())
+    if (m_control_unit->ShouldProcessBulk())
     {
-        auto bulk = context->m_accumulator.GetBulk();
+        auto bulk = m_accumulator->GetBulk();
         process(bulk);
-        std::cout << "Bulk: ";
-        for (const auto& cmd: bulk)
-        {
-            std::cout << cmd.Text << std::endl;
-        } 
-        context->m_accumulator.ClearBulk();
-        context->m_control_unit.HandleEvent(ControlUnit::BulkProcessed);
+        m_control_unit->HandleEvent(ControlUnit::BulkProcessed);
     }
 }
 

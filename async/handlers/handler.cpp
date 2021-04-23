@@ -2,26 +2,23 @@
 
 namespace handlers{
 
-void Handler::Handle(const ExecutableCommand& command, async::Context * context)
+
+void Handler::Handle(const ExecutableCommand& command)
 {
-    ExecuteCommand(command, context);
+    ExecuteCommand(command);
     if (m_next)
     {
-        m_next->Handle(command, context);
+        m_next->Handle(command);
     }
 }
 
-void Handler::Handle(const ControlCommand& command, async::Context * context)
+void Handler::Handle(const ControlCommand& command)
 {
-    HandleControlFlow(command, context);
+    HandleControlFlow(command);
     if (m_next)
     {
-        m_next->Handle(command, context);
+        m_next->Handle(command);
     }
 }
 
-void Handler::SetNext(std::shared_ptr<Handler> next)
-{
-    m_next = std::shared_ptr<Handler>(next);
-} 
 }

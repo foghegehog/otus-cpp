@@ -26,14 +26,16 @@ ControlUnit::ControlUnit(size_t static_bulk_size)
     CreateTransition(BulkReady, BulkProcessed, [this]()
     {
         m_commands_count = 0;
-        m_state = Empty; 
+        m_state = ClearProcessed; 
     });
+    CreateTransition(ClearProcessed, ClearedProcessed, [this](){ m_state = Empty; });
+    CreateTransition(ClearProcessedUnfinished, ClearedProcessed, [this](){ m_state = GatheringDynamic; });
     CreateTransition(Empty, BlockOpened, [this](){ m_state = GatheringDynamic; });
     CreateTransition(GatheringStatic, BlockOpened, [this](){ m_state = ProcessUnfinished; });
     CreateTransition(ProcessUnfinished, BulkProcessed, [this]()
     { 
         m_commands_count = 0;
-        m_state = GatheringDynamic; 
+        m_state = ClearProcessedUnfinished; 
     });
     CreateTransition(GatheringDynamic, CommandAdded, [](){});
     CreateTransition(GatheringDynamic, BlockOpened, [this]()
@@ -64,6 +66,11 @@ void ControlUnit::CreateTransition(State from, Event onEvent, std::function<void
 bool ControlUnit::ShouldProcessBulk() const
 {
     return (m_state == BulkReady) || (m_state == ProcessUnfinished);
+}
+
+bool ControlUnit::ShouldClearProcessedBulk() const
+{
+    return (m_state == ClearProcessed) || (m_state == ClearProcessedUnfinished);
 }
 
 void ControlUnit::HandleEvent(Event evnt)

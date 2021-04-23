@@ -2,6 +2,7 @@
 #define CONTEXT_H
 
 #include "blocking_queue.h"
+#include "handlers/handlers_chain.h"
 #include "handlers/accumulator.h"
 #include "handlers/control_unit.h"
 
@@ -10,24 +11,20 @@
 
 namespace async{
 
-
 class Context{
 public:
-    Context(size_t bulk_size)
-        :m_control_unit(bulk_size)
-    {
-    }
+    Context(size_t bulk_size);
 
-    size_t read_buffer(const char * buffer, size_t chars_count);
-    std::string dequeue_command();
-
-    std::mutex m_command_mutex;
-
-    handlers::Accumulator m_accumulator;
-    handlers::ControlUnit m_control_unit;
+    size_t read_buffer_blocking(const char * buffer, size_t chars_count);
+    void process_next_command_blocking();
 
 private:
     blocking_queue<std::string> m_receive_queue;
+
+    std::mutex m_processing_mutex;
+    std::shared_ptr<handlers::Accumulator> m_accumulator;
+    std::shared_ptr<handlers::ControlUnit> m_control_unit;
+    std::unique_ptr<handlers::HandlersChain> m_handlers;
 };
 
 }

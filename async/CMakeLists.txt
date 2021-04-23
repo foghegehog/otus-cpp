@@ -19,7 +19,8 @@ add_library(async SHARED
     handlers/control_unit.cpp
     handlers/accumulate_handler.cpp
     handlers/control_unit_handler.cpp
-    handlers/processing_handler.cpp)
+    handlers/processing_handler.cpp
+    handlers/handlers_chain.cpp)
 
 set_target_properties(demo async PROPERTIES
     CXX_STANDARD 17

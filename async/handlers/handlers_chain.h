@@ -2,6 +2,7 @@
 
 #include "handler.h"
 
+#include <functional>
 #include <memory>
 #include <string>
 
@@ -13,14 +14,12 @@ namespace handlers{
 class HandlersChain
 {
     public:
-        HandlersChain(std::shared_ptr<Handler> front_handler)
-        :m_front_handler(front_handler)
+        HandlersChain(std::function<std::unique_ptr<Handler>()> front_handler_factory)
+            : m_front_handler(std::move(front_handler_factory()))
         {}
-
-        void AddFront(std::shared_ptr<Handler> handler);
-        void PassThrough(std::string command_text, async::Context * context); 
+        void PassThrough(std::string command_text); 
     private:
-        std::shared_ptr<Handler> m_front_handler;
+        std::unique_ptr<Handler> m_front_handler;
 };
 
 }

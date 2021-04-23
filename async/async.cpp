@@ -1,9 +1,15 @@
 #include "async.h"
 #include "context.h"
 
+#include "handlers/accumulate_handler.h"
+#include "handlers/control_unit_handler.h"
+#include "handlers/handlers_chain.h"
+#include "handlers/processing_handler.h"
+
 #include <cstring>
 #include <functional>
 #include <iostream>
+#include <memory>
 #include <thread>
 #include <utility>
 
@@ -18,14 +24,10 @@ Context * connect(size_t bulk_size)
 
 void receive(Context * context, const char * buffer, size_t chars_count)
 {
-    auto commands_count = context->read_buffer(buffer, chars_count);
+    auto commands_count = context->read_buffer_blocking(buffer, chars_count);
     for(size_t c = 0; c < commands_count; c++)
     {
-        {
-            std::lock_guard<std::mutex> lock(context->m_command_mutex);
-            auto command = context->dequeue_command();
-            std::cout << "thread: " << std::this_thread::get_id() << " cmd: " << command << std::endl; 
-        }
+        context->process_next_command_blocking();
     }
 }
 

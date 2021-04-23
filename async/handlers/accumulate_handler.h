@@ -11,8 +11,16 @@ namespace handlers{
 class AccumulateHandler: public Handler
 {
 public:
-    void ExecuteCommand(const ExecutableCommand& command, async::Context * context) override;
-    void HandleControlFlow(const ControlCommand& command, async::Context * context) override;
+    AccumulateHandler(
+        std::shared_ptr<Accumulator> accumulator,
+        std::function<std::unique_ptr<Handler>()> next_handler_factory)
+        : Handler(next_handler_factory), m_accumulator(accumulator)
+    {}
+    void ExecuteCommand(const ExecutableCommand& command) override;
+    void HandleControlFlow(const ControlCommand& command) override;
+
+private:
+    std::shared_ptr<Accumulator> m_accumulator;
 };
 
 }

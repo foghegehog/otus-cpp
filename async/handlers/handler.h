@@ -1,8 +1,8 @@
 #pragma once
 
 #include "command.h"
-#include "../context.h"
 
+#include <functional>
 #include <memory> 
 #include <string>
 
@@ -16,13 +16,15 @@ namespace handlers{
 class Handler
 {
     public:
-        void Handle(const ExecutableCommand& command, async::Context * context);
-        void Handle(const ControlCommand& command, async::Context * context);
-        void SetNext(std::shared_ptr<Handler> next);
+        Handler(std::function<std::unique_ptr<Handler>()> next_handler_factory)
+            : m_next(std::move(next_handler_factory()))
+        {}
+        void Handle(const ExecutableCommand& command);
+        void Handle(const ControlCommand& command);
 
     protected:
-        virtual void ExecuteCommand(const ExecutableCommand& command, async::Context * context) = 0;
-        virtual void HandleControlFlow(const ControlCommand& command, async::Context * context) = 0;
+        virtual void ExecuteCommand(const ExecutableCommand& command) = 0;
+        virtual void HandleControlFlow(const ControlCommand& command) = 0;
 
     private:
         std::shared_ptr<Handler> m_next;

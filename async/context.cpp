@@ -1,9 +1,46 @@
+#include <mutex>
+
 #include "commands_parsing.h"
 #include "context.h"
+#include "handlers/accumulate_handler.h"
+#include "handlers/control_unit_handler.h"
+#include "handlers/handlers_chain.h"
+#include "handlers/processing_handler.h"
+
+// TODO: remove once debugged and tested
+#include <iostream>
 
 namespace async{
 
-size_t Context::read_buffer(const char * buffer, size_t chars_count)
+// TODO: remove once debugged and tested
+static std::mutex g_console_mutex;
+
+Context::Context(size_t bulk_size)
+{
+    using namespace handlers;
+
+    m_accumulator = std::make_shared<handlers::Accumulator>(); 
+    m_control_unit = std::make_shared<handlers::ControlUnit>(bulk_size);
+
+    auto processing_handler_factory = [this]()
+    {
+        return std::make_unique<ProcessingHandler>(m_control_unit, m_accumulator, [](){ return nullptr; }); 
+    };
+
+    auto control_handler_factory = [this, processing_handler_factory]()
+    {
+        return std::make_unique<ControlUnitHandler>(m_control_unit, processing_handler_factory); 
+    };
+
+    auto accumulator_handler_factory = [this, control_handler_factory]()
+    {
+        return std::make_unique<AccumulateHandler>(m_accumulator, control_handler_factory); 
+    };
+
+    m_handlers = std::make_unique<HandlersChain>(accumulator_handler_factory);
+}
+
+size_t Context::read_buffer_blocking(const char * buffer, size_t chars_count)
 {
     const char * buffer_end = buffer + chars_count - 1;
     const char separator = '\n';
@@ -21,9 +58,30 @@ size_t Context::read_buffer(const char * buffer, size_t chars_count)
     return m_receive_queue.fill<const char *>(start, generator, is_finish);
 }
 
-std::string Context::dequeue_command()
+void Context::process_next_command_blocking()
 {
-    return m_receive_queue.get();
+    {
+        const std::lock_guard<std::mutex> lock(m_processing_mutex);
+        auto next_command = m_receive_queue.get();
+        m_handlers->PassThrough(next_command);
+
+        if (m_control_unit->ShouldClearProcessedBulk())
+        {
+            {
+                const std::lock_guard<std::mutex> lock(g_console_mutex);
+                std::cout << "bulk: ";
+                for (const auto& cmd: m_accumulator->GetBulk())
+                {
+                    std::cout << cmd.Text << " ";
+                }
+
+                std::cout << std::endl;
+            }
+
+            m_accumulator->ClearBulk();
+            m_control_unit->HandleEvent(handlers::ControlUnit::ClearedProcessed);
+        }
+    }
 }
 
 }
