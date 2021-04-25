@@ -18,6 +18,11 @@ const std::vector<ExecutableCommand>& Accumulator::GetBulk()
     return m_bulk;
 }
 
+std::vector<ExecutableCommand>&& Accumulator::MoveBulk()
+{
+    return std::move(m_bulk);
+}
+
 void Accumulator::ClearBulk()
 {
     m_bulk.clear();

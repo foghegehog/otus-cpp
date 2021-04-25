@@ -14,8 +14,6 @@
 #include <utility>
 
 namespace async{
-// static is used to hide the variable inside the file
-static blocking_queue<std::pair<Context*, std::string>> receive_queue;
 
 Context * connect(size_t bulk_size)
 {

@@ -3,6 +3,7 @@
 #include "accumulator.h"
 
 #include <cstddef>
+#include <ctime>
 #include <functional>
 #include <map>
 
@@ -40,6 +41,7 @@ class ControlUnit
         void HandleEvent(Event evnt);
         bool ShouldProcessBulk() const;
         bool ShouldClearProcessedBulk() const;
+        time_t GetBulkStartTime() const;
         
     private:
         State m_state = State::Empty;
@@ -48,7 +50,11 @@ class ControlUnit
         size_t m_commands_count = 0;
         size_t m_static_bulk_size; 
 
+        const time_t m_unitialized_time = (time_t)(-1); 
+        time_t m_bulk_start_time = m_unitialized_time;
+
         void CreateTransition(State from, Event onEvent, std::function<void(void)> transition);
+        void SaveBulkStartTime();
 }; 
 
 }
