@@ -15,35 +15,16 @@ public:
 	blocking_queue() { }
 	blocking_queue(const blocking_queue& other) = delete;
 
-	T get() {
+	T get() 
+	{
         using namespace std;
 
-        unique_lock<mutex> lock(m_mutex);
-        m_cv.wait(lock, [this]{ return m_queue.size() > 0; });
-		T t = move(m_queue.front());
-        m_queue.pop();
-        lock.unlock();
-		return t;
-	}
-
-	void put(T&& t) {
-        using namespace std;
-
-        {
-		    unique_lock<mutex> lock(m_mutex);
-		    m_queue.push(move(t));
-        }
-		m_cv.notify_one();
-	}
-
-	void put(const T& t) {
-        using namespace std;
-
-        {
-		    unique_lock<mutex> lock(m_mutex);
-		    m_queue.push(t);
-        }
-		m_cv.notify_one();
+		{
+			unique_lock<mutex> lock(m_mutex);
+			T t = move(m_queue.front());
+        	m_queue.pop();
+			return t;
+		}
 	}
 
     template<typename S>
@@ -59,30 +40,12 @@ public:
 				count++;
             }            
         }
-		m_cv.notify_one();
 
 		return count;
     }
 
-	bool try_get(T& out) {
-        using namespace std;
-
-        {
-		    unique_lock<mutex> lock(m_mutex);
-
-		    if (m_queue.size() > 0) {
-			    out = move(m_queue.front());
-			    m_queue.pop_front();
-			    return true;
-		    }
-
-		    return false;
-        }
-	}
-
 private:
 	std::queue<T> m_queue;
 	std::mutex m_mutex;
-	std::condition_variable m_cv;
 };
 #endif

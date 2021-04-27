@@ -21,7 +21,6 @@ add_library(async SHARED
     handlers/control_unit_handler.cpp
     handlers/processing_handler.cpp
     handlers/handlers_chain.cpp
-    postprocessing/processed_bulk.cpp
     postprocessing/postprocessing.cpp
     postprocessing/bulk_writer.cpp
     postprocessing/logging_handler.cpp

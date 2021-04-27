@@ -6,6 +6,8 @@
 #include "handlers/control_unit_handler.h"
 #include "handlers/handlers_chain.h"
 #include "handlers/processing_handler.h"
+#include "postprocessing/notifying_queue.h"
+#include "postprocessing/processed_bulk.h"
 
 // TODO: remove once debugged and tested
 #include <iostream>
@@ -15,13 +17,16 @@ namespace async{
 // TODO: remove once debugged and tested
 static std::mutex g_console_mutex;
 
+std::shared_ptr<postprocessing::notifying_queue<postprocessing::ProcessedBulk>> postprocessing_queue =
+    std::make_shared<postprocessing::notifying_queue<postprocessing::ProcessedBulk>>();
+
 Context::Context(size_t bulk_size)
 {
     using namespace handlers;
 
     m_accumulator = std::make_shared<handlers::Accumulator>(); 
     m_control_unit = std::make_shared<handlers::ControlUnit>(bulk_size);
-
+    
     auto processing_handler_factory = [this]()
     {
         return std::make_unique<ProcessingHandler>(m_control_unit, m_accumulator, [](){ return nullptr; }); 
@@ -78,6 +83,7 @@ void Context::process_next_command_blocking()
                 std::cout << std::endl;
             }
 
+            postprocessing_queue->put(postprocessing::ProcessedBulk(m_accumulator->MoveBulk(), m_control_unit->GetBulkStartTime()));
             m_accumulator->ClearBulk();
             m_control_unit->HandleEvent(handlers::ControlUnit::ClearedProcessed);
         }
