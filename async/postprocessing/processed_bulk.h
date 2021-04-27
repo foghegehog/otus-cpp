@@ -7,8 +7,6 @@
 #include <chrono>
 #include <vector>
 
-inline static const ushort POSTPROCESSING_HANDLERS = 2;
-
 namespace postprocessing{
 struct ProcessedBulk
 {
@@ -26,7 +24,6 @@ public:
 
     std::vector<handlers::ExecutableCommand> m_commands; 
     time_t m_bulk_start_time;
-    std::atomic_ushort m_postprocessings_count = POSTPROCESSING_HANDLERS;
 };
 }
 

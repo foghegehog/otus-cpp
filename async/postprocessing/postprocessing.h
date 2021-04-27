@@ -13,13 +13,15 @@ class Postprocessing
 {
 public:
     Postprocessing(
-        std::unique_ptr<PostprocessingHandler>&& handler, std::shared_ptr<notifying_queue<ProcessedBulk>> queue)
+        std::unique_ptr<PostprocessingHandler>&& handler,
+        std::shared_ptr<notifying_queue<std::shared_ptr<ProcessedBulk>>> queue)
         :m_queue(queue), m_handler(std::move(handler))
     {}
 
-    std::shared_ptr<notifying_queue<ProcessedBulk>> m_queue;
+    void Run();
 
 private:
+    std::shared_ptr<notifying_queue<std::shared_ptr<ProcessedBulk>>> m_queue;
     std::unique_ptr<PostprocessingHandler> m_handler;
 };
 

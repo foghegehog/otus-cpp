@@ -15,7 +15,7 @@ namespace postprocessing{
 class OutputHandler: public PostprocessingHandler
 {
 public:
-    void Handle(const ProcessedBulk& bulk) override;
+    void Handle(std::shared_ptr<ProcessedBulk> bulk) override;
 
 };
 

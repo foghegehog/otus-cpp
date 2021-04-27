@@ -3,8 +3,10 @@
 
 #include "postprocessing_handler.h"
 
+#include <atomic>
 #include <ctime>
 #include <fstream>
+#include <memory>
 #include <string>
 
 namespace postprocessing{
@@ -14,17 +16,18 @@ namespace postprocessing{
  */
 class LoggingHandler: public PostprocessingHandler
 {
-    public:
-        LoggingHandler(std::string name)
+public:
+    LoggingHandler(std::string name)
         :m_file_prefix(name + "_bulk")
-        {}
+    {
+    }
 
-        void Handle(const ProcessedBulk& bulk) override;
+    void Handle(std::shared_ptr<ProcessedBulk> bulk) override;
 
-    private:
-        std::string m_file_prefix; 
-        const std::string m_file_extention = std::string(".log"); 
-
+private:
+    std::string m_file_prefix; 
+    const std::string m_file_extention = std::string(".log");
+    ulong m_id_generator = 0;
 };
 }
 

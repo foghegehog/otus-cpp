@@ -11,6 +11,8 @@
 
 namespace async{
 
+void start_threads();
+
 class Context{
 public:
     Context(size_t bulk_size);

@@ -5,13 +5,13 @@
 
 namespace postprocessing{
 
-void Handle(const ProcessedBulk& bulk) 
+void OutputHandler::Handle(std::shared_ptr<ProcessedBulk> bulk) 
 {
     using namespace std;
        
     cout << GREEN;
     BulkWriter bulk_writer(cout);
-    bulk_writer.WriteBulk(bulk.m_commands);
+    bulk_writer.WriteBulk(bulk->m_commands);
     cout << RESET << endl;
 }
 

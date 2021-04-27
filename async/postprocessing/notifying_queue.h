@@ -15,22 +15,25 @@ public:
 	notifying_queue() { }
 	notifying_queue(const notifying_queue& other) = delete;
 
-	const T& front() {
+	T pop() {
         using namespace std;
 
         unique_lock<mutex> lock(m_mutex);
         m_cv.wait(lock, [this]{ return m_queue.size() > 0; });
-		return m_queue.front();
+		T t = m_queue.front();
+		m_queue.pop();
+		lock.unlock();
+		return t;	
 	}
 
-	void put(T&& t) {
+	void put(const T& t) {
         using namespace std;
 
         {
 		    unique_lock<mutex> lock(m_mutex);
-		    m_queue.push(move(t));
+		    m_queue.push(t);
         }
-		m_cv.notify_one();
+		m_cv.notify_all();
 	}
 
 private:

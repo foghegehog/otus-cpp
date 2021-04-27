@@ -18,7 +18,7 @@ public:
    :m_stream(stream) 
    {}
 
-   void WriteBulk(std::vector<handlers::ExecutableCommand> bulk);
+   void WriteBulk(const std::vector<handlers::ExecutableCommand>& bulk);
 private:
    std::ostream& m_stream;
 };

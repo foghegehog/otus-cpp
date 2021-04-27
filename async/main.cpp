@@ -1,12 +1,16 @@
+#include <chrono>
 #include <iostream>
 #include <future>
+#include <thread>
 
 #include "async.h"
 
 int main(int, char *[]) {
     std::size_t bulk = 5;
+    async::start_threads();
     auto h = async::connect(bulk);
     auto h2 = async::connect(bulk);
+    std::this_thread::sleep_for(std::chrono::seconds(1));
     auto task1 = std::async(std::launch::async, async::receive, h, "1", 1);
     auto task2 = std::async(std::launch::async, async::receive, h2, "1\n", 2);
     task1.wait();
@@ -17,5 +21,6 @@ int main(int, char *[]) {
     /*async::disconnect(h);
     async::disconnect(h2);*/
 
+    std::this_thread::sleep_for(std::chrono::seconds(1));
     return 0;
 }

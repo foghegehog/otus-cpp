@@ -1,4 +1,5 @@
 #include <mutex>
+#include <thread>
 
 #include "commands_parsing.h"
 #include "context.h"
@@ -6,7 +7,10 @@
 #include "handlers/control_unit_handler.h"
 #include "handlers/handlers_chain.h"
 #include "handlers/processing_handler.h"
+#include "postprocessing/logging_handler.h"
+#include "postprocessing/output_handler.h"
 #include "postprocessing/notifying_queue.h"
+#include "postprocessing/postprocessing.h"
 #include "postprocessing/processed_bulk.h"
 
 // TODO: remove once debugged and tested
@@ -17,8 +21,22 @@ namespace async{
 // TODO: remove once debugged and tested
 static std::mutex g_console_mutex;
 
-std::shared_ptr<postprocessing::notifying_queue<postprocessing::ProcessedBulk>> postprocessing_queue =
-    std::make_shared<postprocessing::notifying_queue<postprocessing::ProcessedBulk>>();
+using namespace postprocessing;
+using namespace std;
+
+static shared_ptr<notifying_queue<shared_ptr<ProcessedBulk>>> logging_queue = make_shared<notifying_queue<shared_ptr<ProcessedBulk>>>();
+static shared_ptr<notifying_queue<shared_ptr<ProcessedBulk>>> output_queue = make_shared<notifying_queue<shared_ptr<ProcessedBulk>>>();
+
+void start_threads()
+{
+    thread output_thread(&Postprocessing::Run, Postprocessing(make_unique<OutputHandler>(), output_queue));
+    output_thread.detach();
+
+    thread file1_thread(&Postprocessing::Run, Postprocessing(make_unique<LoggingHandler>("file1"), logging_queue));
+    file1_thread.detach();
+    thread file2_thread(&Postprocessing::Run, Postprocessing(make_unique<LoggingHandler>("file2"), logging_queue));
+    file2_thread.detach();
+}
 
 Context::Context(size_t bulk_size)
 {
@@ -72,18 +90,10 @@ void Context::process_next_command_blocking()
 
         if (m_control_unit->ShouldClearProcessedBulk())
         {
-            {
-                const std::lock_guard<std::mutex> lock(g_console_mutex);
-                std::cout << "bulk: ";
-                for (const auto& cmd: m_accumulator->GetBulk())
-                {
-                    std::cout << cmd.Text << " ";
-                }
+            auto bulk_ptr = make_shared<ProcessedBulk>(m_accumulator->MoveBulk(), m_control_unit->GetBulkStartTime());
+            logging_queue->put(bulk_ptr);
+            output_queue->put(bulk_ptr);
 
-                std::cout << std::endl;
-            }
-
-            postprocessing_queue->put(postprocessing::ProcessedBulk(m_accumulator->MoveBulk(), m_control_unit->GetBulkStartTime()));
             m_accumulator->ClearBulk();
             m_control_unit->HandleEvent(handlers::ControlUnit::ClearedProcessed);
         }
