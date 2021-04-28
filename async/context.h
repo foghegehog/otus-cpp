@@ -18,7 +18,8 @@ public:
     Context(size_t bulk_size);
 
     size_t read_buffer_blocking(const char * buffer, size_t chars_count);
-    void process_next_command_blocking();
+    bool process_next_command_blocking();
+    void set_stopping_state();
 
 private:
     blocking_queue<std::string> m_receive_queue;

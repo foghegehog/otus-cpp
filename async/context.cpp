@@ -14,9 +14,6 @@
 #include "postprocessing/postprocessing.h"
 #include "postprocessing/processed_bulk.h"
 
-// TODO: remove once debugged and tested
-#include <iostream>
-
 namespace async{
 
 using namespace postprocessing;
@@ -92,12 +89,17 @@ size_t Context::read_buffer_blocking(const char * buffer, size_t chars_count)
     return m_receive_queue.fill<const char *>(start, generator, is_finish);
 }
 
-void Context::process_next_command_blocking()
+bool Context::process_next_command_blocking()
 {
     {
         const std::lock_guard<std::mutex> lock(m_processing_mutex);
-        auto next_command = m_receive_queue.get();
-        m_handlers->PassThrough(next_command);
+        std::string command; 
+        if (!m_receive_queue.try_get(command))
+        {
+            return false;
+        }
+
+        m_handlers->PassThrough(command);
 
         if (m_control_unit->ShouldClearProcessedBulk())
         {
@@ -108,7 +110,15 @@ void Context::process_next_command_blocking()
             m_accumulator->ClearBulk();
             m_control_unit->HandleEvent(handlers::ControlUnit::ClearedProcessed);
         }
+
+        return false;
     }
+}
+
+void Context::set_stopping_state()
+{
+    m_receive_queue.put(handlers::ControlCommand::EOF_COMMAND);
+    m_receive_queue.stop_accepting();
 }
 
 }

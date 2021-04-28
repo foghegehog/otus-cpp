@@ -23,10 +23,20 @@ Context * connect(size_t bulk_size)
 void receive(Context * context, const char * buffer, size_t chars_count)
 {
     auto commands_count = context->read_buffer_blocking(buffer, chars_count);
-    for(size_t c = 0; c < commands_count; c++)
+    auto all_processed = false;
+    for(size_t c = 0; !all_processed && (c < commands_count); c++)
     {
-        context->process_next_command_blocking();
+        all_processed = context->process_next_command_blocking();
     }
+}
+
+
+void disconnect(Context * context)
+{
+    context->set_stopping_state();
+    while(context->process_next_command_blocking())
+    ;
+    delete context;
 }
 
 }
