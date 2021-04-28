@@ -11,7 +11,7 @@
 
 namespace async{
 
-void start_threads();
+void ensure_workers_started();
 
 class Context{
 public:

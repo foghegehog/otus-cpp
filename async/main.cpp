@@ -7,7 +7,6 @@
 
 int main(int, char *[]) {
     std::size_t bulk = 5;
-    async::start_threads();
     auto h = async::connect(bulk);
     auto h2 = async::connect(bulk);
     std::this_thread::sleep_for(std::chrono::seconds(1));

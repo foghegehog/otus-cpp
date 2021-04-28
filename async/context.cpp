@@ -1,3 +1,4 @@
+#include <atomic>
 #include <mutex>
 #include <thread>
 
@@ -18,29 +19,39 @@
 
 namespace async{
 
-// TODO: remove once debugged and tested
-static std::mutex g_console_mutex;
-
 using namespace postprocessing;
 using namespace std;
 
+// static keyword is used to hide the variables inside the file
 static shared_ptr<notifying_queue<shared_ptr<ProcessedBulk>>> logging_queue = make_shared<notifying_queue<shared_ptr<ProcessedBulk>>>();
 static shared_ptr<notifying_queue<shared_ptr<ProcessedBulk>>> output_queue = make_shared<notifying_queue<shared_ptr<ProcessedBulk>>>();
+static std::atomic_flag logging_worker_started;
+static std::atomic_flag output_worker_started;
 
-void start_threads()
+void ensure_workers_started()
 {
-    thread output_thread(&Postprocessing::Run, Postprocessing(make_unique<OutputHandler>(), output_queue));
-    output_thread.detach();
+    auto is_logging = logging_worker_started.test_and_set(memory_order_acquire);
+    if (!is_logging)
+    {
+        thread file1_thread(&Postprocessing::Run, Postprocessing(make_unique<LoggingHandler>("file1"), logging_queue));
+        file1_thread.detach();
+        thread file2_thread(&Postprocessing::Run, Postprocessing(make_unique<LoggingHandler>("file2"), logging_queue));
+        file2_thread.detach();
+    }
 
-    thread file1_thread(&Postprocessing::Run, Postprocessing(make_unique<LoggingHandler>("file1"), logging_queue));
-    file1_thread.detach();
-    thread file2_thread(&Postprocessing::Run, Postprocessing(make_unique<LoggingHandler>("file2"), logging_queue));
-    file2_thread.detach();
+    auto has_output = output_worker_started.test_and_set(memory_order_acquire);
+    if (!has_output)
+    {
+        thread output_thread(&Postprocessing::Run, Postprocessing(make_unique<OutputHandler>(), output_queue));
+        output_thread.detach();
+    }
 }
 
 Context::Context(size_t bulk_size)
 {
     using namespace handlers;
+
+    ensure_workers_started();
 
     m_accumulator = std::make_shared<handlers::Accumulator>(); 
     m_control_unit = std::make_shared<handlers::ControlUnit>(bulk_size);
