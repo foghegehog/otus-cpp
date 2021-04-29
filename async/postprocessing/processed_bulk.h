@@ -11,8 +11,10 @@ namespace postprocessing{
 struct ProcessedBulk
 {
 public:
+    ProcessedBulk(){}
+
     ProcessedBulk(ProcessedBulk&& other) noexcept
-        :m_commands(other.m_commands), m_bulk_start_time(other.m_bulk_start_time)
+        :m_commands(move(other.m_commands)), m_bulk_start_time(other.m_bulk_start_time)
     {
     }
 

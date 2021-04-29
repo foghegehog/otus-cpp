@@ -1,12 +1,14 @@
+#include <atomic>
+
 #include "postprocessing.h"
 
 namespace postprocessing{
 
 void Postprocessing::Run()
 {
-    while(true)
+    std::shared_ptr<ProcessedBulk> bulk;
+    while(m_queue->try_pop(bulk))
     {
-        auto bulk = m_queue->pop();
         m_handler->Handle(bulk);
     }
 }

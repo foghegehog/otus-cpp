@@ -19,8 +19,7 @@ void LoggingHandler::Handle(std::shared_ptr<ProcessedBulk> bulk)
     }
 
     auto filename = m_file_prefix + to_string(bulk->m_bulk_start_time) + "_" + to_string(id) + m_file_extention;
-    ofstream logfile;
-    logfile.open(filename);
+    ofstream logfile(filename);
     BulkWriter bulk_writer(logfile);
     bulk_writer.WriteBulk(bulk->m_commands);
     logfile.close();

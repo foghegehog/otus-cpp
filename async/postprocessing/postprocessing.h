@@ -5,6 +5,7 @@
 #include "postprocessing_handler.h"
 #include "processed_bulk.h"
 
+#include <atomic>
 #include <memory>
 
 namespace postprocessing{

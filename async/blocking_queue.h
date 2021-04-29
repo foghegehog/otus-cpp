@@ -22,13 +22,10 @@ public:
 		int count = 0;
         {
 		    unique_lock<mutex> lock(m_mutex);
-			auto stopping = m_stop_accepting.load(memory_order_acquire);
-		    while(!stopping && !is_finish(state))
+		    while(!is_finish(state))
             {
                 m_queue.push(generator(state));
 				count++;
-
-				stopping = m_stop_accepting.load(memory_order_acquire);
             }            
         }
 
@@ -41,11 +38,7 @@ public:
 
 		{
 			unique_lock<mutex> lock(m_mutex);
-			auto stopping = m_stop_accepting.load(memory_order_acquire);
-			if (!stopping)
-			{
-				m_queue.push(t);
-			}
+			m_queue.push(t);
 		}
 	}
 
@@ -66,14 +59,9 @@ public:
 		}
 	}
 
-	void stop_accepting()
-	{
-		m_stop_accepting.store(true);
-	}
 
 private:
 	std::queue<T> m_queue;
 	std::mutex m_mutex;
-	std::atomic_bool m_stop_accepting;
 };
 #endif
