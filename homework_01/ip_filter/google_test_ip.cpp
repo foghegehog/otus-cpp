@@ -3,6 +3,8 @@
 #include "ip_storage.h"
 
 #include <gtest/gtest.h>
+#include <string>
+#include <vector>
 
 // ("",  '.') -> [""]
 TEST(CheckSplit, EmptyString)
@@ -105,7 +107,7 @@ TEST(CheckFiltration, ReverseLexicographical)
 
 auto get_ips_with_46()
 {
-    auto list =  
+    std::vector<std::string> ips =  
     {
         "186.204.34.46",
         "186.46.222.194",
@@ -143,7 +145,7 @@ auto get_ips_with_46()
         "5.189.203.46"
     };
 
-    return list;
+    return ips;
 }
 
 // 46.70.225.39
