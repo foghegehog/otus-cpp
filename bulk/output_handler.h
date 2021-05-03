@@ -14,12 +14,12 @@
 class OutputHandler: public Handler
 {
     public:
-        OutputHandler(shared_ptr<ControlUnit> controlUnit, shared_ptr<Accumulator> accumulator);
+        OutputHandler(std::shared_ptr<ControlUnit> controlUnit, std::shared_ptr<Accumulator> accumulator);
         void ExecuteCommand(const ExecutableCommand& command) override;
         void HandleControlFlow(const ControlCommand& command) override;
     private:
-        shared_ptr<ControlUnit> m_control_unit;
-        shared_ptr<Accumulator> m_accumulator; 
+        std::shared_ptr<ControlUnit> m_control_unit;
+        std::shared_ptr<Accumulator> m_accumulator; 
         void OutputBulkIfReady() const;
 
 };

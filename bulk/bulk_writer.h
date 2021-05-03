@@ -5,19 +5,17 @@
 #include <ostream>
 #include <vector>
 
-using namespace std;
-
 /*!
  * Outputs bulk to specified out stream.
  */
 class BulkWriter
 {
     public:
-       BulkWriter(ostream& stream)
+       BulkWriter(std::ostream& stream)
        :m_stream(stream) 
        {}
 
-       void WriteBulk(vector<ExecutableCommand> bulk);
+       void WriteBulk(const std::vector<ExecutableCommand>& bulk);
     private:
-       ostream& m_stream;
+      std::ostream& m_stream;
 };

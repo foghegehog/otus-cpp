@@ -9,12 +9,12 @@
 class AccumulateHandler: public Handler
 {
     public:
-        AccumulateHandler(shared_ptr<Accumulator> accumulator)
+        AccumulateHandler(std::shared_ptr<Accumulator> accumulator)
         : m_accumulator(accumulator)
         {}
 
         void ExecuteCommand(const ExecutableCommand& command) override;
         void HandleControlFlow(const ControlCommand& command) override;
     private:
-        shared_ptr<Accumulator> m_accumulator;
+        std::shared_ptr<Accumulator> m_accumulator;
 };

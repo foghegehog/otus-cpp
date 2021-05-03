@@ -1,9 +1,9 @@
 #include "bulk_writer.h"
 
-void BulkWriter::WriteBulk(vector<ExecutableCommand> bulk)
+void BulkWriter::WriteBulk(const std::vector<ExecutableCommand>& bulk)
 {
     m_stream << "bulk: ";
-    string separator = "";
+    std::string separator = "";
     for(const auto& command: bulk)
     {
         m_stream << separator << command.Text;

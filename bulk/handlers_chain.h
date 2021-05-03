@@ -5,20 +5,18 @@
 #include <memory>
 #include <string>
 
-using namespace std;
-
 /*!
  * Containes chain of command handlers.
  */
 class HandlersChain
 {
     public:
-        HandlersChain(shared_ptr<Handler> front_handler)
+        HandlersChain(std::shared_ptr<Handler> front_handler)
         :m_front_handler(front_handler)
         {}
 
-        void AddFront(shared_ptr<Handler> handler);
-        void PassThrough(string command_text); 
+        void AddFront(std::shared_ptr<Handler> handler);
+        void PassThrough(const std::string& command_text); 
     private:
-        shared_ptr<Handler> m_front_handler;
+        std::shared_ptr<Handler> m_front_handler;
 };

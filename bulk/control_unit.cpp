@@ -5,68 +5,68 @@
 ControlUnit::ControlUnit(size_t static_bulk_size)
     :m_static_bulk_size(static_bulk_size)
 {
-    m_state = Empty;
+    m_state = State::Empty;
 
-    CreateTransition(Empty, CommandAdded, [this]()
+    CreateTransition(State::Empty, Event::CommandAdded, [this]()
     {
         m_commands_count++;
-        m_state = m_commands_count < m_static_bulk_size ? GatheringStatic : BulkReady; 
+        m_state = m_commands_count < m_static_bulk_size ? State::GatheringStatic : State::BulkReady; 
     });
-    CreateTransition(GatheringStatic, CommandAdded, [this]()
+    CreateTransition(State::GatheringStatic, Event::CommandAdded, [this]()
     {
         m_commands_count++; 
         if (m_commands_count == m_static_bulk_size)
         {
-            m_state = BulkReady;
+            m_state = State::BulkReady;
         }
     });
-    CreateTransition(GatheringStatic, EndOfFile, [this](){ m_state = BulkReady; });
-    CreateTransition(BulkReady, BulkProcessed, [this]()
+    CreateTransition(State::GatheringStatic, Event::EndOfFile, [this](){ m_state = State::BulkReady; });
+    CreateTransition(State::BulkReady, Event::BulkProcessed, [this]()
     {
         m_commands_count = 0;
-        m_state = Empty; 
+        m_state = State::Empty; 
     });
-    CreateTransition(Empty, BlockOpened, [this](){ m_state = GatheringDynamic; });
-    CreateTransition(GatheringStatic, BlockOpened, [this](){ m_state = ProcessUnfinished; });
-    CreateTransition(ProcessUnfinished, BulkProcessed, [this]()
+    CreateTransition(State::Empty, Event::BlockOpened, [this](){ m_state = State::GatheringDynamic; });
+    CreateTransition(State::GatheringStatic, Event::BlockOpened, [this](){ m_state = State::ProcessUnfinished; });
+    CreateTransition(State::ProcessUnfinished, Event::BulkProcessed, [this]()
     { 
         m_commands_count = 0;
-        m_state = GatheringDynamic; 
+        m_state = State::GatheringDynamic; 
     });
-    CreateTransition(GatheringDynamic, CommandAdded, [](){});
-    CreateTransition(GatheringDynamic, BlockOpened, [this]()
+    CreateTransition(State::GatheringDynamic, Event::CommandAdded, [](){});
+    CreateTransition(State::GatheringDynamic, Event::BlockOpened, [this]()
     {
         m_blocks_nesting++;
     });
-    CreateTransition(GatheringDynamic, BlockClosed, [this]()
+    CreateTransition(State::GatheringDynamic, Event::BlockClosed, [this]()
     {
         if (m_blocks_nesting == 0)
         {
-            m_state = BulkReady;
+            m_state = State::BulkReady;
         }
         else
         {
             m_blocks_nesting--;
         }
     });
-    CreateTransition(GatheringDynamic, EndOfFile, [this](){ m_state = Discard; });
+    CreateTransition(State::GatheringDynamic, Event::EndOfFile, [this](){ m_state = State::Discard; });
 }
 
 
-void ControlUnit::CreateTransition(State from, Event onEvent, function<void(void)> transition)
+void ControlUnit::CreateTransition(State from, Event onEvent, std::function<void(void)> transition)
 {
-    auto key = make_pair(from, onEvent);
+    auto key = std::make_pair(from, onEvent);
     m_state_machine[key] = transition;
 }
 
 bool ControlUnit::ShouldProcessBulk() const
 {
-    return (m_state == BulkReady) || (m_state == ProcessUnfinished);
+    return (m_state == State::BulkReady) || (m_state == State::ProcessUnfinished);
 }
 
 void ControlUnit::HandleEvent(Event evnt)
 {
-    auto transition_key = make_pair(m_state, evnt);
+    auto transition_key = std::make_pair(m_state, evnt);
     auto transition = m_state_machine.find(transition_key);
     if (transition != m_state_machine.end()) 
     {
@@ -75,6 +75,6 @@ void ControlUnit::HandleEvent(Event evnt)
     }
     else
     {
-        throw logic_error("Invalid event for current state!");
+        throw std::logic_error("Invalid event for current state!");
     }
 }

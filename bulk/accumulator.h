@@ -4,8 +4,6 @@
 
 #include <vector>
 
-using namespace std;
-
 /*!
  * Accumulutes executable commands for current bulk. 
  */
@@ -14,8 +12,8 @@ class Accumulator
     public:
         void StoreCommand(const ExecutableCommand& command);
         size_t GetCommandsStoredCount() const;
-        const vector<ExecutableCommand>& GetBulk();
+        const std::vector<ExecutableCommand>& GetBulk();
         void ClearBulk();
     private:
-        vector<ExecutableCommand> m_bulk; 
+        std::vector<ExecutableCommand> m_bulk; 
 };

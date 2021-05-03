@@ -18,7 +18,7 @@ void Handler::Handle(const ControlCommand& command)
     }
 }
 
-void Handler::SetNext(shared_ptr<Handler> next)
+void Handler::SetNext(std::shared_ptr<Handler> next)
 {
-    m_next = shared_ptr<Handler>(next);
+    m_next = next;
 } 

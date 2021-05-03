@@ -2,16 +2,14 @@
 
 #include <string>
 
-using namespace std;
-
 /*!
  * Base command class. 
  */
 class Command
 {
     public:
-        string Text; 
-        Command(string text)
+        std::string Text; 
+        Command(const std::string& text)
             :Text(text)
         {}
 };
@@ -22,7 +20,7 @@ class Command
 class ExecutableCommand: public Command
 {
     public:
-        ExecutableCommand(string text)
+        ExecutableCommand(const std::string& text)
             :Command(text)
         {}
 };
@@ -33,7 +31,7 @@ class ExecutableCommand: public Command
 class ControlCommand: public Command
 {
     public:
-        ControlCommand(string text)
+        ControlCommand(const std::string& text)
             :Command(text)
         {}
 };

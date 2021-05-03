@@ -3,25 +3,25 @@
 void ControlUnitHandler::ExecuteCommand(const ExecutableCommand& command)
 {
     UNUSED(command);
-    m_contro_unit->HandleEvent(ControlUnit::CommandAdded);
+    m_contro_unit->HandleEvent(ControlUnit::Event::CommandAdded);
 }
 
 void ControlUnitHandler::HandleControlFlow(const ControlCommand& command)
 {
     if (command.Text == "{")
     {
-        m_contro_unit->HandleEvent(ControlUnit::BlockOpened);
+        m_contro_unit->HandleEvent(ControlUnit::Event::BlockOpened);
     }
     else if (command.Text == "}")
     {
-        m_contro_unit->HandleEvent(ControlUnit::BlockClosed);
+        m_contro_unit->HandleEvent(ControlUnit::Event::BlockClosed);
     }
     else if (command.Text == "EOF")
     {
-        m_contro_unit->HandleEvent(ControlUnit::BlockOpened);
+        m_contro_unit->HandleEvent(ControlUnit::Event::BlockOpened);
     }
     else
     { 
-        throw invalid_argument("Unknown control flow command: " + command.Text);
+        throw std::invalid_argument("Unknown control flow command: " + command.Text);
     }
 }

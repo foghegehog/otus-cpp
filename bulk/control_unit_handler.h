@@ -10,12 +10,12 @@
 class ControlUnitHandler: public Handler
 {
     public:
-        ControlUnitHandler(shared_ptr<ControlUnit> controlUnit)
+        ControlUnitHandler(std::shared_ptr<ControlUnit> controlUnit)
         : m_contro_unit(controlUnit)
         {}
 
         void ExecuteCommand(const ExecutableCommand& command) override;
         void HandleControlFlow(const ControlCommand& command) override;
     private:
-        shared_ptr<ControlUnit> m_contro_unit;
+        std::shared_ptr<ControlUnit> m_contro_unit;
 };

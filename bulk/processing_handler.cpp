@@ -19,6 +19,6 @@ void ProcessingHandler::ProcessBulkIfReady()
         auto bulk = m_accumulator->GetBulk();
         process(bulk);
         m_accumulator->ClearBulk();
-        m_contro_unit->HandleEvent(ControlUnit::BulkProcessed);
+        m_contro_unit->HandleEvent(ControlUnit::Event::BulkProcessed);
     }
 }

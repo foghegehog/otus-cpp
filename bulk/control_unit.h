@@ -6,15 +6,13 @@
 #include <functional>
 #include <map>
 
-using namespace std;
-
 /*!
  * Keeps track of current bulk state. 
  */
 class ControlUnit
 {
     public:
-        enum State
+        enum class State : uint8_t
         {
             Empty,
             GatheringStatic,
@@ -24,7 +22,7 @@ class ControlUnit
             Discard
         };
 
-        enum Event
+        enum class Event : uint8_t
         {
             CommandAdded,
             BulkProcessed,
@@ -39,10 +37,10 @@ class ControlUnit
         
     private:
         State m_state = State::Empty;
-        map<pair<State, Event>, function<void(void)>> m_state_machine; 
+        std::map<std::pair<State, Event>, std::function<void(void)>> m_state_machine; 
         size_t m_blocks_nesting = 0;
         size_t m_commands_count = 0;
         size_t m_static_bulk_size; 
 
-        void CreateTransition(State from, Event onEvent, function<void(void)> transition);
+        void CreateTransition(State from, Event onEvent, std::function<void(void)> transition);
 }; 

@@ -11,6 +11,8 @@ using namespace std;
 
 int main (int argc, char ** argv)
 {
+    using namespace std;
+    
     if (argc != 2)
     {
         cout << "Bulk size N should be specified as command-line argument" << endl;

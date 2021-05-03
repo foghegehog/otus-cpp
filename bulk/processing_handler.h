@@ -12,14 +12,14 @@
 class ProcessingHandler: public Handler
 {
     public:
-        ProcessingHandler(shared_ptr<ControlUnit> controlUnit, shared_ptr<Accumulator> accumulator)
+        ProcessingHandler(std::shared_ptr<ControlUnit> controlUnit, std::shared_ptr<Accumulator> accumulator)
         : m_contro_unit(controlUnit), m_accumulator(accumulator)
         {}
 
         void ExecuteCommand(const ExecutableCommand& command) override;
         void HandleControlFlow(const ControlCommand& command) override;
     private:
-        shared_ptr<ControlUnit> m_contro_unit;
-        shared_ptr<Accumulator> m_accumulator;
+        std::shared_ptr<ControlUnit> m_contro_unit;
+        std::shared_ptr<Accumulator> m_accumulator;
         void ProcessBulkIfReady();
 };
