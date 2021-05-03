@@ -1,5 +1,8 @@
 var searchData=
 [
-  ['main',['main',['../CMakeCCompilerId_8c.html#a0ddf1224851353fc92bfbff6f499fa97',1,'main(int argc, char *argv[]):&#160;CMakeCCompilerId.c'],['../CMakeCXXCompilerId_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97',1,'main(int argc, char *argv[]):&#160;CMakeCXXCompilerId.cpp'],['../feature__tests_8c.html#a3c04138a5bfe5d72780bb7e82a18e627',1,'main(int argc, char **argv):&#160;feature_tests.c'],['../feature__tests_8cxx.html#a3c04138a5bfe5d72780bb7e82a18e627',1,'main(int argc, char **argv):&#160;feature_tests.cxx'],['../main_8cpp.html#a840291bc02cba5474a4cb46a9b9566fe',1,'main(void):&#160;main.cpp']]],
-  ['main_2ecpp',['main.cpp',['../main_8cpp.html',1,'']]]
+  ['gatheringdynamic',['GatheringDynamic',['../classControlUnit.html#a027aa90ad2e09c17368ff26dedad10b4a9cf60f1feaed92e68f8fa85afc90865b',1,'ControlUnit']]],
+  ['gatheringstatic',['GatheringStatic',['../classControlUnit.html#a027aa90ad2e09c17368ff26dedad10b4ac01a4e56c8a28831f34a758a05e54ef8',1,'ControlUnit']]],
+  ['getbulk',['GetBulk',['../classAccumulator.html#a7260cd19b0ee38e8d5efcda24b284acb',1,'Accumulator']]],
+  ['getcommandsstoredcount',['GetCommandsStoredCount',['../classAccumulator.html#a73862b89b219e0e5a6d0a608d8f1f8f3',1,'Accumulator']]],
+  ['green',['GREEN',['../output__handler_8h.html#acfbc006ea433ad708fdee3e82996e721',1,'output_handler.h']]]
 ];
