@@ -115,4 +115,9 @@ void ControlUnit::SaveBulkStartTime()
     m_bulk_start_time = std::chrono::system_clock::to_time_t(now);
 }
 
+ControlUnit::State ControlUnit::GetState() const
+{
+    return m_state;
+}
+
 }

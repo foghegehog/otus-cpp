@@ -42,6 +42,7 @@ class ControlUnit
         bool ShouldProcessBulk() const;
         bool ShouldClearProcessedBulk() const;
         time_t GetBulkStartTime() const;
+        State GetState() const;
         
     private:
         State m_state = State::Empty;
