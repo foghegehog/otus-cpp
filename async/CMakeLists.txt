@@ -29,8 +29,11 @@ add_library(async SHARED
     postprocessing/logging_handler.cpp
     postprocessing/output_handler.cpp)
 add_executable(unit_tests 
+    tests/tests_main.cpp
     tests/control_unit_tests.cpp
-    handlers/control_unit.cpp)
+    handlers/control_unit.cpp
+    tests/accumulator_tests.cpp
+    handlers/accumulator.cpp)
 
 set_target_properties(demo async unit_tests PROPERTIES
     CXX_STANDARD 17

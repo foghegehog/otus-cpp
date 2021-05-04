@@ -145,9 +145,3 @@ TEST(ControlUnit, ProcessUnfinishedStaticOnEOF)
     ASSERT_TRUE(control_unit.ShouldProcessBulk());
     ASSERT_FALSE(control_unit.ShouldClearProcessedBulk());
 }
-
-int main(int argc, char **argv) 
-{
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}
