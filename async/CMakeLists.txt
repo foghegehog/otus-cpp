@@ -42,7 +42,8 @@ add_executable(unit_tests
     handlers/accumulate_handler.cpp
     handlers/control_unit_handler.cpp
     handlers/processing_handler.cpp
-    postprocessing/bulk_writer.cpp)
+    postprocessing/bulk_writer.cpp
+    commands_parsing.cpp)
 
 set_target_properties(demo async unit_tests PROPERTIES
     CXX_STANDARD 17
