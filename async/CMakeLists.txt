@@ -17,6 +17,7 @@ add_library(async SHARED
     async.cpp
     commands_parsing.cpp
     context.cpp
+    handlers_factory.cpp
     handlers/handler.cpp
     handlers/accumulator.cpp
     handlers/control_unit.cpp
@@ -33,7 +34,14 @@ add_executable(unit_tests
     tests/control_unit_tests.cpp
     handlers/control_unit.cpp
     tests/accumulator_tests.cpp
-    handlers/accumulator.cpp)
+    handlers/accumulator.cpp
+    handlers_factory.cpp
+    tests/infrastructure_tests.cpp
+    handlers/handler.cpp
+    handlers/handlers_chain.cpp
+    handlers/accumulate_handler.cpp
+    handlers/control_unit_handler.cpp
+    handlers/processing_handler.cpp)
 
 set_target_properties(demo async unit_tests PROPERTIES
     CXX_STANDARD 17

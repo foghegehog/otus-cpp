@@ -4,6 +4,7 @@
 
 #include "commands_parsing.h"
 #include "context.h"
+#include "handlers_factory.h"
 #include "handlers/accumulate_handler.h"
 #include "handlers/control_unit_handler.h"
 #include "handlers/handlers_chain.h"
@@ -28,27 +29,9 @@ thread Context::s_output_thread = thread(
 
 Context::Context(size_t bulk_size)
 {
-    using namespace handlers;
-
     m_accumulator = std::make_shared<handlers::Accumulator>(); 
     m_control_unit = std::make_shared<handlers::ControlUnit>(bulk_size);
-    
-    auto processing_handler_factory = [this]()
-    {
-        return std::make_unique<ProcessingHandler>(m_control_unit, m_accumulator, [](){ return nullptr; }); 
-    };
-
-    auto control_handler_factory = [this, processing_handler_factory]()
-    {
-        return std::make_unique<ControlUnitHandler>(m_control_unit, processing_handler_factory); 
-    };
-
-    auto accumulator_handler_factory = [this, control_handler_factory]()
-    {
-        return std::make_unique<AccumulateHandler>(m_accumulator, control_handler_factory); 
-    };
-
-    m_handlers = std::make_unique<HandlersChain>(accumulator_handler_factory);
+    m_handlers = std::move(create_handlers_chain(m_accumulator, m_control_unit));
 }
 
 size_t Context::read_buffer_blocking(const char * buffer, size_t chars_count)
