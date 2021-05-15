@@ -1,5 +1,5 @@
 #include "../../include/postprocessing/bulk_writer.h"
-#include "../../include/handlers/output_handler.h"
+#include "../../include/postprocessing/output_handler.h"
 
 #include <iostream>
 
