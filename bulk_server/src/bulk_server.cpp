@@ -31,7 +31,8 @@ private:
         {
           if (!ec)
           {
-            std::cout << "receive " << length << "=" << std::string{m_data, length} << std::endl;
+            async::receive(m_context.get(), m_data, length);
+            //std::cout << "receive " << length << "=" << std::string{m_data, length} << std::endl;
           }
         });
   }

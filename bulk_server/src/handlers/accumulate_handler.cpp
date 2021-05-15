@@ -1,4 +1,4 @@
-#include "accumulate_handler.h"
+#include "../../include/handlers/accumulate_handler.h"
 
 namespace handlers{
 void AccumulateHandler::ExecuteCommand(const ExecutableCommand& command)

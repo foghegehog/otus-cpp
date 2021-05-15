@@ -1,5 +1,5 @@
-#include "bulk_writer.h"
-#include "logging_handler.h"
+#include "../../include/postprocessing/bulk_writer.h"
+#include "../../include/postprocessing/logging_handler.h"
 
 #include <chrono>
 #include <climits> 

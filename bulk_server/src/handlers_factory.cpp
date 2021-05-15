@@ -1,8 +1,8 @@
-#include "handlers_factory.h"
+#include "../include/handlers_factory.h"
 
-#include "handlers/accumulate_handler.h"
-#include "handlers/control_unit_handler.h"
-#include "handlers/processing_handler.h"
+#include "../include/handlers/accumulate_handler.h"
+#include "../include/handlers/control_unit_handler.h"
+#include "../include/handlers/processing_handler.h"
 
 std::unique_ptr<handlers::HandlersChain> create_handlers_chain(
     const std::shared_ptr<handlers::Accumulator>& accumulator,

@@ -1,6 +1,6 @@
 #include <atomic>
 
-#include "postprocessing.h"
+#include "../../include/postprocessing/postprocessing.h"
 
 namespace postprocessing{
 

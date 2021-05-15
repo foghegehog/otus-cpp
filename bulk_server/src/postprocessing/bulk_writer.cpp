@@ -1,4 +1,4 @@
-#include "bulk_writer.h"
+#include "../../include/postprocessing/bulk_writer.h"
 
 namespace postprocessing{
 
