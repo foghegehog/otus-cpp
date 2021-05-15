@@ -26,7 +26,7 @@ void receive(Context * context, const char * buffer, size_t chars_count)
     auto all_processed = false;
     for(size_t c = 0; !all_processed && (c < commands_count); c++)
     {
-        all_processed = context->process_next_command_blocking();
+        all_processed = !context->process_next_command_blocking();
     }
 }
 

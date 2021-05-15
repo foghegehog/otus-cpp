@@ -32,7 +32,6 @@ private:
           if (!ec)
           {
             async::receive(m_context.get(), m_data, length);
-            //std::cout << "receive " << length << "=" << std::string{m_data, length} << std::endl;
           }
         });
   }
@@ -78,16 +77,22 @@ int main(int argc, char* argv[])
 {
   try
   {
+    short port;
+    int bulk_size;
+
     if (argc != 3)
     {
-      std::cerr << "Usage: bulk_server <port> <bulk_size>\n";
-      return 1;
+      port = 9000;
+      bulk_size = 3;
+    }
+    else
+    {
+      port = std::atoi(argv[1]);
+      bulk_size = std::atoi(argv[2]);
     }
 
     boost::asio::io_context io_context;
 
-    short port = std::atoi(argv[1]);
-    int bulk_size = std::atoi(argv[2]);
     server server(io_context, port, bulk_size);
 
     io_context.run();
