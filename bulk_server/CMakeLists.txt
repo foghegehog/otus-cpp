@@ -10,10 +10,26 @@ find_package(Boost COMPONENTS system REQUIRED)
 find_package(Threads)
 include_directories(${Boost_INCLUDE_DIR})
 
-add_executable(bulk_server src/bulk_server.cpp)
+add_executable(bulk_server 
+src/bulk_server.cpp
+src/async.cpp
+src/commands_parsing.cpp
+src/context.cpp
+src/handlers_factory.cpp
+src/handlers/handler.cpp
+src/handlers/accumulator.cpp
+src/handlers/control_unit.cpp
+src/handlers/accumulate_handler.cpp
+src/handlers/control_unit_handler.cpp
+src/handlers/processing_handler.cpp
+src/handlers/handlers_chain.cpp
+src/postprocessing/postprocessing.cpp
+src/postprocessing/bulk_writer.cpp
+src/postprocessing/logging_handler.cpp
+src/postprocessing/output_handler.cpp)
 
 set_target_properties(bulk_server PROPERTIES
-        CXX_STANDARD 14
+        CXX_STANDARD 17
         CXX_STANDARD_REQUIRED ON
         )
 

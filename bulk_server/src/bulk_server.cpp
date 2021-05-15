@@ -4,14 +4,16 @@
 #include <utility>
 #include <boost/asio.hpp>
 
+#include "../include/async.h"
+
 using boost::asio::ip::tcp;
 
 class session
   : public std::enable_shared_from_this<session>
 {
 public:
-  session(tcp::socket socket)
-    : socket_(std::move(socket))
+  session(tcp::socket socket, std::unique_ptr<async::Context>&& context)
+    : m_socket(std::move(socket)), m_context(std::move(context))
   {
   }
 
@@ -24,40 +26,27 @@ private:
   void do_read()
   {
     auto self(shared_from_this());
-    socket_.async_read_some(boost::asio::buffer(data_, max_length),
+    m_socket.async_read_some(boost::asio::buffer(m_data, max_length),
         [this, self](boost::system::error_code ec, std::size_t length)
         {
           if (!ec)
           {
-            std::cout << "receive " << length << "=" << std::string{data_, length} << std::endl;
-            do_write(length);
+            std::cout << "receive " << length << "=" << std::string{m_data, length} << std::endl;
           }
         });
   }
 
-  void do_write(std::size_t length)
-  {
-    auto self(shared_from_this());
-    boost::asio::async_write(socket_, boost::asio::buffer(data_, length),
-        [this, self](boost::system::error_code ec, std::size_t /*length*/)
-        {
-          if (!ec)
-          {
-            do_read();
-          }
-        });
-  }
-
-  tcp::socket socket_;
-  enum { max_length = 1024 };
-  char data_[max_length];
+  tcp::socket m_socket;
+  std::unique_ptr<async::Context> m_context;
+  inline static const int max_length = 1024;
+  char m_data[max_length];
 };
 
 class server
 {
 public:
-  server(boost::asio::io_context& io_context, short port)
-    : acceptor_(io_context, tcp::endpoint(tcp::v4(), port))
+  server(boost::asio::io_context& io_context, short port, int bulk_size)
+    : m_acceptor(io_context, tcp::endpoint(tcp::v4(), port)), m_bulk_size(bulk_size)
   {
     do_accept();
   }
@@ -65,34 +54,40 @@ public:
 private:
   void do_accept()
   {
-    acceptor_.async_accept(
+    m_acceptor.async_accept(
         [this](boost::system::error_code ec, tcp::socket socket)
         {
           if (!ec)
           {
-            std::make_shared<session>(std::move(socket))->start();
+            auto new_session = std::make_shared<session>(
+              std::move(socket),
+              std::unique_ptr<async::Context>(async::connect(m_bulk_size)));
+            new_session->start();
           }
 
           do_accept();
         });
   }
 
-  tcp::acceptor acceptor_;
+  tcp::acceptor m_acceptor;
+  int m_bulk_size;
 };
 
 int main(int argc, char* argv[])
 {
   try
   {
-    if (argc != 2)
+    if (argc != 3)
     {
-      std::cerr << "Usage: bulk_server <port>\n";
+      std::cerr << "Usage: bulk_server <port> <bulk_size>\n";
       return 1;
     }
 
     boost::asio::io_context io_context;
 
-    server server(io_context, std::atoi(argv[1]));
+    short port = std::atoi(argv[1]);
+    int bulk_size = std::atoi(argv[2]);
+    server server(io_context, port, bulk_size);
 
     io_context.run();
   }
