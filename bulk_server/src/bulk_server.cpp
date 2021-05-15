@@ -12,8 +12,8 @@ class session
   : public std::enable_shared_from_this<session>
 {
 public:
-  session(tcp::socket socket, std::unique_ptr<async::Context>&& context)
-    : m_socket(std::move(socket)), m_context(std::move(context))
+  session(tcp::socket socket, async::Context* context)
+    : m_socket(std::move(socket)), m_context(context)
   {
   }
 
@@ -31,13 +31,19 @@ private:
         {
           if (!ec)
           {
-            async::receive(m_context.get(), m_data, length);
+            async::receive(m_context, m_data, length);
+            do_read();
+          }
+          else if ((ec == boost::asio::error::eof) || (ec == boost::asio::error::connection_reset))
+          {
+            // handle the disconnect.
+            async::disconnect(m_context);
           }
         });
   }
 
   tcp::socket m_socket;
-  std::unique_ptr<async::Context> m_context;
+  async::Context* m_context;
   inline static const int max_length = 1024;
   char m_data[max_length];
 };
@@ -61,7 +67,7 @@ private:
           {
             auto new_session = std::make_shared<session>(
               std::move(socket),
-              std::unique_ptr<async::Context>(async::connect(m_bulk_size)));
+              async::connect(m_bulk_size));
             new_session->start();
           }
 
