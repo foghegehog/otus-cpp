@@ -25,7 +25,6 @@ src/handlers/accumulate_handler.cpp
 src/handlers/control_unit_handler.cpp
 src/handlers/processing_handler.cpp
 src/handlers/handlers_chain.cpp
-src/handlers/threadsafe_accumulator.cpp
 src/postprocessing/postprocessing.cpp
 src/postprocessing/bulk_writer.cpp
 src/postprocessing/logging_handler.cpp

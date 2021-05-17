@@ -18,22 +18,25 @@ void ProcessingHandler::HandleControlFlow(const ControlCommand& command)
 
 void ProcessingHandler::ProcessBulkIfReady()
 {
-    if (m_control_unit->ShouldProcessStaticBulk())
     {
-        auto bulk = m_static_accumulator->GetBulk();
-        process(bulk);
+        std::lock_guard<std::mutex> lock(m_shared_mutex);
+        if (m_control_unit->ShouldProcessStaticBulk())
+        {
+            auto bulk = m_shared_accumulator->GetBulk();
+            process(bulk);
+        }
+        else if(m_control_unit->GetState() == ControlUnit::DynamicBulkReady)
+        {
+            auto bulk = m_dynamic_accumulator->GetBulk();
+            process(bulk);
+        }
+        else
+        {
+            return;
+        }
+        
+        m_control_unit->HandleEvent(ControlUnit::BulkProcessed);
     }
-    else if(m_control_unit->GetState() == ControlUnit::DynamicBulkReady)
-    {
-        auto bulk = m_dynamic_accumulator->GetBulk();
-        process(bulk);
-    }
-    else
-    {
-        return;
-    }
-    
-    m_control_unit->HandleEvent(ControlUnit::BulkProcessed);
 }
 
 }

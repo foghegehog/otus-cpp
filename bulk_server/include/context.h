@@ -4,7 +4,6 @@
 #include "blocking_queue.h"
 #include "handlers/handlers_chain.h"
 #include "handlers/accumulator.h"
-#include "handlers/threadsafe_accumulator.h"
 #include "handlers/control_unit.h"
 #include "postprocessing/logging_handler.h"
 #include "postprocessing/output_handler.h"
@@ -35,7 +34,8 @@ private:
     blocking_queue<std::string> m_receive_queue;
 
     std::mutex m_processing_mutex;
-    std::shared_ptr<handlers::ThreadSafeAccumulator> m_static_accumulator;
+    std::shared_ptr<handlers::Accumulator> m_shared_accumulator;
+    std::mutex& m_shared_accumulator_mutex;
     std::shared_ptr<handlers::Accumulator> m_dynamic_accumulator;
     std::shared_ptr<handlers::ControlUnit> m_control_unit;
     std::unique_ptr<handlers::HandlersChain> m_handlers;

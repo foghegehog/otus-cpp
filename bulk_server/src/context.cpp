@@ -27,18 +27,25 @@ thread Context::s_logger_thread2 = thread(
 thread Context::s_output_thread = thread(
             &Postprocessing::Run, Postprocessing(make_unique<OutputHandler>(), s_output_queue));
 
-static std::shared_ptr<handlers::ThreadSafeAccumulator> get_static_commands_accumulator()
+static std::shared_ptr<handlers::Accumulator> get_shared_accumulator()
 {
-    static std::shared_ptr<handlers::ThreadSafeAccumulator> instance = std::make_shared<handlers::ThreadSafeAccumulator>();                               
+    static std::shared_ptr<handlers::Accumulator> instance = std::make_shared<handlers::Accumulator>();                               
+    return instance;
+}
+
+static std::mutex& get_shared_accumulator_mutex()
+{
+    static std::mutex instance;                               
     return instance;
 }
 
 Context::Context(size_t bulk_size)
+    :m_shared_accumulator_mutex(get_shared_accumulator_mutex())
 {
     m_dynamic_accumulator = std::make_shared<handlers::Accumulator>(); 
-    m_static_accumulator = get_static_commands_accumulator();
+    m_shared_accumulator = get_shared_accumulator();    
     m_control_unit = std::make_shared<handlers::ControlUnit>(bulk_size);
-    m_handlers = std::move(create_handlers_chain(m_static_accumulator, m_dynamic_accumulator, m_control_unit));
+    m_handlers = std::move(create_handlers_chain(m_shared_accumulator, m_shared_accumulator_mutex, m_dynamic_accumulator, m_control_unit));
 }
 
 size_t Context::read_buffer_blocking(const char * buffer, size_t chars_count)
@@ -71,25 +78,27 @@ bool Context::process_next_command_blocking()
 
         m_handlers->PassThrough(command);
 
-        std::shared_ptr<ProcessedBulk> bulk_ptr; 
-        if (m_control_unit->ShouldClearStaticBulk())
         {
-            bulk_ptr = make_shared<ProcessedBulk>(m_static_accumulator->MoveBulk(), m_control_unit->GetBulkStartTime());
-        }
-        else if(m_control_unit->GetState() == handlers::ControlUnit::ClearProcessedDynamic)
-        {
-            bulk_ptr = make_shared<ProcessedBulk>(m_dynamic_accumulator->MoveBulk(), m_control_unit->GetBulkStartTime());
-        }
-        else
-        {
-            return true;
-        }
-        
-        s_logging_queue->put(bulk_ptr);
-        s_output_queue->put(bulk_ptr);
+            std::lock_guard<std::mutex> lock(m_shared_accumulator_mutex);
+            std::shared_ptr<ProcessedBulk> bulk_ptr; 
+            if (m_control_unit->ShouldClearStaticBulk())
+            {
+                bulk_ptr = make_shared<ProcessedBulk>(m_shared_accumulator->MoveBulk(), m_control_unit->GetBulkStartTime());
+            }
+            else if(m_control_unit->GetState() == handlers::ControlUnit::ClearProcessedDynamic)
+            {
+                bulk_ptr = make_shared<ProcessedBulk>(m_dynamic_accumulator->MoveBulk(), m_control_unit->GetBulkStartTime());
+            }
+            else
+            {
+                return true;
+            }
+            
+            s_logging_queue->put(bulk_ptr);
+            s_output_queue->put(bulk_ptr);
 
-        m_dynamic_accumulator->ClearBulk();
-        m_control_unit->HandleEvent(handlers::ControlUnit::ClearedProcessed);
+            m_control_unit->HandleEvent(handlers::ControlUnit::ClearedProcessed);
+        }
 
         return true;
     }
