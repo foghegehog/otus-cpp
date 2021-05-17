@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <iostream>
+#include <future>
 #include <memory>
 #include <utility>
 #include <boost/asio.hpp>
@@ -31,8 +32,9 @@ private:
         {
           if (!ec)
           {
-            async::receive(m_context, m_data, length);
+            auto task = std::async(std::launch::async, async::receive, m_context, m_data, length);
             do_read();
+            task.wait();
           }
           else if ((ec == boost::asio::error::eof) || (ec == boost::asio::error::connection_reset))
           {
