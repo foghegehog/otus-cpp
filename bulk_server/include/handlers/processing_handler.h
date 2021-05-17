@@ -22,6 +22,7 @@ class ProcessingHandler: public Handler
             std::function<std::unique_ptr<Handler>()> next_handler_factory)
         : Handler(next_handler_factory),
           m_control_unit(controlUnit),
+          m_static_accumulator(static_accumulator),
           m_dynamic_accumulator(dynamic_accumulator)
         {}
 

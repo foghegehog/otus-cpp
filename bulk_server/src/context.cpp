@@ -74,11 +74,11 @@ bool Context::process_next_command_blocking()
         std::shared_ptr<ProcessedBulk> bulk_ptr; 
         if (m_control_unit->ShouldClearStaticBulk())
         {
-            auto bulk_ptr = make_shared<ProcessedBulk>(m_static_accumulator->MoveBulk(), m_control_unit->GetBulkStartTime());
+            bulk_ptr = make_shared<ProcessedBulk>(m_static_accumulator->MoveBulk(), m_control_unit->GetBulkStartTime());
         }
         else if(m_control_unit->GetState() == handlers::ControlUnit::ClearProcessedDynamic)
         {
-            auto bulk_ptr = make_shared<ProcessedBulk>(m_dynamic_accumulator->MoveBulk(), m_control_unit->GetBulkStartTime());
+            bulk_ptr = make_shared<ProcessedBulk>(m_dynamic_accumulator->MoveBulk(), m_control_unit->GetBulkStartTime());
         }
         else
         {

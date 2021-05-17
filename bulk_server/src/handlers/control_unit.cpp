@@ -13,6 +13,7 @@ ControlUnit::ControlUnit(size_t static_bulk_size)
     CreateTransition(Empty, CommandAdded, [this]()
     {
         SaveBulkStartTime();
+        m_state = GatheringStatic;
     });
     CreateTransition(GatheringStatic, CommandAdded, [](){});
     CreateTransition(GatheringStatic, StaticBulkSizeReached, [this]()
