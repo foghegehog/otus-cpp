@@ -13,24 +13,18 @@ ControlUnit::ControlUnit(size_t static_bulk_size)
     CreateTransition(Empty, CommandAdded, [this]()
     {
         SaveBulkStartTime();
-        m_commands_count++;
-        m_state = m_commands_count < m_static_bulk_size ? GatheringStatic : BulkReady; 
     });
-    CreateTransition(GatheringStatic, CommandAdded, [this]()
+    CreateTransition(GatheringStatic, CommandAdded, [](){});
+    CreateTransition(GatheringStatic, StaticBulkSizeReached, [this]()
     {
-        m_commands_count++; 
-        if (m_commands_count == m_static_bulk_size)
-        {
-            m_state = BulkReady;
-        }
+            m_state = StaticBulkReady;
     });
-    CreateTransition(GatheringStatic, EndOfFile, [this](){ m_state = BulkReady; });
-    CreateTransition(BulkReady, BulkProcessed, [this]()
+    CreateTransition(GatheringStatic, EndOfFile, [this](){ m_state = StaticBulkReady; });
+    CreateTransition(StaticBulkReady, BulkProcessed, [this]()
     {
-        m_commands_count = 0;
-        m_state = ClearProcessed; 
+        m_state = ClearProcessedStatic; 
     });
-    CreateTransition(ClearProcessed, ClearedProcessed, [this]()
+    CreateTransition(ClearProcessedStatic, ClearedProcessed, [this]()
     {
         m_state = Empty;
         m_bulk_start_time = m_unitialized_time; 
@@ -44,7 +38,6 @@ ControlUnit::ControlUnit(size_t static_bulk_size)
     CreateTransition(GatheringStatic, BlockOpened, [this](){ m_state = ProcessUnfinished; });
     CreateTransition(ProcessUnfinished, BulkProcessed, [this]()
     { 
-        m_commands_count = 0;
         m_state = ClearProcessedUnfinished; 
     });
     CreateTransition(GatheringDynamic, CommandAdded, [this]()
@@ -62,25 +55,34 @@ ControlUnit::ControlUnit(size_t static_bulk_size)
     {
         if (m_blocks_nesting == 0)
         {
-            m_state = BulkReady;
+            m_state = DynamicBulkReady;
         }
         else
         {
             m_blocks_nesting--;
         }
     });
+    CreateTransition(GatheringDynamic, BulkProcessed, [this]()
+    {
+        m_state = ClearProcessedDynamic; 
+    });
+    CreateTransition(ClearProcessedDynamic, ClearedProcessed, [this]()
+    {
+        m_state = Empty;
+        m_bulk_start_time = m_unitialized_time; 
+    });
     CreateTransition(GatheringDynamic, EndOfFile, [this](){ m_state = Discard; });
 }
 
 
-bool ControlUnit::ShouldProcessBulk() const
+bool ControlUnit::ShouldProcessStaticBulk() const
 {
-    return (m_state == BulkReady) || (m_state == ProcessUnfinished);
+    return (m_state == StaticBulkReady) || (m_state == ProcessUnfinished);
 }
 
-bool ControlUnit::ShouldClearProcessedBulk() const
+bool ControlUnit::ShouldClearStaticBulk() const
 {
-    return (m_state == ClearProcessed) || (m_state == ClearProcessedUnfinished);
+    return (m_state == ClearProcessedStatic) || (m_state == ClearProcessedUnfinished);
 }
 
 time_t ControlUnit::GetBulkStartTime() const
@@ -118,6 +120,11 @@ void ControlUnit::SaveBulkStartTime()
 ControlUnit::State ControlUnit::GetState() const
 {
     return m_state;
+}
+
+size_t ControlUnit::GetStaticBulkSize() const
+{
+    return m_static_bulk_size;
 }
 
 }

@@ -27,11 +27,18 @@ thread Context::s_logger_thread2 = thread(
 thread Context::s_output_thread = thread(
             &Postprocessing::Run, Postprocessing(make_unique<OutputHandler>(), s_output_queue));
 
+static std::shared_ptr<handlers::ThreadSafeAccumulator> get_static_commands_accumulator()
+{
+    static std::shared_ptr<handlers::ThreadSafeAccumulator> instance = std::make_shared<handlers::ThreadSafeAccumulator>();                               
+    return instance;
+}
+
 Context::Context(size_t bulk_size)
 {
-    m_accumulator = std::make_shared<handlers::Accumulator>(); 
+    m_dynamic_accumulator = std::make_shared<handlers::Accumulator>(); 
+    m_static_accumulator = get_static_commands_accumulator();
     m_control_unit = std::make_shared<handlers::ControlUnit>(bulk_size);
-    m_handlers = std::move(create_handlers_chain(m_accumulator, m_control_unit));
+    m_handlers = std::move(create_handlers_chain(m_static_accumulator, m_dynamic_accumulator, m_control_unit));
 }
 
 size_t Context::read_buffer_blocking(const char * buffer, size_t chars_count)
@@ -64,15 +71,25 @@ bool Context::process_next_command_blocking()
 
         m_handlers->PassThrough(command);
 
-        if (m_control_unit->ShouldClearProcessedBulk())
+        std::shared_ptr<ProcessedBulk> bulk_ptr; 
+        if (m_control_unit->ShouldClearStaticBulk())
         {
-            auto bulk_ptr = make_shared<ProcessedBulk>(m_accumulator->MoveBulk(), m_control_unit->GetBulkStartTime());
-            s_logging_queue->put(bulk_ptr);
-            s_output_queue->put(bulk_ptr);
-
-            m_accumulator->ClearBulk();
-            m_control_unit->HandleEvent(handlers::ControlUnit::ClearedProcessed);
+            auto bulk_ptr = make_shared<ProcessedBulk>(m_static_accumulator->MoveBulk(), m_control_unit->GetBulkStartTime());
         }
+        else if(m_control_unit->GetState() == handlers::ControlUnit::ClearProcessedDynamic)
+        {
+            auto bulk_ptr = make_shared<ProcessedBulk>(m_dynamic_accumulator->MoveBulk(), m_control_unit->GetBulkStartTime());
+        }
+        else
+        {
+            return true;
+        }
+        
+        s_logging_queue->put(bulk_ptr);
+        s_output_queue->put(bulk_ptr);
+
+        m_dynamic_accumulator->ClearBulk();
+        m_control_unit->HandleEvent(handlers::ControlUnit::ClearedProcessed);
 
         return true;
     }

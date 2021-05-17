@@ -19,17 +19,20 @@ class ControlUnit
         {
             Empty,
             GatheringStatic,
-            BulkReady,
+            StaticBulkReady,
+            DynamicBulkReady,
             ProcessUnfinished,
             GatheringDynamic,
             Discard,
-            ClearProcessed,
+            ClearProcessedStatic,
+            ClearProcessedDynamic,
             ClearProcessedUnfinished
         };
 
         enum Event
         {
             CommandAdded,
+            StaticBulkSizeReached,
             BulkProcessed,
             ClearedProcessed,
             BlockOpened,
@@ -39,10 +42,11 @@ class ControlUnit
 
         ControlUnit(size_t static_bulk_size);
         void HandleEvent(Event evnt);
-        bool ShouldProcessBulk() const;
-        bool ShouldClearProcessedBulk() const;
+        bool ShouldProcessStaticBulk() const;
+        bool ShouldClearStaticBulk() const;
         time_t GetBulkStartTime() const;
         State GetState() const;
+        size_t GetStaticBulkSize() const;
         
     private:
         State m_state = State::Empty;

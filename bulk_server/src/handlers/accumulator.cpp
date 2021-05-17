@@ -8,7 +8,7 @@ void Accumulator::StoreCommand(const ExecutableCommand& command)
     m_bulk.emplace_back(command);
 }
 
-size_t Accumulator::GetCommandsStoredCount() const
+size_t Accumulator::GetCommandsStoredCount()
 {
     return m_bulk.size();
 }

@@ -12,11 +12,11 @@ namespace handlers{
 class Accumulator
 {
 public:
-    void StoreCommand(const ExecutableCommand& command);
-    size_t GetCommandsStoredCount() const;
-    const std::vector<ExecutableCommand>& GetBulk();
-    std::vector<ExecutableCommand>&& MoveBulk();
-    void ClearBulk();
+    virtual void StoreCommand(const ExecutableCommand& command);
+    virtual size_t GetCommandsStoredCount();
+    virtual std::vector<ExecutableCommand>&& MoveBulk();
+    virtual const std::vector<ExecutableCommand>& GetBulk();
+    virtual void ClearBulk();
 private:
     std::vector<ExecutableCommand> m_bulk; 
 };

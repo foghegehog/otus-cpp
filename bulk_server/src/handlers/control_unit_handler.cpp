@@ -5,7 +5,14 @@ namespace handlers{
 void ControlUnitHandler::ExecuteCommand(const ExecutableCommand& command)
 {
     UNUSED(command);
-    m_control_unit->HandleEvent(ControlUnit::CommandAdded);
+    if(m_static_accumulator->GetCommandsStoredCount() == m_control_unit->GetStaticBulkSize())
+    {
+        m_control_unit->HandleEvent(ControlUnit::StaticBulkSizeReached);
+    }
+    else
+    {
+        m_control_unit->HandleEvent(ControlUnit::CommandAdded);
+    }
 }
 
 void ControlUnitHandler::HandleControlFlow(const ControlCommand& command)
