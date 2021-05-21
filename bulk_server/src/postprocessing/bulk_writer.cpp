@@ -2,13 +2,13 @@
 
 namespace postprocessing{
 
-void BulkWriter::WriteBulk(const std::vector<handlers::ExecutableCommand>& bulk)
+void BulkWriter::WriteBulk(const std::vector<std::string>& bulk)
 {
     m_stream << "bulk: ";
     std::string separator = "";
     for(const auto& command: bulk)
     {
-        m_stream << separator << command.Text;
+        m_stream << separator << command;
         separator = ", ";
     }
 }

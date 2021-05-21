@@ -15,9 +15,9 @@
 
 namespace async{
 
-Context * connect(size_t bulk_size)
+Context * connect()
 {
-    return new Context(bulk_size);
+    return new Context();
 }
 
 void receive(Context * context, const char * buffer, size_t chars_count)

@@ -69,7 +69,7 @@ private:
           {
             auto new_session = std::make_shared<session>(
               std::move(socket),
-              async::connect(m_bulk_size));
+              async::connect());
             new_session->start();
           }
 
@@ -98,6 +98,8 @@ int main(int argc, char* argv[])
       port = std::atoi(argv[1]);
       bulk_size = std::atoi(argv[2]);
     }
+
+    async::Context::set_bulk_size(bulk_size);
 
     boost::asio::io_context io_context;
 

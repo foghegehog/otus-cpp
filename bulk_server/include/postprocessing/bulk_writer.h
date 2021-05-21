@@ -4,6 +4,7 @@
 #include "../handlers/command.h"
 
 #include <ostream>
+#include <string>
 #include <vector>
 
 namespace postprocessing{
@@ -18,7 +19,7 @@ public:
    :m_stream(stream) 
    {}
 
-   void WriteBulk(const std::vector<handlers::ExecutableCommand>& bulk);
+   void WriteBulk(const std::vector<std::string>& bulk);
 private:
    std::ostream& m_stream;
 };

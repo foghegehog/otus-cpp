@@ -9,7 +9,7 @@
 
 namespace async{
 
-Context * connect(size_t bulk_size);
+Context * connect();
 
 /*!
  * Reads commands from the buffer and enqueues them for asynchronous processing.

@@ -18,13 +18,13 @@ public:
     {
     }
 
-    ProcessedBulk(std::vector<handlers::ExecutableCommand>&& commands, time_t bulk_start_time)
+    ProcessedBulk(std::vector<std::string>&& commands, time_t bulk_start_time)
         :m_commands(std::move(commands)),
         m_bulk_start_time(bulk_start_time)
     {
     }
 
-    std::vector<handlers::ExecutableCommand> m_commands; 
+    std::vector<std::string> m_commands; 
     time_t m_bulk_start_time;
 };
 }
