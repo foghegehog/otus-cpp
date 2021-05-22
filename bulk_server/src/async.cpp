@@ -1,4 +1,5 @@
 #include "../include/async.h"
+#include "../include/commands_parsing.h"
 #include "../include/context.h"
 
 #include <cstring>
@@ -6,6 +7,7 @@
 #include <iostream>
 #include <memory>
 #include <thread>
+#include <vector>
 #include <utility>
 
 namespace async{
@@ -17,20 +19,20 @@ Context * connect()
 
 void receive(Context * context, const char * buffer, size_t chars_count)
 {
-    auto commands_count = context->read_buffer_blocking(buffer, chars_count);
-    auto all_processed = false;
-    for(size_t c = 0; !all_processed && (c < commands_count); c++)
+    std::vector<std::string> commands;
+    const char * buffer_end = buffer + chars_count - 1;
+    const char separator = '\n';
+    const char * pos = commands_parsing::skip_separator(buffer, buffer_end, separator);
+    while(!commands_parsing::is_buffer_end(pos, buffer_end))
     {
-        all_processed = !context->process_next_command_blocking();
+        auto command = commands_parsing::extract_command(pos, buffer_end, separator);
+        context->process_command(command);
     }
 }
 
 
 void disconnect(Context * context)
 {
-    context->set_stopping_state();
-    while(context->process_next_command_blocking())
-    ;
     delete context;
 }
 

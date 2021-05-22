@@ -1,7 +1,6 @@
 #ifndef ASYNC_H
 #define ASYNC_H
 
-#include "blocking_queue.h"
 #include "context.h"
 
 #include <cstddef>

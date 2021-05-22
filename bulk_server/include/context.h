@@ -1,7 +1,6 @@
 #ifndef CONTEXT_H
 #define CONTEXT_H
 
-#include "blocking_queue.h"
 #include "postprocessing/logging_handler.h"
 #include "postprocessing/output_handler.h"
 #include "postprocessing/notifying_queue.h"
@@ -23,25 +22,14 @@ void ensure_workers_started();
 class Context{
 public:
     Context(){};
-    size_t read_buffer_blocking(const char * buffer, size_t chars_count);
-    bool process_next_command_blocking();
-    void set_stopping_state();
-    
+    void process_command(const std::string& command);
     static void set_bulk_size(size_t bulk_size);
-    static void stop_background_workers(); 
 
 private:
-    blocking_queue<std::string> m_receive_queue;
     std::mutex m_processing_mutex;
     
     inline static std::shared_ptr<processing::SharedAccumulator> s_static_accumulator
         = std::make_shared<processing::SharedAccumulator>();
-
-    /*std::shared_ptr<handlers::Accumulator> m_shared_accumulator;
-    std::mutex& m_shared_accumulator_mutex;
-    std::shared_ptr<handlers::Accumulator> m_dynamic_accumulator;
-    std::shared_ptr<handlers::ControlUnit> m_control_unit;
-    std::unique_ptr<handlers::HandlersChain> m_handlers;*/
 
     inline static const postprocessing::postprocessing_queue s_logging_queue 
         = std::make_shared<postprocessing::notifying_queue<postprocessing::shared_bulk>>();
