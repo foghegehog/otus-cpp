@@ -28,7 +28,7 @@ src/postprocessing/logging_handler.cpp
 src/postprocessing/output_handler.cpp)
 
 add_executable(unit_tests 
-    src/handlers/control_unit.cpp
+    src/processing/control_unit.cpp
     tests/control_unit_tests.cpp)
 
 set_target_properties(bulk_server PROPERTIES

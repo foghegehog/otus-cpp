@@ -1,8 +1,6 @@
 #ifndef BULK_WRITER_H
 #define BULK_WRITER_H
 
-#include "../handlers/command.h"
-
 #include <ostream>
 #include <string>
 #include <vector>

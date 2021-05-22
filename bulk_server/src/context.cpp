@@ -4,11 +4,6 @@
 
 #include "../include/commands_parsing.h"
 #include "../include/context.h"
-#include "../include/handlers_factory.h"
-#include "../include/handlers/accumulate_handler.h"
-#include "../include/handlers/control_unit_handler.h"
-#include "../include/handlers/handlers_chain.h"
-#include "../include/handlers/processing_handler.h"
 
 
 namespace async{

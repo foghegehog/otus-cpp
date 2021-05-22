@@ -1,8 +1,6 @@
 #ifndef PROCESSED_BULK_H
 #define PROCESSED_BULK_H
 
-#include "../handlers/command.h"
-
 #include <atomic>
 #include <chrono>
 #include <vector>

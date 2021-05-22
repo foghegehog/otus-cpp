@@ -1,9 +1,7 @@
-#include "../include/handlers/control_unit.h"
 
 #include <gtest/gtest.h>
 
-using namespace handlers;
-
+/*
 TEST(ControlUnit, InitialState)
 {
     const size_t bulk_size = 5;
@@ -152,7 +150,7 @@ TEST(ControlUnit, ProcessUnfinishedStaticOnEOF)
     ASSERT_TRUE(control_unit.ShouldProcessStaticBulk());
     ASSERT_FALSE(control_unit.ShouldClearStaticBulk());
 }
-
+*/
 int main(int argc, char **argv) 
 {
     ::testing::InitGoogleTest(&argc, argv);

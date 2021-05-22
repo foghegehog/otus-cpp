@@ -2,9 +2,6 @@
 #define CONTEXT_H
 
 #include "blocking_queue.h"
-#include "handlers/handlers_chain.h"
-#include "handlers/accumulator.h"
-#include "handlers/control_unit.h"
 #include "postprocessing/logging_handler.h"
 #include "postprocessing/output_handler.h"
 #include "postprocessing/notifying_queue.h"
