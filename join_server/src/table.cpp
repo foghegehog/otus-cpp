@@ -8,3 +8,10 @@ bool Table::Insert(int id, std::string name)
     return result.second;
 }
 
+void Table::Truncate()
+{
+    m_commands_mutex.lock();
+    m_records.clear();
+    m_commands_mutex.unlock();
+}
+

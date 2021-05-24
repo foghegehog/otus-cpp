@@ -22,6 +22,7 @@ class Table
 {
 public:
     bool Insert(int id, std::string name); 
+    void Truncate(); 
 private:
     std::set<std::shared_ptr<TableRecord>, RecordsCompare> m_records;
     std::shared_mutex m_commands_mutex;

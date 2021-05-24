@@ -16,8 +16,11 @@ public:
     void Interpret(Command command, std::ostream& outstream);
     
 private:
-    void Insert(std::string table, int id, std::string name);
     void InterpretInsert(const std::vector<std::string>& args, std::ostream& outstream);
+    void InterpretTruncate(const std::vector<std::string>& args, std::ostream& outstream);
+
+    bool FindTable(const std::string& table_name, Table*& table);
+    void WriteSuccess(std::ostream& outstream);
 
     Table A;
     Table B;

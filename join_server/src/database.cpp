@@ -3,22 +3,34 @@
 Database::Database()
 {
     m_interpreters.emplace("INSERT", &Database::InterpretInsert);
+    m_interpreters.emplace("TRUNCATE", &Database::InterpretTruncate);
+}
+
+void Database::Interpret(Command command, std::ostream& outstream)
+{
+    auto it_interpreter = m_interpreters.find(command.m_name);
+    if (it_interpreter == m_interpreters.end())
+    {
+        throw std::invalid_argument("unknown command " + command.m_name);
+    }
+
+    auto interpreter = it_interpreter->second;
+    std::invoke(interpreter, this, command.m_arguments, outstream);
 }
 
 void Database::InterpretInsert(const std::vector<std::string>& args, std::ostream& outstream)
 {
     if (args.size() != 3)
     {
-        throw std::invalid_argument("wrong args: 'table id name' are needed" + args[1]);
+        throw std::invalid_argument("wrong args: 'table id name' are needed");
     }
 
-    auto it_table = m_tables.find(args[0]);
-    if (it_table == m_tables.end())
+    Table * table;
+    if (!Database::FindTable(args[0], table))
     {
         throw std::invalid_argument("no table " + args[0]);
     }
 
-    auto table = it_table->second;
     int id;
     try
     {
@@ -34,23 +46,39 @@ void Database::InterpretInsert(const std::vector<std::string>& args, std::ostrea
         throw std::invalid_argument("duplicate " + args[1]);
     }
 
-    outstream << "OK" << std::endl;
-    
+    WriteSuccess(outstream);
 }
 
-void Database::Interpret(Command command, std::ostream& outstream)
+void Database::InterpretTruncate(const std::vector<std::string>& args, std::ostream& outstream)
 {
-    auto it_interpreter = m_interpreters.find(command.m_name);
-    if (it_interpreter == m_interpreters.end())
+    if (args.size() != 1)
     {
-        throw std::invalid_argument("unknown command " + command.m_name);
+        throw std::invalid_argument("wrong args: table_name is needed");
     }
 
-    auto interpreter = it_interpreter->second;
-    std::invoke(interpreter, this, command.m_arguments, outstream);
+    Table * table;
+    if (!Database::FindTable(args[0], table))
+    {
+        throw std::invalid_argument("no table " + args[0]);
+    }
+
+    table->Truncate();
+    WriteSuccess(outstream);
 }
 
-void Database::Insert(std::string table, int id, std::string name)
+bool Database::FindTable(const std::string& table_name, Table*& table)
 {
-    m_tables[table]->Insert(id, name);
+    auto it_table = m_tables.find(table_name);
+    if (it_table == m_tables.end())
+    {
+        return false;
+    }
+
+    table = it_table->second;
+    return true;
+}
+
+void Database::WriteSuccess(std::ostream& outstream)
+{
+    outstream << "OK" << std::endl;
 }
