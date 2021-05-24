@@ -24,7 +24,7 @@ Command CommandParser::ParseCommand(const std::string& command_text)
         start = stop + 1;
         stop = command_text.find_first_of(m_separator, start);
         stop = stop != string::npos ? stop : end;
-        command.AddArgument(command_text.substr(start, stop - start));
+        command.m_arguments.push_back(command_text.substr(start, stop - start));
     }
     
     return command;

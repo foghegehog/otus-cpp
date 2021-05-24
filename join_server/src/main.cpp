@@ -1,4 +1,5 @@
 #include "../include/command_parser.h"
+#include "../include/database.h"
 
 #include <cstdlib>
 #include <iostream>
@@ -12,8 +13,8 @@ class session
   : public std::enable_shared_from_this<session>
 {
 public:
-  session(tcp::socket socket)
-    : m_socket(std::move(socket))
+  session(tcp::socket socket, std::shared_ptr<Database> database)
+    : m_socket(std::move(socket)), m_database(database)
   {
   }
 
@@ -36,12 +37,14 @@ private:
             try
             {
               auto command = parser.ParseCommand(std::string{m_read_buffer, length});
-              command.Execute(os);
+              //command.Execute(os);
+              m_database->Interpret(command, os);
             }
             catch(const std::exception& ex)
             {
               os << "ERR " << ex.what() << std::endl;
             }
+
             do_write();
           }
         });
@@ -61,6 +64,8 @@ private:
   }
 
   tcp::socket m_socket;
+  std::shared_ptr<Database> m_database;
+
   inline static const int  max_length = 1024;
   char m_read_buffer[max_length];
   boost::asio::streambuf m_write_streambuf;
@@ -70,7 +75,7 @@ class server
 {
 public:
   server(boost::asio::io_context& io_context, short port)
-    : acceptor_(io_context, tcp::endpoint(tcp::v4(), port))
+    : m_acceptor(io_context, tcp::endpoint(tcp::v4(), port))
   {
     do_accept();
   }
@@ -78,19 +83,20 @@ public:
 private:
   void do_accept()
   {
-    acceptor_.async_accept(
+    m_acceptor.async_accept(
         [this](boost::system::error_code ec, tcp::socket socket)
         {
           if (!ec)
           {
-            std::make_shared<session>(std::move(socket))->start();
+            std::make_shared<session>(std::move(socket), m_database)->start();
           }
 
           do_accept();
         });
   }
 
-  tcp::acceptor acceptor_;
+  tcp::acceptor m_acceptor;
+  std::shared_ptr<Database> m_database = std::make_shared<Database>();
 };
 
 int main(int argc, char* argv[])

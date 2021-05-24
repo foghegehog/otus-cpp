@@ -14,8 +14,9 @@ include_directories(${Boost_INCLUDE_DIR})
 
 add_executable(join_server
     src/main.cpp
-    src/command.cpp
-    src/command_parser.cpp)
+    src/command_parser.cpp
+    src/table.cpp
+    src/database.cpp)
 
 set_target_properties(join_server PROPERTIES
         CXX_STANDARD 17

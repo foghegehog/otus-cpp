@@ -1,0 +1,36 @@
+#ifndef DATABASE_H
+#define DATABASE_H
+
+#include "command.h"
+#include "table.h"
+
+#include <functional>
+#include <ostream>
+#include <map>
+#include <mutex>
+
+class Database
+{
+public:
+    Database();
+    void Interpret(Command command, std::ostream& outstream);
+    
+private:
+    void Insert(std::string table, int id, std::string name);
+    void InterpretInsert(const std::vector<std::string>& args, std::ostream& outstream);
+
+    Table A;
+    Table B;
+    std::map<std::string, Table*> m_tables
+    {
+        std::make_pair(std::string("A"), &A),
+        std::make_pair(std::string("B"), &B)
+    }; 
+
+    std::map<
+        std::string,
+        void (Database::*)(const std::vector<std::string>&, std::ostream&)> m_interpreters;
+
+};
+
+#endif
