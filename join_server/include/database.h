@@ -18,9 +18,11 @@ public:
 private:
     void InterpretInsert(const std::vector<std::string>& args, std::ostream& outstream);
     void InterpretTruncate(const std::vector<std::string>& args, std::ostream& outstream);
+    void InterpretIntersection(const std::vector<std::string>& args, std::ostream& outstream);
 
     bool FindTable(const std::string& table_name, Table*& table);
     void WriteSuccess(std::ostream& outstream);
+    void WriteJoinRecord(const JoinRecord& join, std::ostream& outstream);
 
     Table A;
     Table B;

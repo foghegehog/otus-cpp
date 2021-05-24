@@ -1,6 +1,7 @@
 #ifndef TABLE_RECORD_H
 #define TABLE_RECORD_H
 
+#include <memory>
 #include <string>
 
 struct TableRecord
@@ -11,6 +12,16 @@ struct TableRecord
 
     int id;
     std::string name;
+};
+
+struct JoinRecord
+{
+    JoinRecord(std::shared_ptr<TableRecord> left, std::shared_ptr<TableRecord> right)
+    :m_left(left), m_right(right)
+    {}
+
+    std::shared_ptr<TableRecord> m_left;
+    std::shared_ptr<TableRecord> m_right;
 };
 
 #endif

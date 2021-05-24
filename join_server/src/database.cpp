@@ -4,6 +4,7 @@ Database::Database()
 {
     m_interpreters.emplace("INSERT", &Database::InterpretInsert);
     m_interpreters.emplace("TRUNCATE", &Database::InterpretTruncate);
+    m_interpreters.emplace("INTERSECTION", &Database::InterpretIntersection);
 }
 
 void Database::Interpret(Command command, std::ostream& outstream)
@@ -66,6 +67,25 @@ void Database::InterpretTruncate(const std::vector<std::string>& args, std::ostr
     WriteSuccess(outstream);
 }
 
+void Database::InterpretIntersection(const std::vector<std::string>& args, std::ostream& outstream)
+{
+    if (!args.empty())
+    {
+        throw std::invalid_argument("wrong args: no one is needed");
+    }
+
+    auto intersection = Intersect(A, B);
+    if (intersection.m_records.empty())
+    {
+        outstream << "EMPTY";
+    }
+
+    for(const auto& join: intersection.m_records)
+    {
+        WriteJoinRecord(join, outstream);
+    }
+}
+
 bool Database::FindTable(const std::string& table_name, Table*& table)
 {
     auto it_table = m_tables.find(table_name);
@@ -81,4 +101,9 @@ bool Database::FindTable(const std::string& table_name, Table*& table)
 void Database::WriteSuccess(std::ostream& outstream)
 {
     outstream << "OK" << std::endl;
+}
+
+void Database::WriteJoinRecord(const JoinRecord& join, std::ostream& outstream)
+{
+    outstream << join.m_left->id << "," << join.m_left->name << "," << join.m_right->name << std::endl;
 }
