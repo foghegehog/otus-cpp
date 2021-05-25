@@ -32,15 +32,17 @@ View Intersect(Table& left, Table& right)
     auto right_it = right.m_records.begin();
     while(left_it != left.m_records.end() && right_it != right.m_records.end())
     {
-        if (is_less(*left_it, *right_it))
+        auto left_record = *left_it;
+        auto right_record = *right_it;
+        if (is_less(left_record, right_record))
         {
             ++left_it;
         }
         else
         {
-            if (!is_less(*right_it, *left_it))
+            if (!is_less(right_record, left_record))
             {
-                result.m_records.emplace_back(*left_it, *right_it);
+                result.m_records.emplace_back(left_record, right_record);
                 ++left_it;
             }
             ++right_it;
