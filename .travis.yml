@@ -46,6 +46,11 @@ script:
 - cmake --build .
 - cmake --build . --target test
 - cmake --build . --target package
+- cd ../join_server
+- cmake .
+- cmake --build .
+- cmake --build . --target test
+- cmake --build . --target package
 deploy:
 - provider: script
   skip_cleanup: true
@@ -90,3 +95,9 @@ deploy:
   - curl -T bulk_server-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb -uprickly-u:$BINTRAY_API_KEY "https://api.bintray.com/content/prickly-u/otus-cpp/otus-cpp-homework/$TRAVIS_BUILD_NUMBER/bulk_server-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb;deb_distribution=trusty;deb_component=main;deb_architecture=amd64;publish=1"
   on:
     branch: bulk_server
+- provider: script
+  skip_cleanup: true
+  script:
+  - curl -T join_server-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb -uprickly-u:$BINTRAY_API_KEY "https://api.bintray.com/content/prickly-u/otus-cpp/otus-cpp-homework/$TRAVIS_BUILD_NUMBER/join_server-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb;deb_distribution=trusty;deb_component=main;deb_architecture=amd64;publish=1"
+  on:
+    branch: join_server
