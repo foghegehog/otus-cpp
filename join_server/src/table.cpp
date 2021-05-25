@@ -3,6 +3,10 @@
 #include <algorithm>
 #include <mutex>
 
+/*!
+ * Inserts new record into the table. 
+ * Due to usage of std::set as the underlying structure, the complexity of the operation is O(log(n)).    
+ */
 bool Table::Insert(int id, std::string name)
 {
     {
@@ -12,6 +16,10 @@ bool Table::Insert(int id, std::string name)
     }
 }
 
+/*!
+ * Erases all the records in the table. 
+ * Due to usage of std::set as the underlying structure, the complexity of the operation is O(n).  
+ */
 void Table::Truncate()
 {
     {
@@ -20,6 +28,14 @@ void Table::Truncate()
     }
 }
 
+/*!
+ * Intersects content of two tables. 
+ * The implementation is similar to std::set_intersection (https://en.cppreference.com/w/cpp/algorithm/set_intersection),
+ * as the underlying structure (std::set) is sorted upon insertion.  
+ * Thus, the complexity is at most 2·(N1+N2)-1 comparisons, 
+ * where N1 is a distance (numper of hops) between the first and the last elements in the firsts table,
+ * N2 - a distance between the first and the last elements in the second table.     
+ */
 View Intersect(Table& left, Table& right)
 {
     View result;
@@ -55,6 +71,14 @@ View Intersect(Table& left, Table& right)
     return result;
 }
 
+/*!
+ * Takes symmetric difference of the content of two tables. 
+ * The implementation is similar to std::set_symmetric_difference (https://en.cppreference.com/w/cpp/algorithm/set_symmetric_difference),
+ * as the underlying structure (std::set) is sorted upon insertion.  
+ * Thus, the complexity is at most 2·(N1+N2)-1 comparisons, 
+ * where N1 is a distance (numper of hops) between the first and the last elements in the firsts table,
+ * N2 - a distance between the first and the last elements in the second table.     
+ */
 View SymmetricDifference(Table& left, Table& right)
 {
     View result;
