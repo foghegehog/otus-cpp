@@ -5,6 +5,7 @@ Database::Database()
     m_interpreters.emplace("INSERT", &Database::InterpretInsert);
     m_interpreters.emplace("TRUNCATE", &Database::InterpretTruncate);
     m_interpreters.emplace("INTERSECTION", &Database::InterpretIntersection);
+    m_interpreters.emplace("SYMMETRIC_DIFFERENCE", &Database::InterpretSymmetricDifference);
 }
 
 void Database::Interpret(Command command, std::ostream& outstream)
@@ -77,13 +78,34 @@ void Database::InterpretIntersection(const std::vector<std::string>& args, std::
     auto intersection = Intersect(A, B);
     if (intersection.m_records.empty())
     {
-        outstream << "EMPTY";
+        outstream << "EMPTY" << std::endl;
     }
 
     for(const auto& join: intersection.m_records)
     {
         WriteJoinRecord(join, outstream);
     }
+    WriteSuccess(outstream);
+}
+
+void Database::InterpretSymmetricDifference(const std::vector<std::string>& args, std::ostream& outstream)
+{
+    if (!args.empty())
+    {
+        throw std::invalid_argument("wrong args: no one is needed");
+    }
+
+    auto diff = SymmetricDifference(A, B);
+    if (diff.m_records.empty())
+    {
+        outstream << "EMPTY" << std::endl;
+    }
+
+    for(const auto& d: diff.m_records)
+    {
+        WriteJoinRecord(d, outstream);
+    }
+    WriteSuccess(outstream);
 }
 
 bool Database::FindTable(const std::string& table_name, Table*& table)

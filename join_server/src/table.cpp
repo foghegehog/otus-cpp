@@ -55,3 +55,66 @@ View Intersect(Table& left, Table& right)
     return result;
 }
 
+View SymmetricDifference(Table& left, Table& right)
+{
+    View result;
+    RecordsCompare is_less;
+
+    left.m_commands_mutex.lock_shared();
+    right.m_commands_mutex.lock_shared();
+
+    auto left_it = left.m_records.begin();
+    auto right_it = right.m_records.begin();
+    while(left_it != left.m_records.end())
+    {
+        if(right_it == right.m_records.end())
+        {
+            while(left_it != left.m_records.end())
+            {
+                auto left_record = *left_it;
+                auto empty_record = std::make_shared<TableRecord>(left_record->id, "");
+                result.m_records.emplace_back(left_record, empty_record);
+                ++left_it;
+            }
+
+            break;
+        }
+
+        auto left_record = *left_it;
+        auto right_record = *right_it;
+        if(is_less(left_record, right_record))
+        {
+            auto empty_record = std::make_shared<TableRecord>(left_record->id, "");
+            result.m_records.emplace_back(left_record, empty_record);
+            ++left_it;
+        }
+        else
+        {
+            if(is_less(right_record, left_record))
+            {
+                auto empty_record = std::make_shared<TableRecord>(right_record->id, "");
+                result.m_records.emplace_back(empty_record, right_record);
+            }
+            else
+            {
+                ++left_it;
+            }
+
+            ++right_it;
+        }
+    }
+
+    while(right_it != right.m_records.end())
+    {
+        auto right_record = *right_it;
+        auto empty_record = std::make_shared<TableRecord>(right_record->id, "");
+        result.m_records.emplace_back(empty_record, right_record);
+        ++right_it;
+    }
+
+    left.m_commands_mutex.unlock_shared();
+    right.m_commands_mutex.unlock_shared();
+
+    return result;
+}
+

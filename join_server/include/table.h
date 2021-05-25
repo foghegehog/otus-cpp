@@ -31,6 +31,7 @@ public:
     bool Insert(int id, std::string name); 
     void Truncate(); 
     friend View Intersect(Table& left, Table& right);
+    friend View SymmetricDifference(Table& left, Table& right);
 private:
     std::set<std::shared_ptr<TableRecord>, RecordsCompare> m_records;
     std::shared_mutex m_commands_mutex;

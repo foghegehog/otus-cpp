@@ -19,6 +19,7 @@ private:
     void InterpretInsert(const std::vector<std::string>& args, std::ostream& outstream);
     void InterpretTruncate(const std::vector<std::string>& args, std::ostream& outstream);
     void InterpretIntersection(const std::vector<std::string>& args, std::ostream& outstream);
+    void InterpretSymmetricDifference(const std::vector<std::string>& args, std::ostream& outstream);
 
     bool FindTable(const std::string& table_name, Table*& table);
     void WriteSuccess(std::ostream& outstream);
