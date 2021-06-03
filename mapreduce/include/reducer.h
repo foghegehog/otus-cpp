@@ -8,14 +8,14 @@ class reducer
 {
 public:
     reducer(
-        const std::function<void(Accumulate&, std::pair<Key, Value>)>& reduce_func)
+        const std::function<void(Accumulate&, const std::pair<Key, Value>&)>& reduce_func)
         : m_reduce(reduce_func)
     {}
 
 
     Accumulate run(const std::vector<std::pair<Key, Value>>& pairs);
 private:
-    std::function<void(Accumulate&, std::pair<Key, Value>)> m_reduce;
+    std::function<void(Accumulate&, const std::pair<Key, Value>&)> m_reduce;
 };
 
 template<typename Accumulate, typename Key, typename Value>

@@ -18,6 +18,7 @@ add_executable(mapreduce
 add_executable(unit_tests 
     tests/tests.cpp
     src/block_reader.cpp
+    src/min_prefix_function.cpp
 )
 
 set_target_properties(mapreduce PROPERTIES

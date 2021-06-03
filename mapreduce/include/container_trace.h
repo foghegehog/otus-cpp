@@ -9,6 +9,11 @@ struct container_trace
     {
     }
 
+    bool is_finished() const
+    {
+        return m_pos == m_end;
+    }
+
     Container & m_container;
     typename Container::iterator m_pos;
     typename Container::iterator m_end;

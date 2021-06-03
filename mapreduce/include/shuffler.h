@@ -50,7 +50,7 @@ void shuffler<K, V>::run(
 
             for(auto container_it = containers.begin(); container_it != containers.end(); ++container_it)
             {
-                if (container_it->m_pos->first < min_key)
+                if (!container_it->is_finished() && (container_it->m_pos->first < min_key))
                 {
                     min_key_container = container_it;
                     min_key = min_key_container->m_pos->first;
@@ -59,7 +59,7 @@ void shuffler<K, V>::run(
 
             for(auto container_it = min_key_container; container_it != containers.end(); ++container_it)
             {
-                if (container_it->m_pos->first != min_key)
+                if (container_it->is_finished() || (container_it->m_pos->first != min_key))
                 {
                     continue;
                 }
@@ -84,7 +84,7 @@ void shuffler<K, V>::run(
                 }                
             }
 
-            if (min_key_container->m_pos == min_key_container->m_end)
+            if (min_key_container->is_finished())
             {
                 ++min_key_container;
                 if (min_key_container == containers.end())

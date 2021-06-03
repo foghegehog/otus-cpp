@@ -1,7 +1,10 @@
+#include "../include/block_reader.h"
 #include "../include/file_splitter.h"
+#include "../include/max_summator.h"
+#include "../include/mapper.h"
+#include "../include/min_prefix_functions.h"
 #include "../include/shuffler.h"
 #include "../include/reducer.h"
-#include "../include/max_summator.h"
 
 #include <gtest/gtest.h>
 #include <iostream>
@@ -105,13 +108,96 @@ TEST(Framework, Reduce)
     ASSERT_EQ(pair.second, 15);
 }
 
-/*TEST(Framework, Usage)
+class block_reader_mock : public block_reader
 {
-    std::vector<std::multimap<std::string, int>> after_map;
-    std::vector<std::vector<std::pair<std::string, int>>> for_reduce(5);
-    shuffler<std::string, int> sh;
+public:
+    block_reader_mock(std::vector<std::string>::iterator from, std::vector<std::string>::iterator to)
+    {
+        m_lines.insert(m_lines.end(), from, to);
+        m_pos = m_lines.begin();
+    }
 
-}*/
+    bool get_next_line(std::string& line) override
+    {
+        if (m_pos != m_lines.end())
+        {
+            line = *m_pos;
+            ++m_pos;
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+private:
+    std::vector<std::string> m_lines; 
+    std::vector<std::string>::iterator m_pos;
+};
+
+TEST(Framework, Usage)
+{
+    std::vector<std::string> lines = 
+    {
+        "a",
+        "bb",
+        "ccccc",
+        "aa",
+        "aaa",
+        "b",
+        "c",
+        "ddddd",
+        "aaaa",
+        "eee",
+        "fff",
+        "ggg",
+        "aaaan",
+        "aaaaaaaa",
+        "aaaaaaaab",
+    };
+
+    int prefix_len;
+    for (prefix_len = 1; prefix_len < 1000; ++prefix_len)
+    {
+        auto map_func = get_prefix_pair_function(prefix_len);
+
+        const int mappers_count = 5;
+        std::vector<std::multimap<std::string, int>> after_map(mappers_count);
+        int block_size = lines.size() / mappers_count;
+        for(auto m = 0; m < mappers_count; m++)
+        {
+            auto reader = block_reader_mock(lines.begin() + m * block_size, lines.begin() + (m +1) * block_size);
+            mapper map_runner(map_func, &reader);
+            map_runner.run(after_map[m]);
+        }
+
+        const int reducers_count = 3;
+        std::vector<std::vector<std::pair<std::string, int>>> for_reduce(reducers_count);
+
+        shuffler<std::string, int> shaffle;
+        shaffle.run(after_map, for_reduce);
+        
+        auto max_duplicates = 0;
+        for(auto r = 0; r < reducers_count; r++)
+        {
+            reducer<max_summator<std::string, int>, std::string, int> reduce_runner(accumulate_key_sum);
+            auto result = reduce_runner.run(for_reduce[r]);
+            auto duplicates = result.get_max_pair().second;
+            if (duplicates > max_duplicates)
+            {
+                max_duplicates = duplicates;
+            }
+        }
+
+        if (max_duplicates == 1)
+        {
+            break;
+        }
+    }
+
+    ASSERT_EQ(prefix_len, lines.back().size());
+}
 
 TEST(FileOperationss, BlocksDivision)
 {
