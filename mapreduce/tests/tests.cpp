@@ -105,6 +105,14 @@ TEST(Framework, Reduce)
     ASSERT_EQ(pair.second, 15);
 }
 
+/*TEST(Framework, Usage)
+{
+    std::vector<std::multimap<std::string, int>> after_map;
+    std::vector<std::vector<std::pair<std::string, int>>> for_reduce(5);
+    shuffler<std::string, int> sh;
+
+}*/
+
 TEST(FileOperationss, BlocksDivision)
 {
     const int lines_count = 64;
