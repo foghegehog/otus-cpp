@@ -3,8 +3,8 @@
 
 #include <fstream>
 #include <functional>
+#include <map>
 #include <string>
-#include <vector>
 #include <utility>
 
 template<typename K, typename V>
@@ -19,7 +19,7 @@ public:
         : m_map(map_func), m_path(path), m_block_start(start), m_block_length(block_length)
     {}
 
-    std::vector<std::pair<K, V>> run();
+    void run(std::multimap<K, V>& container);
 
 private:
     std::function<std::pair<K, V>> m_map;
@@ -29,20 +29,17 @@ private:
 };
 
 template<typename K, typename V>
-mapper<K, V> run()
+void run(std::multimap<K, V>& container)
 {    
     std::ifstream infile(m_path);
     infile.seekg(m_block_start, infile.beg);
-    std::vector<std::pair<K, V>> mapped;
     std::string line;
     size_t read_count = 0;
     while((read_count < m_block_length) && std::getline(infile, line))
     {
         read_count += line.size();
-        mapped.push_back(m_map(line));
+        container.insert(m_map(line));
     }
-
-    return mapped;
 }
 
 #endif

@@ -38,7 +38,7 @@ std::vector<file_block_reader> file_splitter<N>::split(const std::string& path)
     for(size_t reader_i = 0; reader_i < N; ++reader_i)
     {
         auto rest_parts = N - reader_i;
-        auto block_length = rest_size / rest_parts;
+        auto block_length = rest_size / rest_parts + 1;
         file_content.seekg(block_length, file_content.cur);
         
         do
