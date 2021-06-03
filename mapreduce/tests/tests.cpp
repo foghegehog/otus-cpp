@@ -43,14 +43,21 @@ TEST(FileReads, BlocksDivision)
 TEST(Framework, Shuffle)
 {
     std::vector<std::multimap<std::string, int>> after_map;
-    for (size_t i = 0; i < 5; i++)
+    size_t repeat = 5;
+    for (size_t i = 0; i < repeat; i++)
     {
         std::multimap<std::string, int> map =
         {
             std::make_pair<std::string, int>("aaa", i),
             std::make_pair<std::string, int>("aaa", i + 1),
             std::make_pair<std::string, int>("bbb", i),
-            std::make_pair<std::string, int>("ccc", i)
+            std::make_pair<std::string, int>("ccc", i),
+            std::make_pair<std::string, int>("ddd", i),
+            std::make_pair<std::string, int>("ddd", i + 1),
+            std::make_pair<std::string, int>("eee", i),
+            std::make_pair<std::string, int>("eee", i + 1),
+            std::make_pair<std::string, int>("fffff", i),
+            std::make_pair<std::string, int>("gggggg", i)
         };
         after_map.push_back(map);
     }
@@ -59,7 +66,47 @@ TEST(Framework, Shuffle)
     std::vector<std::vector<std::pair<std::string, int>>> for_reduce(5);
     shuffler<std::string, int> sh;
     sh.run(after_map, for_reduce);
-    ASSERT_TRUE(true);
+
+    for (const auto& reducer: for_reduce)
+    {
+        ASSERT_EQ(reducer.size(), repeat * 2);
+    }
+
+    auto a_reducer = for_reduce[0];
+    for(const auto& pair: a_reducer)
+    {
+        auto key = pair.first;
+        ASSERT_EQ(key, "aaa");
+    }   
+
+    auto bc_reducer = for_reduce[1];
+    for(const auto& pair: bc_reducer)
+    {
+        auto key = pair.first;
+        ASSERT_TRUE((key == "bbb") || (key == "ccc"));
+    } 
+
+    auto d_reducer = for_reduce[2];
+    for(const auto& pair: d_reducer)
+    {
+        auto key = pair.first;
+        ASSERT_EQ(key, "ddd");
+    } 
+
+    auto e_reducer = for_reduce[3];
+    for(const auto& pair: e_reducer)
+    {
+        auto key = pair.first;
+        ASSERT_EQ(key, "eee");
+    } 
+
+    auto fg_reducer = for_reduce[4];
+    for(const auto& pair: fg_reducer)
+    {
+        auto key = pair.first;
+        ASSERT_TRUE((key == "fffff") || (key == "gggggg"));
+    } 
+    
 }
 
 int main(int argc, char **argv) 

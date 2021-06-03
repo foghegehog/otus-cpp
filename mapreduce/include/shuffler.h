@@ -29,7 +29,7 @@ void shuffler<K, V>::run(
     };
 
     auto mapped_count = std::accumulate(after_map.begin(), after_map.end(), 0, count_fold);
-    auto per_reducer_count = mapped_count / for_reduce.size() + 1;
+    auto per_reducer_count = mapped_count / for_reduce.size();
 
     std::vector<container_trace<std::multimap<K, V>>> containers;
     containers.reserve(after_map.size());
@@ -76,12 +76,12 @@ void shuffler<K, V>::run(
 
                 reducer.insert(reducer.end(), from_iterator, to_iterator);
                 shuffled_count += count;
+                std::advance(container_it->m_pos, count);
+
                 if (shuffled_count == mapped_count)
                 {
                     return;
-                }
-                
-                std::advance(container_it->m_pos, count);
+                }                
             }
 
 
