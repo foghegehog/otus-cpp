@@ -84,7 +84,6 @@ void shuffler<K, V>::run(
                 }                
             }
 
-
             if (min_key_container->m_pos == min_key_container->m_end)
             {
                 ++min_key_container;

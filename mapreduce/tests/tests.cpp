@@ -1,44 +1,11 @@
 #include "../include/file_splitter.h"
 #include "../include/shuffler.h"
+#include "../include/reducer.h"
+#include "../include/max_summator.h"
 
 #include <gtest/gtest.h>
 #include <iostream>
 #include <string>
-
-TEST(FileReads, BlocksDivision)
-{
-    const int lines_count = 64;
-    file_splitter<lines_count> splitter;
-    auto readers = splitter.split("../include/file_splitter.h");
-    
-    std::string first_line;
-    std::string last_line;
-    int empty_readers = 0;
-
-    auto readers_it = readers.begin();
-    auto first_reader_ok = readers_it->get_next_line(first_line);
-    std::string line;
-    for(++readers_it; readers_it != readers.end(); ++readers_it)
-    {
-        bool no_reads = true;
-        while(readers_it->get_next_line(line))
-        {
-            no_reads = false;
-            last_line = line.empty() ? last_line : line;
-        }
-
-        if (no_reads)
-        {
-            ++empty_readers;
-        }
-    }
-
-    ASSERT_TRUE(first_reader_ok);
-    ASSERT_GT(empty_readers, 0);
-    ASSERT_LT(empty_readers, readers.size());
-    ASSERT_EQ(first_line, "#ifndef FILE_SPLITTER_H");
-    ASSERT_EQ(last_line, "#endif");
-}
 
 TEST(Framework, Shuffle)
 {
@@ -107,6 +74,70 @@ TEST(Framework, Shuffle)
         ASSERT_TRUE((key == "fffff") || (key == "gggggg"));
     } 
     
+}
+
+TEST(Framework, Reduce)
+{
+    auto func = [](max_summator<std::string, int> & accum, std::pair<std::string, int> pair)
+    {
+        accum.add(pair);
+    };
+
+    reducer<max_summator<std::string, int>, std::string, int> r(func);
+
+    std::vector<std::pair<std::string, int>> pairs =
+    {
+        std::make_pair<std::string, int>("aaa", 1),
+        std::make_pair<std::string, int>("aaa", 2),
+        std::make_pair<std::string, int>("bbb", 3),
+        std::make_pair<std::string, int>("ccc", 4),
+        std::make_pair<std::string, int>("ddd", 5),
+        std::make_pair<std::string, int>("ddd", 6),
+        std::make_pair<std::string, int>("eee", 7),
+        std::make_pair<std::string, int>("eee", 8), 
+        std::make_pair<std::string, int>("fffff", 9),
+        std::make_pair<std::string, int>("gggggg", 10)
+    };
+
+    auto result = r.run(pairs);
+    auto pair = result.get_max_pair();
+    ASSERT_EQ(pair.first, "eee");
+    ASSERT_EQ(pair.second, 15);
+}
+
+TEST(FileOperationss, BlocksDivision)
+{
+    const int lines_count = 64;
+    file_splitter<lines_count> splitter;
+    auto readers = splitter.split("../include/file_splitter.h");
+    
+    std::string first_line;
+    std::string last_line;
+    int empty_readers = 0;
+
+    auto readers_it = readers.begin();
+    auto first_reader_ok = readers_it->get_next_line(first_line);
+    std::string line;
+    for(++readers_it; readers_it != readers.end(); ++readers_it)
+    {
+        bool no_reads = true;
+        while(readers_it->get_next_line(line))
+        {
+            no_reads = false;
+            last_line = line.empty() ? last_line : line;
+        }
+
+        if (no_reads)
+        {
+            ++empty_readers;
+        }
+    }
+
+    ASSERT_TRUE(first_reader_ok);
+    ASSERT_GT(empty_readers, 0);
+    ASSERT_LT(empty_readers, readers.size());
+    ASSERT_EQ(first_line, "#ifndef FILE_SPLITTER_H");
+    ASSERT_EQ(last_line, "#endif");
 }
 
 int main(int argc, char **argv) 
