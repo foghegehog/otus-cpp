@@ -202,7 +202,7 @@ TEST(FileOperationss, BlocksDivision)
 {
     const int lines_count = 23;
     file_splitter splitter(lines_count);
-    auto readers = splitter.split("../include/file_splitter.h");
+    auto readers = splitter.split("include/file_splitter.h");
     
     std::string first_line;
     std::string last_line;
