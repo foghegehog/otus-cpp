@@ -9,7 +9,7 @@ class max_summator
 {
 public:
     void add(const std::pair<K, V>& pair);
-    std::pair<K, V> get_max_pair() const;
+    V get_max_value() const;
     std::vector<std::string> get_max_value_str() const;
     std::vector<std::string> get_pairs_str() const;
 private:
@@ -41,15 +41,22 @@ void max_summator<K, V>::add(const std::pair<K, V>& pair)
 }
 
 template<typename K, typename V>
-std::pair<K, V> max_summator<K, V>::get_max_pair() const
+V max_summator<K, V>::get_max_value() const
 {
-    return *m_max_pair;
+    if (m_max_pair != m_keys_sum.end())
+    {
+        return m_max_pair->second;
+    }
+    else
+    {
+        return -1;
+    } 
 }
 
 template<typename K, typename V>
 std::vector<std::string> max_summator<K, V>::get_max_value_str() const
 {
-    std::vector<std::string> result = { std::to_string(m_max_pair->second) };
+    std::vector<std::string> result = { std::to_string(get_max_value()) };
     return result;
 }
 
@@ -59,7 +66,7 @@ std::vector<std::string> max_summator<K, V>::get_pairs_str() const
     std::vector<std::string> result(m_keys_sum.size());
     for(const auto& pair: m_keys_sum)
     {
-        result.emplace_back(pair->first + " " + std::to_string(pair->second));
+        result.emplace_back(pair.first + " " + std::to_string(pair.second));
     }
     return result;
 }

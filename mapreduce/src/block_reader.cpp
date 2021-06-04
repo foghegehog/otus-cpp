@@ -15,8 +15,15 @@ bool file_block_reader::get_next_line(std::string& line)
     }
     else
     {
-        m_bytes_read += line.size();
+        m_bytes_read += line.size() + 1;
     }
 
-    return !m_is_eof && (m_bytes_read < m_length);
+    return !m_is_eof && (m_bytes_read <= m_length);
+}
+
+void file_block_reader::reset()
+{
+    m_filestream.seekg(m_start, m_filestream.beg);
+    m_bytes_read = 0;
+    m_is_eof = false;
 }

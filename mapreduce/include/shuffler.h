@@ -4,6 +4,7 @@
 #include "container_trace.h"
 
 #include <iterator>
+#include <list>
 #include <map>
 #include <numeric>
 #include <vector>
@@ -30,70 +31,68 @@ void shuffler<K, V>::run(
 
     auto mapped_count = std::accumulate(after_map.begin(), after_map.end(), 0, count_fold);
     auto per_reducer_count = mapped_count / for_reduce.size();
-
-    std::vector<container_trace<std::multimap<K, V>>> containers;
-    containers.reserve(after_map.size());
-    for(auto& container: after_map)
+    if (mapped_count % for_reduce.size() != 0)
     {
-        containers.emplace_back(container);
+        per_reducer_count += 1;
     }
 
-    auto min_key_container = containers.begin();
-    auto shuffled_count = 0;
-    for(auto& reducer: for_reduce)
+    std::list<container_trace<std::multimap<K, V>>> containers;
+    for(auto& container: after_map)
     {
-        reducer.reserve(per_reducer_count);
-
-        while(reducer.size() < per_reducer_count)
+        if (!container.empty())
         {
-            auto min_key = min_key_container->m_pos->first;
+            containers.emplace_back(container);
+        }
+    }
 
-            for(auto container_it = containers.begin(); container_it != containers.end(); ++container_it)
+    auto reducer = for_reduce.begin();
+    reducer->reserve(per_reducer_count);
+    while(!containers.empty())
+    {
+        auto min_key_container = containers.begin();
+        auto min_key = min_key_container->m_pos->first;
+
+        for(auto container_it = next(min_key_container); container_it != containers.end(); ++container_it)
+        {
+            if (container_it->m_pos->first < min_key)
             {
-                if (!container_it->is_finished() && (container_it->m_pos->first < min_key))
-                {
-                    min_key_container = container_it;
-                    min_key = min_key_container->m_pos->first;
-                }
-            }
-
-            for(auto container_it = min_key_container; container_it != containers.end(); ++container_it)
-            {
-                if (container_it->is_finished() || (container_it->m_pos->first != min_key))
-                {
-                    continue;
-                }
-
-                auto from_iterator = std::make_move_iterator(container_it->m_pos);
-                auto end_iterator = std::make_move_iterator(container_it->m_end);
-                auto to_iterator = std::make_move_iterator(container_it->m_pos);
-                auto count = 0;
-                while((to_iterator != end_iterator) && (to_iterator->first == min_key))
-                {
-                     ++to_iterator;
-                     ++count;
-                }
-
-                reducer.insert(reducer.end(), from_iterator, to_iterator);
-                shuffled_count += count;
-                std::advance(container_it->m_pos, count);
-
-                if (shuffled_count == mapped_count)
-                {
-                    return;
-                }                
-            }
-
-            if (min_key_container->is_finished())
-            {
-                ++min_key_container;
-                if (min_key_container == containers.end())
-                {
-                    min_key_container = containers.begin();
-                }                
+                min_key_container = container_it;
+                min_key = min_key_container->m_pos->first;
             }
         }
 
+        for(auto container_it = min_key_container; container_it != containers.end(); ++container_it)
+        {
+            if (container_it->m_pos->first != min_key)
+            {
+                continue;
+            }
+
+            auto from_iterator = std::make_move_iterator(min_key_container->m_pos);
+            auto end_iterator = std::make_move_iterator(min_key_container->m_end);
+            auto to_iterator = std::make_move_iterator(min_key_container->m_pos);
+            auto count = 0;
+            while((to_iterator != end_iterator) && (to_iterator->first == min_key))
+            {
+                ++to_iterator;
+                ++count;
+            }
+
+            reducer->insert(reducer->end(), from_iterator, to_iterator);
+            std::advance(container_it->m_pos, count);
+            if (container_it->is_finished())
+            {
+                auto to_remove = container_it;
+                --container_it;
+                containers.erase(to_remove);
+            }
+        }
+
+        if (reducer->size() >= per_reducer_count)
+        {
+            ++reducer;
+            reducer->reserve(per_reducer_count);
+        }
     }
 }
 

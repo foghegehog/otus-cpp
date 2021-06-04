@@ -103,9 +103,8 @@ TEST(Framework, Reduce)
     };
 
     auto result = r.run(pairs);
-    auto pair = result.get_max_pair();
-    ASSERT_EQ(pair.first, "eee");
-    ASSERT_EQ(pair.second, 15);
+    auto max = result.get_max_value();
+    ASSERT_EQ(max, 15);
 }
 
 class block_reader_mock : public block_reader
@@ -183,7 +182,7 @@ TEST(Framework, Usage)
         {
             reducer<max_summator<std::string, int>, std::string, int> reduce_runner(accumulate_key_sum);
             auto result = reduce_runner.run(for_reduce[r]);
-            auto duplicates = result.get_max_pair().second;
+            auto duplicates = result.get_max_value();
             if (duplicates > max_duplicates)
             {
                 max_duplicates = duplicates;
@@ -201,8 +200,8 @@ TEST(Framework, Usage)
 
 TEST(FileOperationss, BlocksDivision)
 {
-    const int lines_count = 64;
-    file_splitter<lines_count> splitter;
+    const int lines_count = 23;
+    file_splitter splitter(lines_count);
     auto readers = splitter.split("../include/file_splitter.h");
     
     std::string first_line;
@@ -219,6 +218,7 @@ TEST(FileOperationss, BlocksDivision)
         {
             no_reads = false;
             last_line = line.empty() ? last_line : line;
+            //std::cout << line << std::endl;
         }
 
         if (no_reads)

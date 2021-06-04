@@ -13,12 +13,16 @@ include_directories(${Boost_INCLUDE_DIR})
 
 add_executable(mapreduce
     src/main.cpp
+    src/block_reader.cpp
+    src/min_prefix_function.cpp
+    src/file_splitter.cpp
 )
 
 add_executable(unit_tests 
     tests/tests.cpp
     src/block_reader.cpp
     src/min_prefix_function.cpp
+    src/file_splitter.cpp
 )
 
 set_target_properties(mapreduce PROPERTIES

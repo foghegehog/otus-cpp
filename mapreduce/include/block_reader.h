@@ -8,6 +8,8 @@ class block_reader
 {
 public:
     virtual bool get_next_line(std::string& line) = 0;
+    virtual void reset()
+    {}
 };
 
 
@@ -29,6 +31,8 @@ public:
     }
 
     bool get_next_line(std::string& line) override;
+
+    void reset() override;
 
 private:
     std::string m_path;
