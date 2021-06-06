@@ -34,6 +34,7 @@ private:
           {
             auto task = std::async(std::launch::async, async::receive, m_context, m_data, length);
             do_read();
+            task.wait();
           }
           else if ((ec == boost::asio::error::eof) || (ec == boost::asio::error::connection_reset))
           {
@@ -52,8 +53,8 @@ private:
 class server
 {
 public:
-  server(boost::asio::io_context& io_context, short port, int bulk_size)
-    : m_acceptor(io_context, tcp::endpoint(tcp::v4(), port)), m_bulk_size(bulk_size)
+  server(boost::asio::io_context& io_context, short port)
+    : m_acceptor(io_context, tcp::endpoint(tcp::v4(), port))
   {
     do_accept();
   }
@@ -77,7 +78,6 @@ private:
   }
 
   tcp::acceptor m_acceptor;
-  int m_bulk_size;
 };
 
 int main(int argc, char* argv[])
@@ -102,7 +102,7 @@ int main(int argc, char* argv[])
 
     boost::asio::io_context io_context;
 
-    server server(io_context, port, bulk_size);
+    server server(io_context, port);
 
     io_context.run();
   }

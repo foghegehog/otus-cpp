@@ -12,6 +12,7 @@ class PostprocessingHandler
 {
 public:
     virtual void Handle(std::shared_ptr<ProcessedBulk> bulk) = 0;
+    virtual ~PostprocessingHandler() = default;
 };
 
 }

@@ -26,7 +26,7 @@ ControlUnit::ControlUnit()
         m_state = State::GatheringDynamic; 
     });
 
-    CreateTransition(State::GatheringDynamic, Event::CommandAdded, [this]()
+    CreateTransition(State::GatheringDynamic, Event::CommandAdded, []()
     {
     });
 
