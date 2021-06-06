@@ -45,7 +45,7 @@ size_t Context::read_buffer_blocking(const char * buffer, size_t chars_count)
         return commands_parsing::is_buffer_end(pos, buffer_end); 
     };
 
-    auto generator = [separator, buffer_end](const char *& pos){
+    auto generator = [buffer_end](const char *& pos){
         return commands_parsing::extract_command(pos, buffer_end, separator);
     };
 

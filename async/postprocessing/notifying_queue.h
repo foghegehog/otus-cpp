@@ -44,11 +44,7 @@ public:
 
 	void notify_stopping()
 	{
-		{
-			std::unique_lock<std::mutex> lock(m_mutex);
-			m_stopping.store(true, std::memory_order_seq_cst);
-		}
-
+		m_stopping.store(true, std::memory_order_seq_cst);
 		m_cv.notify_all();
 	}
 

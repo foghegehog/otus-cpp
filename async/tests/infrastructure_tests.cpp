@@ -90,9 +90,9 @@ TEST(Infrastructure, EmptyComandsParsing)
 TEST(Infrastructure, BlockingQueueFillig)
 {
     blocking_queue<int> queue;
-    const int count = 25;
+    const size_t count = 25;
     int c = 0;
-    auto is_finish = [](int c)
+    auto is_finish = [](size_t c)
     { 
         return c >= count; 
     };

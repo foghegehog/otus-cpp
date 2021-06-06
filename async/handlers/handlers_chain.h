@@ -15,7 +15,7 @@ class HandlersChain
 {
     public:
         HandlersChain(std::function<std::unique_ptr<Handler>()> front_handler_factory)
-            : m_front_handler(std::move(front_handler_factory()))
+            : m_front_handler(front_handler_factory())
         {}
         void PassThrough(std::string command_text); 
     private:

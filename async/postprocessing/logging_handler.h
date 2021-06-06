@@ -27,7 +27,7 @@ public:
 private:
     std::string m_file_prefix; 
     const std::string m_file_extention = std::string(".log");
-    ulong m_id_generator = 0;
+    unsigned long m_id_generator = 0;
 };
 }
 
