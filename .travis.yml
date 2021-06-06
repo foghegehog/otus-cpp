@@ -44,13 +44,14 @@ script:
 - cmake --build . --target test
 - cmake --build . --target package
 - cd ../bulk_server
-- cmake .
-- cmake --build .
-- cmake --build . --target test
-- cmake --build . --target package
-- cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON .
-- find . -name "*.cpp" -print0 | xargs -0 clang-tidy -p .
-- find . -name "*.h" -print0 | xargs -0 clang-tidy -p .
+- mkdir build && cd build
+- cmake ..
+- cmake --build ..
+- cmake --build .. --target test
+- cmake --build .. --target package
+- cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
+- find .. -name "*.cpp" -print0 | xargs -0 clang-tidy -p .
+- find .. -name "*.h" -print0 | xargs -0 clang-tidy -p .
 deploy:
 - provider: script
   skip_cleanup: true
