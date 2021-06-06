@@ -50,7 +50,12 @@ std::vector<std::string> SharedAccumulator::WaitBulk(time_t& start_time)
 
         start_time = m_bulks_starts.front();
         m_bulks_starts.pop();
-        m_all_disconnected.store(false);
+
+        if (m_commands.empty())
+        {
+            m_all_disconnected.store(false);
+        }
+        // otherwise next "disconnected" bulk will be printed on the next WaitBulk call
     }
 
     return bulk;
@@ -60,7 +65,7 @@ std::vector<std::string> SharedAccumulator::WaitBulk(time_t& start_time)
 void SharedAccumulator::OnDisconnection(int connection_id)
 {
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        std::unique_lock<std::mutex> lock(m_mutex);
         m_connected_ids.erase(connection_id);
         if (m_connected_ids.empty())
         {
