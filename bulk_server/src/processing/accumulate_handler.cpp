@@ -4,7 +4,7 @@
 
 namespace processing{
 
-void AccumulateHandler::HandleCommand(const std::string& command)
+void AccumulateHandler::HandleCommand(const std::string& command, int connection_id)
 {
     if (command == "{")
     {
@@ -32,7 +32,7 @@ void AccumulateHandler::HandleCommand(const std::string& command)
         }
         else if((state == ControlUnit::State::GatheringStatic) || (state == ControlUnit::State::Empty))
         {
-            m_static_accumulator->StoreCommand(command);
+            m_static_accumulator->StoreCommand(command, connection_id);
         }
         else
         {

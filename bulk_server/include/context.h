@@ -23,7 +23,9 @@ class Context{
 public:
     Context(){};
     void process_command(const std::string& command);
+    int get_id() const;
     static void set_bulk_size(size_t bulk_size);
+    ~Context();
 
 private:
     std::mutex m_processing_mutex;

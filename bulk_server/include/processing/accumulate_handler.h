@@ -19,7 +19,7 @@ public:
     :m_static_accumulator(static_accumulator), m_processor(processor)
     {}
 
-    void HandleCommand(const std::string& command);
+    void HandleCommand(const std::string& command, int connection_id);
 
 private:
     ControlUnit m_control_unit;

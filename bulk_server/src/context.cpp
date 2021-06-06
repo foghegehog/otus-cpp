@@ -36,12 +36,23 @@ void Context::process_command(const std::string& command)
 {
     {
         std::lock_guard<std::mutex> lock(m_processing_mutex);
-        m_accumulate_handler->HandleCommand(command);
+        m_accumulate_handler->HandleCommand(command, this->get_id());
     }
+}
+
+int Context::get_id() const
+{
+    return reinterpret_cast<uintptr_t>(this);
 }
 
 void Context::set_bulk_size(size_t bulk_size)
 {
     s_static_accumulator->SetBulkSize(bulk_size);
 }
+
+Context::~Context()
+{
+    s_static_accumulator->OnDisconnection(get_id());
+}
+
 }
