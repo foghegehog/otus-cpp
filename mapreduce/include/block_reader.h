@@ -37,9 +37,9 @@ public:
 private:
     std::string m_path;
     std::ifstream m_filestream;
-    uintmax_t m_start;
-    uintmax_t m_length;
-    uintmax_t m_bytes_read = 0;
+    unsigned long m_start;
+    unsigned long m_length;
+    unsigned long m_bytes_read = 0;
     bool m_is_eof = false;
 }; 
 

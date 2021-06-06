@@ -19,7 +19,7 @@ void run_mapper(
     std::condition_variable& finish_cv,
     std::atomic_int& counter)
 {
-    mapper map_runner(map_func, reader);
+    mapper<std::string, int> map_runner(map_func, reader);
     map_runner.run(container);
     --counter;
     finish_cv.notify_one();
@@ -68,8 +68,8 @@ int main(int argc, char* argv[])
     }
 
     auto readers = file_splitter(mnum).split(src);
-    std::vector<std::multimap<std::string, int>> after_map(mnum);
-    std::vector<std::vector<std::pair<std::string, int>>> for_reduce(rnum);
+    vector<multimap<string, int>> after_map(mnum);
+    vector<vector<pair<string, int>>> for_reduce(rnum);
     
     mutex mutex;
     condition_variable cv;
@@ -91,21 +91,21 @@ int main(int argc, char* argv[])
         threads_to_wait = mnum;
         for(auto m = 0; m < mnum; m++)
         {
-            auto task = std::async([m, &readers, &map_func, &after_map, &cv, &threads_to_wait]()
+            auto task = async([m, &readers, &map_func, &after_map, &cv, &threads_to_wait]()
             {
                 run_mapper(
                     &readers[m],
                     map_func,
-                    std::reference_wrapper(after_map[m]),
-                    std::reference_wrapper(cv),
-                    std::reference_wrapper(threads_to_wait));
+                    std::reference_wrapper<multimap<string, int>>(after_map[m]),
+                    reference_wrapper<condition_variable>(cv),
+                    reference_wrapper<atomic_int>(threads_to_wait));
             });
         }
         
-        std::unique_lock<std::mutex> lock(mutex);
+        unique_lock<std::mutex> lock(mutex);
         cv.wait(lock, [&threads_to_wait]{ return threads_to_wait == 0;});
 
-        shuffler<std::string, int> shaffle;
+        shuffler<string, int> shaffle;
         shaffle.run(after_map, for_reduce);
         
         threads_to_wait = rnum;
@@ -114,10 +114,10 @@ int main(int argc, char* argv[])
             auto task = std::async([r, &for_reduce, &out_filenames, &cv, &threads_to_wait]()
             {
                 run_reducer(
-                    std::reference_wrapper(for_reduce[r]),
+                    reference_wrapper<vector<pair<string, int>>>(for_reduce[r]),
                     out_filenames[r],
-                    std::reference_wrapper(cv),
-                    std::reference_wrapper(threads_to_wait));
+                    reference_wrapper<condition_variable>(cv),
+                    reference_wrapper<atomic_int>(threads_to_wait));
             });
         }
 
