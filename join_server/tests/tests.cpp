@@ -48,7 +48,7 @@ TEST(TableOperations, Intersection)
 
     auto result = Intersect(A, B);
 
-    ASSERT_EQ(result.m_records.size(), 3);
+    ASSERT_EQ(result.m_records.size(), 3UL);
     for(auto i = 0, id = 3; id <=5 ; i++, id++)
     {
         ASSERT_EQ(result.m_records[i].m_left->id, id);
@@ -69,7 +69,7 @@ TEST(TableOperations, ViewRetention)
     A.Truncate();
     B.Truncate();
 
-    ASSERT_EQ(result.m_records.size(), 3);
+    ASSERT_EQ(result.m_records.size(), 3UL);
     for(auto i = 0, id = 3; id <=5 ; i++, id++)
     {
         ASSERT_EQ(result.m_records[i].m_left->id, id);
@@ -114,8 +114,8 @@ TEST(TableOperations, Truncate)
     A.Truncate();
     auto intersection = Intersect(A, A);
     auto diff = SymmetricDifference(A, A);
-    ASSERT_EQ(intersection.m_records.size(), 0);
-    ASSERT_EQ(diff.m_records.size(), 0);
+    ASSERT_EQ(intersection.m_records.size(), 0UL);
+    ASSERT_EQ(diff.m_records.size(), 0UL);
 }
 
 int main(int argc, char **argv) 
