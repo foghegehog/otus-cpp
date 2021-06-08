@@ -54,8 +54,10 @@ private:
   {
     auto self(shared_from_this());
     m_socket.async_send(m_write_streambuf.data(),
-    [this, self](boost::system::error_code ec, std::size_t /*length*/)
+    [this, self](boost::system::error_code ec, std::size_t length)
     {
+      m_write_streambuf.consume(length);
+      
       if (!ec)
       {
         do_read();
