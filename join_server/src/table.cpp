@@ -37,7 +37,7 @@ void Table::Truncate()
  * where N1 is a distance (numper of hops) between the first and the last elements in the firsts table,
  * N2 - a distance between the first and the last elements in the second table.     
  */
-View Intersect(Table& left, Table& right)
+View Intersect(const Table& left, const Table& right)
 {
     View result;
     RecordsCompare is_less;
@@ -80,7 +80,7 @@ View Intersect(Table& left, Table& right)
  * where N1 is a distance (numper of hops) between the first and the last elements in the firsts table,
  * N2 - a distance between the first and the last elements in the second table.     
  */
-View SymmetricDifference(Table& left, Table& right)
+View SymmetricDifference(const Table& left, const Table& right)
 {
     View result;
     RecordsCompare is_less;

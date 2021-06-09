@@ -30,10 +30,10 @@ class Table
 public:
     bool Insert(int id, std::string name); 
     void Truncate(); 
-    friend View Intersect(Table& left, Table& right);
-    friend View SymmetricDifference(Table& left, Table& right);
+    friend View Intersect(const Table& left, const Table& right);
+    friend View SymmetricDifference(const Table& left, const Table& right);
 private:
     std::set<std::shared_ptr<TableRecord>, RecordsCompare> m_records;
-    std::shared_mutex m_commands_mutex;
+    mutable std::shared_mutex m_commands_mutex;
 };
 #endif
