@@ -7,8 +7,8 @@
 
 struct Command
 {
-    Command(std::string&& name)
-    : m_name(move(name))
+    Command(std::string&& name, std::vector<std::string>&& args)
+    : m_name(name), m_arguments(args)
     {}
 
     std::string m_name;

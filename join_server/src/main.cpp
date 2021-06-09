@@ -32,21 +32,23 @@ private:
         {
           if (!ec)
           {
-            CommandParser parser(' ', '\n');
             std::ostream os(&m_write_streambuf);
-            try
-            {
-              auto command = parser.ParseCommand(std::string{m_read_buffer, length});
-              //command.Execute(os);
-              m_database->Interpret(command, os);
-            }
-            catch(const std::exception& ex)
-            {
-              os << "ERR " << ex.what() << std::endl;
-            }
 
-            do_write();
+            mParser->ParseInput(std::string{m_read_buffer, length});
+            while (mParser->HasReadyCommands())
+            {
+                try
+                { 
+                  m_database->Interpret(mParser->GetReadyCommand(), os);
+                }
+                catch(const std::exception& ex)
+                {
+                  os << "ERR " << ex.what() << std::endl;
+                }
+             }                            
           }
+
+          do_write();
         });
   }
 
@@ -71,6 +73,8 @@ private:
   inline static const int  max_length = 1024;
   char m_read_buffer[max_length];
   boost::asio::streambuf m_write_streambuf;
+
+  std::unique_ptr<CommandParser> mParser = std::make_unique<CommandParser>(' ', '\n');
 };
 
 class server
