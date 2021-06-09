@@ -12,11 +12,11 @@
 
 TEST(Framework, Shuffle)
 {
-    std::vector<std::multimap<std::string, int>> after_map;
+    std::vector<std::vector<std::pair<std::string, int>>> after_map;
     size_t repeat = 5;
     for (size_t i = 0; i < repeat; i++)
     {
-        std::multimap<std::string, int> map =
+        std::vector<std::pair<std::string, int>> map =
         {
             std::make_pair<std::string, int>("aaa", i),
             std::make_pair<std::string, int>("aaa", i + 1),
@@ -162,7 +162,7 @@ TEST(Framework, Usage)
         auto map_func = get_prefix_pair_function(prefix_len);
 
         const int mappers_count = 5;
-        std::vector<std::multimap<std::string, int>> after_map(mappers_count);
+        std::vector<std::vector<std::pair<std::string, int>>> after_map(mappers_count);
         int block_size = lines.size() / mappers_count;
         for(auto m = 0; m < mappers_count; m++)
         {

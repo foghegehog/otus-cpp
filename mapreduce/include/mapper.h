@@ -5,7 +5,6 @@
 
 #include <fstream>
 #include <functional>
-#include <map>
 #include <string>
 #include <utility>
 
@@ -19,7 +18,7 @@ public:
         : m_map(map_func), m_block_reader(reader)
     {}
 
-    void run(std::multimap<K, V>& container);
+    void run(std::vector<std::pair<K, V>>& container);
 
 private:
     std::function<std::pair<K, V>(const std::string&)> m_map;
@@ -27,13 +26,14 @@ private:
 };
 
 template<typename K, typename V>
-void mapper<K, V>::run(std::multimap<K, V>& container)
+void mapper<K, V>::run(std::vector<std::pair<K, V>>& container)
 {    
     std::string line;
     while(m_block_reader->get_next_line(line))
     {
-        container.insert(m_map(line));
+        container.push_back(m_map(line));
     }
+    std::sort(container.begin(), container.end());
 }
 
 #endif

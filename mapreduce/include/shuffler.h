@@ -5,7 +5,6 @@
 
 #include <iterator>
 #include <list>
-#include <map>
 #include <numeric>
 #include <vector>
 
@@ -14,17 +13,17 @@ class shuffler
 {
 public:
     void run(
-        std::vector<std::multimap<K, V>>& after_map,
+        std::vector<std::vector<std::pair<K, V>>>& after_map,
         std::vector<std::vector<std::pair<K, V>>>& for_reduce);
 };
 
 
 template<typename K, typename V>
 void shuffler<K, V>::run(
-        std::vector<std::multimap<K, V>>& after_map,
+        std::vector<std::vector<std::pair<K, V>>>& after_map,
         std::vector<std::vector<std::pair<K, V>>>& for_reduce)
 {
-    auto count_fold  = [](size_t count, const std::multimap<K, V>& container)
+    auto count_fold  = [](size_t count, const std::vector<std::pair<K, V>>& container)
     {
         return count + container.size();
     };
@@ -36,7 +35,7 @@ void shuffler<K, V>::run(
         per_reducer_count += 1;
     }
 
-    std::list<container_trace<std::multimap<K, V>>> containers;
+    std::list<container_trace<std::vector<std::pair<K, V>>>> containers;
     for(auto& container: after_map)
     {
         if (!container.empty())

@@ -15,7 +15,7 @@
 void run_mapper(
     block_reader * reader,
     const std::function<std::pair<std::string, int>(const std::string&)>& map_func,
-    std::multimap<std::string, int>& container)
+    std::vector<std::pair<std::string, int>>& container)
 {
     mapper<std::string, int> map_runner(map_func, reader);
     map_runner.run(container);
@@ -59,7 +59,7 @@ int main(int argc, char* argv[])
     }
 
     auto readers = file_splitter(mnum).split(src);
-    vector<multimap<string, int>> after_map(mnum);
+    vector<vector<pair<string, int>>> after_map(mnum);
     vector<vector<pair<string, int>>> for_reduce(rnum);
     
     vector<string> out_filenames(rnum);
@@ -85,7 +85,7 @@ int main(int argc, char* argv[])
                 run_mapper(
                     &readers[m],
                     map_func,
-                    std::reference_wrapper<multimap<string, int>>(after_map[m]));
+                    std::reference_wrapper<vector<pair<string, int>>>(after_map[m]));
             }));
         }
         
