@@ -51,9 +51,9 @@ int main(int argc, char* argv[])
     int mnum, rnum; 
     if (argc == 1)
     {
-        src = "../tests/ips.txt";
+        src = "../tests/abc.txt";
         mnum = 10;
-        rnum = 8;
+        rnum = 5;
     }
     else if (argc != 4)
     {
@@ -81,8 +81,9 @@ int main(int argc, char* argv[])
         out_filenames[r] = "./reducer_" + to_string(r + 1) + ".txt";
     }
 
-    auto prefix_len = 1;
+    unsigned int prefix_len = 1;
     const int prefix_limit = 200;
+    bool full_duplicates = false;
     while(prefix_len < prefix_limit)
     { 
         cout << "Testing prefix length: " + to_string(prefix_len);
@@ -124,15 +125,35 @@ int main(int argc, char* argv[])
         cv.wait(lock, [&threads_to_wait]{ return threads_to_wait == 0;});
 
         auto max_duplicates = -1;
+        std::string duplicates_key;
         int duplicates;
         for(auto r = 0; r < rnum; r++)
         {
             ifstream r_file(out_filenames[r]);
-            r_file >> duplicates;
+            r_file >> duplicates;  
+
+            if (duplicates >= 2)
+            {
+                r_file >> duplicates_key;
+                if (duplicates_key.size() < prefix_len)
+                {
+                    cout << ". Full duplicates found. No solution." << std::endl;
+                    cout << "Full duplicates key: " 
+                        + duplicates_key + ". Duplicates count: " + to_string(duplicates) << std::endl;
+                    full_duplicates = true;
+                    break;
+                }
+            }
+
             if (duplicates > max_duplicates)
             {
                 max_duplicates = duplicates;
             }
+        }
+
+        if (full_duplicates)
+        {
+            break;
         }
 
         cout << ". Maximum duplicates: " + to_string(max_duplicates) << endl;
@@ -157,13 +178,9 @@ int main(int argc, char* argv[])
         }
     }
 
-    if (prefix_len < prefix_limit)
+    if (!full_duplicates)
     {
         cout << "[DONE] Minimum unique prefix length: " + to_string(prefix_len) << endl;
-    }
-    else
-    {
-        cout << "Look like full duplicates presents. No solution." << endl;
     }
 
     return 0;

@@ -56,7 +56,16 @@ V max_summator<K, V>::get_max_value() const
 template<typename K, typename V>
 std::vector<std::string> max_summator<K, V>::get_max_value_str() const
 {
-    std::vector<std::string> result = { std::to_string(get_max_value()) };
+    std::vector<std::string> result;
+    if (m_max_pair != m_keys_sum.end())
+    {
+        result.push_back(std::to_string(m_max_pair->second) + " " + m_max_pair->first);
+    }
+    else
+    {
+        result.push_back("-1 ");
+    } 
+
     return result;
 }
 

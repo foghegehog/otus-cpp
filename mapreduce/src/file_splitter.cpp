@@ -33,11 +33,11 @@ std::vector<file_block_reader> file_splitter::split(const std::string& path)
             }
 
             ++block_length;
-            --rest_size;
         } 
         while (symbol != linebreak);
 
         readers.emplace_back(path, block_start, block_length);
+        rest_size -= block_length;
         block_start += block_length;
     }
 

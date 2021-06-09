@@ -68,9 +68,9 @@ void shuffler<K, V>::run(
                 continue;
             }
 
-            auto from_iterator = std::make_move_iterator(min_key_container->m_pos);
-            auto end_iterator = std::make_move_iterator(min_key_container->m_end);
-            auto to_iterator = std::make_move_iterator(min_key_container->m_pos);
+            auto from_iterator = std::make_move_iterator(container_it->m_pos);
+            auto end_iterator = std::make_move_iterator(container_it->m_end);
+            auto to_iterator = std::make_move_iterator(container_it->m_pos);
             auto count = 0;
             while((to_iterator != end_iterator) && (to_iterator->first == min_key))
             {
