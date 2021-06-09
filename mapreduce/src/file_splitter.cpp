@@ -1,5 +1,7 @@
 #include "../include/file_splitter.h"
 
+#include <filesystem>
+
 std::vector<file_block_reader> file_splitter::split(const std::string& path)
 {    
     std::vector<file_block_reader> readers;

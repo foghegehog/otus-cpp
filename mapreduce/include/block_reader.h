@@ -10,6 +10,8 @@ public:
     virtual bool get_next_line(std::string& line) = 0;
     virtual void reset()
     {}
+
+    virtual ~block_reader() = default;
 };
 
 
@@ -33,6 +35,8 @@ public:
     bool get_next_line(std::string& line) override;
 
     void reset() override;
+
+    virtual ~file_block_reader() = default;
 
 private:
     std::string m_path;

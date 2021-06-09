@@ -3,7 +3,6 @@
 
 #include "block_reader.h"
 
-#include <filesystem>
 #include <fstream>
 #include <string>
 #include <vector>

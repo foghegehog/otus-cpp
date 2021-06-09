@@ -2,6 +2,7 @@
 #define MAX_COUNTER_H
 
 #include <map>
+#include <string>
 #include <vector>
 
 template<typename K, typename V>
