@@ -15,21 +15,15 @@
 void run_mapper(
     block_reader * reader,
     const std::function<std::pair<std::string, int>(const std::string&)>& map_func,
-    std::multimap<std::string, int>& container,
-    std::condition_variable& finish_cv,
-    std::atomic_int& counter)
+    std::multimap<std::string, int>& container)
 {
     mapper<std::string, int> map_runner(map_func, reader);
     map_runner.run(container);
-    --counter;
-    finish_cv.notify_one();
 }
 
 void run_reducer(
     const std::vector<std::pair<std::string, int>>& container,
-    const std::string& out_filename,
-    std::condition_variable& finish_cv,
-    std::atomic_int& counter)
+    const std::string& out_filename)
 {
     reducer<max_summator<std::string, int>, std::string, int> reduce_runner(accumulate_key_sum);
     auto result = reduce_runner.run(container);
@@ -38,9 +32,6 @@ void run_reducer(
     {
         outfile << line << std::endl;
     }
-    
-    --counter;
-    finish_cv.notify_one();
 }
 
 int main(int argc, char* argv[])
@@ -51,7 +42,7 @@ int main(int argc, char* argv[])
     int mnum, rnum; 
     if (argc == 1)
     {
-        src = "../tests/abc.txt";
+        src = "../tests/ips.txt";
         mnum = 10;
         rnum = 5;
     }
@@ -71,10 +62,6 @@ int main(int argc, char* argv[])
     vector<multimap<string, int>> after_map(mnum);
     vector<vector<pair<string, int>>> for_reduce(rnum);
     
-    mutex mutex;
-    condition_variable cv;
-    atomic_int threads_to_wait; 
-
     vector<string> out_filenames(rnum);
     for(auto r = 0; r < rnum; r++)
     {
@@ -84,45 +71,47 @@ int main(int argc, char* argv[])
     unsigned int prefix_len = 1;
     const int prefix_limit = 200;
     bool full_duplicates = false;
+    std::vector<std::future<void>> tasks_to_wait;
     while(prefix_len < prefix_limit)
     { 
         cout << "Testing prefix length: " + to_string(prefix_len);
         auto map_func = get_prefix_pair_function(prefix_len);
 
-        threads_to_wait = mnum;
+        tasks_to_wait.clear();
         for(auto m = 0; m < mnum; m++)
         {
-            auto task = async([m, &readers, &map_func, &after_map, &cv, &threads_to_wait]()
+            tasks_to_wait.push_back(async([m, &readers, &map_func, &after_map]()
             {
                 run_mapper(
                     &readers[m],
                     map_func,
-                    std::reference_wrapper<multimap<string, int>>(after_map[m]),
-                    reference_wrapper<condition_variable>(cv),
-                    reference_wrapper<atomic_int>(threads_to_wait));
-            });
+                    std::reference_wrapper<multimap<string, int>>(after_map[m]));
+            }));
         }
         
-        unique_lock<std::mutex> lock(mutex);
-        cv.wait(lock, [&threads_to_wait]{ return threads_to_wait == 0;});
+        for(auto m = 0; m < mnum; m++)
+        {
+            tasks_to_wait[m].wait();
+        }
 
         shuffler<string, int> shaffle;
         shaffle.run(after_map, for_reduce);
         
-        threads_to_wait = rnum;
+        tasks_to_wait.clear();
         for(auto r = 0; r < rnum; r++)
         {
-            auto task = std::async([r, &for_reduce, &out_filenames, &cv, &threads_to_wait]()
+            tasks_to_wait.push_back(std::async([r, &for_reduce, &out_filenames]()
             {
                 run_reducer(
                     reference_wrapper<vector<pair<string, int>>>(for_reduce[r]),
-                    out_filenames[r],
-                    reference_wrapper<condition_variable>(cv),
-                    reference_wrapper<atomic_int>(threads_to_wait));
-            });
+                    out_filenames[r]);
+            }));
         }
 
-        cv.wait(lock, [&threads_to_wait]{ return threads_to_wait == 0;});
+        for(auto r = 0; r < rnum; r++)
+        {
+            tasks_to_wait[r].wait();
+        }
 
         auto max_duplicates = -1;
         std::string duplicates_key;
