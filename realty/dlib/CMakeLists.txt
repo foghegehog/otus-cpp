@@ -321,9 +321,9 @@ if (NOT TARGET dlib)
          )
 
       if(UNIX)
-         set(CMAKE_THREAD_PREFER_PTHREAD ON)
-         find_package(Threads REQUIRED)
-         set(dlib_needed_libraries ${dlib_needed_libraries} ${CMAKE_THREAD_LIBS_INIT})
+         #set(CMAKE_THREAD_PREFER_PTHREAD ON)
+         #find_package(Threads REQUIRED)
+         #set(dlib_needed_libraries ${dlib_needed_libraries} ${CMAKE_THREAD_LIBS_INIT})
       endif()
 
       # we want to link to the right stuff depending on our platform.  
