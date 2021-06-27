@@ -6,7 +6,7 @@ else()
     project(realty VERSION 0.0.1)
 endif()
 
-set(CMAKE_CXX_CLANG_TIDY clang-tidy header-filter=.; --warnings-as-errors=*)
+set(CMAKE_CXX_CLANG_TIDY clang-tidy)
 
 add_subdirectory(dlib dlib_build)
 
