@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
         std::map<float, int> ordered_points;
         for(auto p = 0; p < cluster.size(); ++p)
         {
-            ordered_points.emplace(distance_func(cluster[p]), p);
+            ordered_points.emplace(distance_func(normalizer(cluster[p])), p);
         } 
 
         cout << "Closest offers: " << std::endl;
