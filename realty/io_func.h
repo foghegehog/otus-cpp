@@ -2,6 +2,8 @@
 #define PREPROCESSING_H
 
 #include <dlib/clustering.h>
+
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -13,6 +15,8 @@ typedef dlib::matrix<float, DIMENTIONS, 1> feature_point;
 typedef dlib::radial_basis_kernel<feature_point> kernel_type;
 
 feature_point parse_line(const std::string& line);
+
+void print_formatted(std::ostream& stream, const feature_point& point);
 
 void serialize_model(
     const std::string& filename,

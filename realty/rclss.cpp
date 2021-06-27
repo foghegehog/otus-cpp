@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
         cout << "Closest offers: " << std::endl;
         for(const auto& pair: ordered_points)
         {
-            cout << cluster[pair.second] << endl;
+            print_formatted(cout, cluster[pair.second]);
         }
     }
 

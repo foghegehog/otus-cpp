@@ -1,5 +1,7 @@
 #include "io_func.h"
 
+#include <iomanip>
+
 feature_point parse_line(const std::string& line)
 {    
     using namespace std;
@@ -16,6 +18,13 @@ feature_point parse_line(const std::string& line)
 
     p(DIMENTIONS - 1) = 1.0;
     auto end = line.find_first_of(DELIMITER, start);
+    if (end == std::string::npos)
+    {
+        end = line.size();
+        p(DIMENTIONS - 1) = atof(line.substr(start, end - start).c_str()); 
+        return p;
+    }
+    
     auto floor = atoi(line.substr(start, end - start).c_str());
     if (floor == 1)
     {
@@ -33,6 +42,18 @@ feature_point parse_line(const std::string& line)
     }
 
     return p;
+}
+
+void print_formatted(std::ostream& stream, const feature_point& point)
+{
+    using namespace std;
+
+    const char separator = ';';
+
+    stream << setprecision(6) << point(0) << separator << point(1) << separator;
+    stream << setprecision(0) << point(2) << separator; 
+    stream << setprecision(2) << fixed << point(3) << separator << point(4) << separator << point(5) << separator;
+    stream << setprecision(0) << point(6) << resetiosflags(std::ios_base::basefield) << endl; 
 }
 
 void serialize_model(
