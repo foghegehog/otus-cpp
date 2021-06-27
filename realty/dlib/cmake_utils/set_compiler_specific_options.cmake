@@ -45,10 +45,10 @@ elseif(MSVC AND (MSVC_VERSION EQUAL 1911 OR MSVC_VERSION EQUAL 1910))
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX)
-   execute_process(COMMAND ${CMAKE_CXX_COMPILER} -dumpversion OUTPUT_VARIABLE GCC_VERSION)
-   if (GCC_VERSION VERSION_LESS 4.8)
-      message(FATAL_ERROR "C++11 is required to use dlib, but the version of GCC you are using is too old and doesn't support C++11.  You need GCC 4.8 or newer. ")
-   endif()
+   #execute_process(COMMAND ${CMAKE_CXX_COMPILER} -dumpversion OUTPUT_VARIABLE GCC_VERSION)
+   #if (GCC_VERSION VERSION_LESS 4.8)
+   #   message(FATAL_ERROR "C++11 is required to use dlib, but the version of GCC you are using is too old and doesn't support C++11.  You need GCC 4.8 or newer. ")
+   #endif()
 endif()
 
 
