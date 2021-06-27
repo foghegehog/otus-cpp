@@ -8,14 +8,21 @@ endif()
 
 add_subdirectory(dlib dlib_build)
 
-add_executable(rclst rclst.cpp)
+add_executable(rclst rclst.cpp io_func.cpp)
+
+add_executable(rclss rclss.cpp io_func.cpp)
 
 set_target_properties(rclst PROPERTIES
-        CXX_STANDARD 17
-        CXX_STANDARD_REQUIRED ON
-        )
+    CXX_STANDARD 17
+    CXX_STANDARD_REQUIRED ON
+    )
 
-target_link_libraries(rclst
-        dlib
-        )
+set_target_properties(rclss PROPERTIES
+    CXX_STANDARD 17
+    CXX_STANDARD_REQUIRED ON
+    )
+
+target_link_libraries(rclst dlib)
+
+target_link_libraries(rclss dlib)
 
