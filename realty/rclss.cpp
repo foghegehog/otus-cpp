@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
 
         auto cluster = clusters[cluster_index];
         std::map<float, int> ordered_points;
-        for(auto p = 0; p < cluster.size(); ++p)
+        for(size_t p = 0; p < cluster.size(); ++p)
         {
             ordered_points.emplace(distance_func(normalizer(cluster[p])), p);
         } 

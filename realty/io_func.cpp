@@ -24,7 +24,7 @@ feature_point parse_line(const std::string& line)
         p(DIMENTIONS - 1) = atof(line.substr(start, end - start).c_str()); 
         return p;
     }
-    
+
     auto floor = atoi(line.substr(start, end - start).c_str());
     if (floor == 1)
     {
@@ -69,15 +69,15 @@ void serialize_model(
     serializer << normalizer;
 
     std::vector<std::vector<int>> cluster_indexes(kmeans_model.number_of_centers());
-    for(auto i = 0; i < dataset.size(); ++i)
+    for(size_t i = 0; i < dataset.size(); ++i)
     {
         auto cluster = kmeans_model(normalizer(dataset[i]));
         cluster_indexes[cluster].push_back(i);
     }
 
-    for (auto cluster = 0; cluster < cluster_indexes.size(); ++cluster)
+    for (size_t cluster = 0; cluster < cluster_indexes.size(); ++cluster)
     {
-        for(auto index = 0; index < cluster_indexes[cluster].size(); ++index)
+        for(size_t index = 0; index < cluster_indexes[cluster].size(); ++index)
         {
             serializer << dataset[index];
         }
