@@ -35,6 +35,9 @@ script:
 - cmake --build .
 - cmake --build . --target package
 - doxygen Doxyfile
+- cd ../editor
+- cmake .
+- cmake --build .
 deploy:
 - provider: script
   skip_cleanup: true
