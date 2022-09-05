@@ -1,10 +1,12 @@
+dist: focal
 language: cpp
 addons:
   apt:
     packages:
       - doxygen
 before_script:
-- sudo apt-get install libboost-test-dev -y
+- sudo apt-get update
+- sudo apt-get install libboost-all-dev -y
 - echo "deb http://archive.ubuntu.com/ubuntu xenial main universe" | sudo tee -a /etc/apt/sources.list
 - sudo apt-get update -qq
 - git clone https://github.com/google/googletest.git -b release-1.10.0
@@ -47,6 +49,10 @@ script:
 - cmake --build .
 - cmake --build . --target package
 - doxygen Doxyfile
+- cd ../bayan
+- cmake .
+- cmake --build .
+- cmake --build . --target package
 deploy:
 - provider: script
   skip_cleanup: true
@@ -78,6 +84,9 @@ deploy:
   - curl -T bulk-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb -uprickly-u:$BINTRAY_API_KEY "https://api.bintray.com/content/prickly-u/otus-cpp/otus-cpp-homework/$TRAVIS_BUILD_NUMBER/bulk-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb;deb_distribution=trusty;deb_component=main;deb_architecture=amd64;publish=1"
   on:
     branch: bulk
+  - curl -T bayan-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb -uprickly-u:$BINTRAY_API_KEY "https://api.bintray.com/content/prickly-u/otus-cpp/otus-cpp-homework/$TRAVIS_BUILD_NUMBER/bayan-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb;deb_distribution=trusty;deb_component=main;deb_architecture=amd64;publish=1"
+  on:
+    branch: bayan
 - provider: pages
   skip_cleanup: true
   local_dir: documentation/print_ip/html
