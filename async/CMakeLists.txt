@@ -57,7 +57,7 @@ target_link_libraries(demo PRIVATE
     async Threads::Threads
 )
 
-target_link_libraries(unit_tests gtest pthread)
+target_link_libraries(unit_tests ${GTEST_LIBRARIES} pthread)
 
 if (MSVC)
     target_compile_options(async PRIVATE

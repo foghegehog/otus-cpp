@@ -27,7 +27,7 @@ TEST(Accumulator, MoveCommands)
     }
 
     std::vector<ExecutableCommand> bulk = accumulator.MoveBulk();
-    ASSERT_EQ(accumulator.GetCommandsStoredCount(), 0);
+    ASSERT_EQ(accumulator.GetCommandsStoredCount(), 0UL);
     ASSERT_EQ(bulk.size(), commands_count);
 }
 
@@ -41,5 +41,5 @@ TEST(Accumulator, ClearCommands)
     }
 
     accumulator.ClearBulk();
-    ASSERT_EQ(accumulator.GetCommandsStoredCount(), 0);
+    ASSERT_EQ(accumulator.GetCommandsStoredCount(), 0UL);
 }

@@ -17,10 +17,12 @@ class Handler
 {
     public:
         Handler(std::function<std::unique_ptr<Handler>()> next_handler_factory)
-            : m_next(std::move(next_handler_factory()))
+            : m_next(next_handler_factory())
         {}
         void Handle(const ExecutableCommand& command);
         void Handle(const ControlCommand& command);
+
+        virtual ~Handler() = default;
 
     protected:
         virtual void ExecuteCommand(const ExecutableCommand& command) = 0;
