@@ -7,6 +7,7 @@ addons:
 before_script:
 - sudo apt-get update
 - sudo apt-get install libboost-all-dev -y
+- sudo apt install clang-tidy
 - echo "deb http://archive.ubuntu.com/ubuntu xenial main universe" | sudo tee -a /etc/apt/sources.list
 - sudo apt-get update -qq
 - git clone https://github.com/google/googletest.git -b release-1.10.0
@@ -53,6 +54,20 @@ script:
 - cmake .
 - cmake --build .
 - cmake --build . --target package
+- cd ../async
+- cmake .
+- cmake --build .
+- cmake --build . --target test
+- cmake --build . --target package
+- cd ../bulk_server
+- mkdir build && cd build
+- cmake ..
+- cmake --build .
+- cmake --build . --target test
+- cmake --build . --target package
+- cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
+- find .. -name "*.cpp" -print0 | xargs -0 clang-tidy -p .
+- find .. -name "*.h" -print0 | xargs -0 clang-tidy -p .
 deploy:
 - provider: script
   skip_cleanup: true
@@ -104,3 +119,15 @@ deploy:
   keep_history: true
   on:
     branch: bulk
+- provider: script
+  skip_cleanup: true
+  script:
+  - curl -T async-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb -uprickly-u:$BINTRAY_API_KEY "https://api.bintray.com/content/prickly-u/otus-cpp/otus-cpp-homework/$TRAVIS_BUILD_NUMBER/async-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb;deb_distribution=trusty;deb_component=main;deb_architecture=amd64;publish=1"
+  on:
+    branch: async
+- provider: script
+  skip_cleanup: true
+  script:
+  - curl -T bulk_server-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb -uprickly-u:$BINTRAY_API_KEY "https://api.bintray.com/content/prickly-u/otus-cpp/otus-cpp-homework/$TRAVIS_BUILD_NUMBER/bulk_server-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb;deb_distribution=trusty;deb_component=main;deb_architecture=amd64;publish=1"
+  on:
+    branch: bulk_server
