@@ -15,3 +15,5 @@
 |11 |[mapreduce](/mapreduce)      | Разработка системы запуска задач MapReduce.                                            |
 |12 |[realty](/realty)            | Машинное обучение для кластеризация и классификация объектов недвижимости.             |
 
+
+Проектная работа ["Face detection server on TensorRT and Boost asio"](https://github.com/prickly-u/inference-server) 
